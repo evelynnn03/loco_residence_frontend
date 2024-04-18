@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'visitor_map.dart';
 import 'resident_map.dart';
-import '../../common/my_tab_bar.dart';
-import '../../constants/global_variables.dart';
+import '../../src/widgets/my_tab_bar.dart';
+import '../../src/constants/global_variables.dart';
 
 class ParkingMapTab extends StatefulWidget {
   static const String routeName = '/parking-map-tab';

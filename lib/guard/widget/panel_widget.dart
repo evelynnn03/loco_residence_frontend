@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sef_ass/guard/provider/visitor_parking_provider.dart';
-import 'package:sef_ass/resident/provider/resident_parking_provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import '../../constants/global_variables.dart';
+import '../../src/constants/global_variables.dart';
+import '../../src/provider/resident_parking_provider.dart';
+import '../provider/visitor_parking_provider.dart';
 
 class PanelWidget extends StatefulWidget {
   final ScrollController controller;

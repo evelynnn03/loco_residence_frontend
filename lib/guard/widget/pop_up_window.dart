@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../common/buttons.dart';
-import '../../constants/global_variables.dart';
+import '../../src/widgets/buttons.dart';
+import '../../src/constants/global_variables.dart';
 
 class Popup {
   final String title;

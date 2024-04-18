@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import '../../guard/screens/parking_map_tab.dart';
-import '../../constants/global_variables.dart';
+import '../../src/constants/global_variables.dart';
 import '../widget/pop_up_window.dart';
 
 class QRScanner extends StatefulWidget {

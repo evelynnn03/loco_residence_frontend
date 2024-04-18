@@ -5,8 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../../guard/provider/visitor_parking_provider.dart';
 import '../../guard/widget/pop_up_window.dart';
-import '../../constants/global_variables.dart';
-import '../../resident/provider/resident_parking_provider.dart';
+import '../../src/constants/global_variables.dart';
+import '../../src/provider/resident_parking_provider.dart';
 
 class TappableContainer extends StatefulWidget {
   const TappableContainer({

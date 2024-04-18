@@ -1,7 +1,8 @@
-import '../../common/read%20data/visitor_details.dart';
+
 import 'package:flutter/material.dart';
-import '../../common/my_tab_bar.dart';
-import '../../constants/global_variables.dart';
+import '../../src/utils/read data/visitor_details.dart';
+import '../../src/widgets/my_tab_bar.dart';
+import '../../src/constants/global_variables.dart';
 
 class VisitorTimestamp extends StatefulWidget {
   static const String routeName = '/visitor-timestamp';

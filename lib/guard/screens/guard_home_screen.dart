@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../common/pop_up_window.dart';
-import '../../constants/global_variables.dart';
+import '../../src/widgets/pop_up_window.dart';
+import '../../src/constants/global_variables.dart';
 import '../widget/guard_arguments.dart';
 import 'parking_map_tab.dart';
 import 'scan_qrcode_screen.dart';

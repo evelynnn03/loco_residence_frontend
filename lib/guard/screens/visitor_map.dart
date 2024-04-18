@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../provider/visitor_parking_provider.dart';
-import '../../constants/global_variables.dart';
-import '../../common/pop_up_window.dart';
+import '../../src/constants/global_variables.dart';
+import '../../src/widgets/pop_up_window.dart';
 import '../widget/panel_widget.dart';
 import '../widget/tappable_container.dart';
 
