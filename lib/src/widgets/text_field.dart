@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/constants/global_variables.dart';
 
 class MyTextField extends StatefulWidget {
   final TextEditingController controller;
-  final String hintText;
+  final String labelText;
   final bool?
       obscureText; // Only for password: to hide the text entered, eg:  abc -> ...
   final int? maxLines;
@@ -15,20 +16,23 @@ class MyTextField extends StatefulWidget {
   final IconData? prefixIcon; // Added parameter for prefix icon
   final IconData? suffixIcon; // Added parameter for icon
   final int? maxLength;
+  final bool enabled;
 
-  const MyTextField(
-      {super.key,
-      this.isDescriptionBox,
-      this.maxLines,
-      required this.controller,
-      required this.hintText,
-      this.obscureText,
-      required this.keyboardType,
-      this.onTap,
-      this.validator,
-      this.prefixIcon,
-      this.suffixIcon,
-      this.maxLength});
+  const MyTextField({
+    super.key,
+    this.isDescriptionBox,
+    this.maxLines,
+    required this.controller,
+    required this.labelText,
+    this.obscureText,
+    required this.keyboardType,
+    this.onTap,
+    this.validator,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.maxLength,
+    this.enabled = true,
+  });
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -37,8 +41,6 @@ class MyTextField extends StatefulWidget {
 class _MyTextFieldState extends State<MyTextField> {
   @override
   Widget build(BuildContext context) {
-    Color textField = Theme.of(context).canvasColor;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5.0),
       child: TextFormField(
@@ -55,7 +57,7 @@ class _MyTextFieldState extends State<MyTextField> {
           }
           // Default behavior: if value is empty, show error
           else if (value!.isEmpty) {
-            return 'Please enter ${widget.hintText}';
+            return 'Please enter ${widget.labelText}';
           }
           return null;
         },
@@ -65,11 +67,20 @@ class _MyTextFieldState extends State<MyTextField> {
                   padding: EdgeInsets.only(top: 35, left: 15),
                 )
               : null,
-          hintText: widget.hintText,
-          hintStyle: TextStyle(color: Colors.white54),
+          labelText: widget.labelText,
+          labelStyle: TextStyle(
+            color: GlobalVariables.textLabel,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+          floatingLabelStyle: TextStyle(
+            color: GlobalVariables.textLabel,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+          ),
           prefixIcon: widget.prefixIcon != null
-              ? Icon(widget.prefixIcon, color: Colors.white54)
-              : null, // Added prefix icon
+              ? Icon(widget.prefixIcon, color: GlobalVariables.tabNotSelected)
+              : null,
 
           // Visibility of password field
           suffixIcon: widget.suffixIcon != null
@@ -83,36 +94,41 @@ class _MyTextFieldState extends State<MyTextField> {
                     widget.obscureText ?? false
                         ? Icons.visibility_off
                         : Icons.visibility,
-                    color: Colors.white54,
+                    color: GlobalVariables.tabNotSelected,
                     size: 23,
                   ),
                 )
               : null,
 
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 15.0,
+            vertical: 15.0,
+          ),
 
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: textField),
+            borderSide: BorderSide(color: Colors.transparent),
             borderRadius: widget.isDescriptionBox == true
                 ? BorderRadius.all(
                     Radius.circular(15),
                   ) // Add closing parenthesis here
                 : BorderRadius.all(
-                    Radius.circular(30),
+                    Radius.circular(25),
                   ),
           ),
 
           focusedBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: GlobalVariables.primaryColor, width: 3),
             borderRadius: widget.isDescriptionBox == true
                 ? BorderRadius.all(
                     Radius.circular(15),
-                  ) // Add closing parenthesis here
+                  )
                 : BorderRadius.all(
-                    Radius.circular(30),
+                    Radius.circular(25),
                   ),
           ),
 
-          fillColor: textField,
+          fillColor: Colors.white,
           filled: true,
 
           // Customize the appearance during error state
@@ -123,20 +139,33 @@ class _MyTextFieldState extends State<MyTextField> {
                     Radius.circular(20),
                   ) // Add closing parenthesis here
                 : BorderRadius.all(
-                    Radius.circular(30),
+                    Radius.circular(25),
                   ),
           ),
 
           focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
+            borderSide: BorderSide(color: Colors.red, width: 3),
             borderRadius: widget.isDescriptionBox == true
                 ? BorderRadius.all(
                     Radius.circular(20),
-                  ) // Add closing parenthesis here
+                  )
                 : BorderRadius.all(
-                    Radius.circular(30),
+                    Radius.circular(25),
                   ),
           ),
+
+          enabled: widget.enabled,
+
+          // disabledBorder: OutlineInputBorder(
+          //   borderSide: BorderSide(color: Colors.transparent),
+          //   borderRadius: widget.isDescriptionBox == true
+          //       ? BorderRadius.all(
+          //           Radius.circular(15),
+          //         ) // Add closing parenthesis here
+          //       : BorderRadius.all(
+          //           Radius.circular(25),
+          //         ),
+          // ),
         ),
       ),
     );

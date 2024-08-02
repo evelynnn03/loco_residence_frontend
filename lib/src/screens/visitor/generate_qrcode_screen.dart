@@ -6,9 +6,9 @@ import 'package:screenshot/screenshot.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../widgets/buttons.dart';
-import '../constants/global_variables.dart';
-import '../widgets/bottom_nav_bar.dart';
+import '../../widgets/buttons.dart';
+import '../../constants/global_variables.dart';
+import '../../widgets/bottom_nav_bar.dart';
 
 class QRCodeGenerator extends StatefulWidget {
   final String Function() generateNewQrData;
@@ -23,54 +23,60 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
 
   @override
   Widget build(BuildContext context) {
-
-    Color backgroundColor = Theme.of(context).primaryColor;
+    // Color backgroundColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
         foregroundColor: GlobalVariables.primaryColor,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back,
-            color: GlobalVariables.backgroundColor,
+            Icons.arrow_back_ios_new,
+            color: GlobalVariables.primaryColor,
           ),
           onPressed: () {
             Navigator.pop(context); // Navigate back when back button is pressed
           },
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: [
-              Center(
-                child: Screenshot(
-                  controller: screenshotController,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 40),
-                      QrImageView(
-                        data: widget.generateNewQrData(),
-                        version: QrVersions.auto,
-                        size: 200.0,
-                        backgroundColor: Colors.white,
-                      ),
-                    ],
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 150,
+            ),
+            Screenshot(
+              controller: screenshotController,
+              child: Column(
+                children: [
+                  QrImageView(
+                    data: widget.generateNewQrData(),
+                    version: QrVersions.auto,
+                    size: 200.0,
+                    backgroundColor: Colors.transparent,
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 40),
-              MyButton(
-                  onTap: () async {
-                    await captureAndSaveQRCode();
-                  },
-                  text: 'Save QR Code'),
-            ],
-          ),
+            ),
+            const SizedBox(height: 70),
+            Text(
+              'Scan the QR code upon arrrival',
+              style: TextStyle(
+                fontSize: 20,
+                color: GlobalVariables.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 50),
+            MyButton(
+                onTap: () async {
+                  await captureAndSaveQRCode();
+                },
+                text: 'Save QR Code'),
+          ],
         ),
       ),
     );

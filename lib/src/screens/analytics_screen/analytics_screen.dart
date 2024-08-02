@@ -84,32 +84,31 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
     }
 
     return Scaffold(
+      backgroundColor: GlobalVariables.primaryColor,
       appBar: AppBar(
-        foregroundColor: backgroundColor,
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
+        title: Text(
           'Gym Visits',
           style: TextStyle(
-            color: GlobalVariables.backgroundColor,
+            fontSize: 25,
             fontWeight: FontWeight.bold,
+            color: GlobalVariables.backgroundColor,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: GlobalVariables.backgroundColor,
           ),
           onPressed: () {
-            Navigator.pop(context); // Navigate back when back button is pressed
+            Navigator.of(context).pop();
           },
         ),
       ),
-      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
+            SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 35),
               child: MySegmentedButtonRow(

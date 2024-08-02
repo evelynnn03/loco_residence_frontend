@@ -22,33 +22,38 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
   void initState() {
     super.initState();
 
-//title controller
+    // Initialize title controller
     _titleController = AnimationController(
-      duration: Duration(seconds: 2),
-      vsync: this,
-    );
-//des controller
-    _desController = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
       vsync: this,
     );
 
-//title animation
+    // Initialize description controller
+    _desController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+
+    // Title animation
     _titleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(_titleController);
-//des animation
+
+    // Description animation
     _desAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(_desController);
 
+    // Start title animation
     _titleController.forward();
 
-//delay des animation by 2 seconds
+    // Delay description animation by 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
-      _desController.forward();
+      if (mounted) {
+        _desController.forward();
+      }
     });
   }
 
@@ -73,10 +78,9 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
             left: 10,
             child: IconButton(
               onPressed: () {
-                Navigator.pop(
-                    context); // Navigate back when back button is pressed
+                Navigator.pop(context); // Navigate back when back button is pressed
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.arrow_back,
                 color: Colors.white,
               ),
@@ -102,7 +106,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
             left: 20,
             child: FadeTransition(
               opacity: _titleAnimation,
-              child: Text(
+              child: const Text(
                 'Loco Gym',
                 style: TextStyle(
                   color: Colors.white,
@@ -119,13 +123,6 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
               width: MediaQuery.of(context).size.width - 40,
               child: FadeTransition(
                 opacity: _desAnimation,
-                // child: Text(
-                //   'Operating hours: Open daily 6:00am - 10:00pm\n\nStep into Loco Gym, your premier residential fitness destination, blending cutting-edge equipment, personalized training, and a vibrant community spirit. Our modern facilities cater to fitness enthusiasts of all levels, offering a unique blend of convenience and camaraderie. At Loco Gym, we prioritize your health and well-being, providing a welcoming space for individuals to embark on their fitness journey right within the comfort of their neighborhood. Join us today!!!',
-                //   style: TextStyle(
-                //     color: Colors.white.withOpacity(0.8),
-                //     fontSize: 14,
-                //   ),
-                // ),
                 child: RichText(
                   text: TextSpan(
                     text: 'Operating hours: \n',

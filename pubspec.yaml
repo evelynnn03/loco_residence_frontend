@@ -41,7 +41,7 @@ dependencies:
   intl: any
   permission_handler: ^11.1.0
   image_gallery_saver: ^2.0.3
-  screenshot: ^2.1.0
+  screenshot: ^3.0.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
   sliding_up_panel: ^2.0.0+1
@@ -98,6 +98,10 @@ flutter:
     - family: Anton
       fonts:
         - asset: assets/fonts/Anton-Regular.ttf
+
+    - family: Proxima Nova
+      fonts:
+      - asset: assets/fonts/Proxima Nova/proximanova_regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

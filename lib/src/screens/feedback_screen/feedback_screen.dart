@@ -98,60 +98,51 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Theme.of(context).primaryColor;
-    Color buttonColor1 = Theme.of(context).buttonTheme.colorScheme?.primary ??
-        GlobalVariables.secondaryColor;
-    Color buttonColor2 = Theme.of(context).buttonTheme.colorScheme?.secondary ??
-        GlobalVariables.feedbackSelected;
+    // Color backgroundColor = Theme.of(context).primaryColor;
+    Color buttonColor1 = GlobalVariables.lightGrey;
+    Color buttonColor2 = GlobalVariables.primaryColor;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
-        foregroundColor: backgroundColor,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: GlobalVariables.backgroundColor,
-          ),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back when back button is pressed
-          },
-        ),
+        centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Form(
               key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 25),
-                  const Text(
-                    "  Feedback",
-                    style: TextStyle(
-                      color: GlobalVariables.backgroundColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0),
+                    child: const Text(
+                      "Feedback",
+                      style: TextStyle(
+                        color: GlobalVariables.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
-                    height: 230,
-                    child: Column(
-                      children: [
-                        MyTextField(
-                          isDescriptionBox: true,
-                          maxLines: 8,
-                          controller: desController,
-                          hintText: 'Write your feedback here...',
-                          keyboardType: TextInputType.text,
-                        ),
-                      ],
+                    height: 250,
+                    child: MyTextField(
+                      isDescriptionBox: true,
+                      maxLines: 8,
+                      controller: desController,
+                      labelText: 'Write your feedback here...',
+                      keyboardType: TextInputType.text,
                     ),
+                  ),
+                  const SizedBox(
+                    height: 20,
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 5.0),
@@ -243,7 +234,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: 50,
+                    height: 40,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -279,11 +270,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: 5,
+                    height: 40,
                   ),
                   GestureDetector(
                     onTap: submitFeedback,
-                    child: MyButton(text: 'Send Feedback'),
+                    child: MyButton(
+                        onTap: () {
+                          if (formKey.currentState!.validate()) {
+                            // Form is valid, perform the submission
+                            submitFeedback();
+                          }
+                        },
+                        text: 'Send Feedback'),
                   )
                 ],
               ),

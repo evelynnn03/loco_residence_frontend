@@ -65,24 +65,29 @@ class _ParkingMapTabState extends State<ParkingMapTab>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               child: MyTabBar(
-                  firstTabText: 'Resident',
-                  secondTabText: 'Visitor',
-                  tabController: _tabController),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  //1st tab
-                  const ResidentMap(),
-
-                  //2nd tab
+                tabLabels: ['Resident', 'Visitor'],
+                tabContents: [
+                  ResidentMap(),
                   VisitorMap(
                     vistorId: widget.visitorId,
                   )
                 ],
               ),
             ),
+            // Expanded(
+            //   child: TabBarView(
+            //     controller: _tabController,
+            //     children: [
+            //       //1st tab
+            //       const ResidentMap(),
+
+            //       //2nd tab
+            //       VisitorMap(
+            //         vistorId: widget.visitorId,
+            //       )
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

@@ -57,10 +57,7 @@ class _VisitorTimestampState extends State<VisitorTimestamp>
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              child: MyTabBar(
-                  firstTabText: 'Visitors',
-                  secondTabText: 'Timestamp',
-                  tabController: _tabController),
+              child: MyTabBar(tabLabels: ['Visitors', 'Timestamp'], tabContents: [],),
             ),
             Expanded(
                 child: TabBarView(

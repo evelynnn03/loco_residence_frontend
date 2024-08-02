@@ -9,38 +9,38 @@ class ServiceContactScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    Color? iconColor = Theme.of(context).indicatorColor;
+    // Color? iconColor = Theme.of(context).indicatorColor;
 
     return Scaffold(
+      backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
-        title: Text(
-          'Service Contact',
+        backgroundColor: GlobalVariables.secondaryColor,
+        title: const Text(
+          'Service Contacts',
           style: TextStyle(
-              color: Theme.of(context).textTheme.bodySmall?.color ??
-                  GlobalVariables.primaryColor,
-              fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        foregroundColor: GlobalVariables.backgroundColor,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: iconColor,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: GlobalVariables.primaryColor,
           ),
-          
+        ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: GlobalVariables.primaryColor,
+          ),
           onPressed: () {
-            Navigator.pop(context); // Navigate back when back button is pressed
+            Navigator.of(context).pop();
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: const Padding(
+      body: const SingleChildScrollView(
+        child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
+              SizedBox(
+                height: 20,
+              ),
               ServiceItems(
                 imageUrl:
                     'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/cleaning_service.jpg?alt=media&token=274458c9-f634-43d3-a0a1-903a8f2bdec3',
@@ -64,6 +64,9 @@ class ServiceContactScreen extends StatelessWidget {
                     'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/pest_control.jpeg?alt=media&token=84359c68-7bf2-4086-8050-a2830c89bc76',
                 title: 'Pest Control',
                 phoneNum: '+03 521 8622',
+              ),
+              SizedBox(
+                height: 20,
               ),
             ],
           ),

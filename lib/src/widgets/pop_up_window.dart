@@ -15,8 +15,7 @@ class Popup {
 
   Future<void> show(BuildContext context) async {
     Color popUpBackground = Theme.of(context).dialogBackgroundColor;
-    TextStyle? text = Theme.of(context).textTheme.bodyLarge ?? TextStyle();
-
+    // TextStyle? text = Theme.of(context).textTheme.bodyLarge ?? TextStyle();
 
     await showDialog(
       context: context,
@@ -24,16 +23,14 @@ class Popup {
         title: Text(
           title,
           style: TextStyle(
-            color: text.color ?? GlobalVariables.primaryColor,
+            color: GlobalVariables.primaryColor,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
           textAlign: TextAlign.center,
         ),
         content: DefaultTextStyle(
-          style: text.copyWith(
-            color: text.color ?? GlobalVariables.primaryColor,
-          ),
+          style: TextStyle(color: GlobalVariables.primaryColor),
           child: content,
         ),
         backgroundColor: popUpBackground,

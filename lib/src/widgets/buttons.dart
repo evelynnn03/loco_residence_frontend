@@ -12,18 +12,22 @@ class MyButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+        padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(30)),
+              color: GlobalVariables.primaryColor,
+              borderRadius: BorderRadius.circular(25)),
           child: Center(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: GlobalVariables.primaryColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 7.0),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

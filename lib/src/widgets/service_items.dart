@@ -18,71 +18,75 @@ class ServiceItems extends StatelessWidget {
     Color backgroundColor = Theme.of(context).cardColor;
     Color boxShadowColor = Color.fromRGBO(129, 101, 234, 1);
 
-    return Container(
-      height: 300,
-      width: 400,
-      decoration: BoxDecoration(
-        boxShadow: mode.isDark
-            ? [
-                BoxShadow(
-                  color: boxShadowColor,
-                  offset: const Offset(
-                    0.0,
-                    0.0,
-                  ),
-                  blurRadius: 5.0,
-                  spreadRadius: 1.0,
-                ), //BoxShadow
-                //BoxShadow
-              ]
-            : null,
-        color: backgroundColor, // Set the background color to purple
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
-              errorWidget: (context, url, error) => Icon(
-                Icons.error,
-                size: 60,
-                color: GlobalVariables.greyishPurple,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: Container(
+        height: 300,
+        width: 400,
+        decoration: BoxDecoration(
+          boxShadow: mode.isDark
+              ? [
+                  BoxShadow(
+                    color: boxShadowColor,
+                    offset: const Offset(
+                      0.0,
+                      0.0,
+                    ),
+                    blurRadius: 5.0,
+                    spreadRadius: 1.0,
+                  ), //BoxShadow
+                  //BoxShadow
+                ]
+              : null,
+          color: GlobalVariables
+              .welcomeColor, // Set the background color to purple
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => Icon(
+                  Icons.error,
+                  size: 60,
+                  color: GlobalVariables.greyishPurple,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 15),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.0),
-            child: Text(
-              title,
-              style: TextStyle(
-                  fontSize: 24,
-                  color: GlobalVariables.backgroundColor,
-                  fontWeight: FontWeight.bold),
+            SizedBox(height: 15),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text(
+                title,
+                style: TextStyle(
+                    fontSize: 24,
+                    color: GlobalVariables.backgroundColor,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          SizedBox(height: 10),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.0),
-            child: Row(
-              children: [
-                Icon(Icons.phone_in_talk,
-                    color: GlobalVariables.backgroundColor),
-                Text(
-                  '  $phoneNum',
-                  style: TextStyle(
-                      fontSize: 17, color: GlobalVariables.backgroundColor),
-                ),
-              ],
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              child: Row(
+                children: [
+                  Icon(Icons.phone_in_talk,
+                      color: GlobalVariables.backgroundColor),
+                  Text(
+                    '  $phoneNum',
+                    style: TextStyle(
+                        fontSize: 17, color: GlobalVariables.backgroundColor),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

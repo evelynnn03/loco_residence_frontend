@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 
 class GlobalVariables {
+  static const primaryColor = Color(0xFF0B3979);
+  static const secondaryColor = Color(0xFFEDF0F5);
+  static const bottomNavIcons = Color(0xFFD0E4FF);
+  static const bottomNavSelectedIcons = Color(0xFFF7F2EC);
+  static const welcomeColor = Color(0xFF6F96D1);
+  static const textLabel = Color(0xFFB0B2B4);
+  static const tabNotSelected = Color(0xFFA0AEC1);
+  static const lightGrey = Color(0xFFD9D9D9); // remove card
+
   static const feedbackSelected = Color.fromRGBO(151, 133, 221, 1);
-  static const primaryColor = Color(0xFF8165EA);
-  static const secondaryColor = Color.fromRGBO(178, 158, 255, 1);
+
   //for the guard Home page icon (Example: QR code icon)
   static const greyishPurple = Color(0xFFC6B7FF);
   //'Welcome to'

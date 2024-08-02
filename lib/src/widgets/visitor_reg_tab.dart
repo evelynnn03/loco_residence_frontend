@@ -1,26 +1,25 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../screens/visitor/generate_qrcode_screen.dart';
 import '../widgets/buttons.dart';
 import '../widgets/text_field.dart';
 import '../constants/global_variables.dart';
 import '../../guard/provider/visitor_parking_provider.dart';
-import 'generate_qrcode_screen.dart';
 
-class VisitorRegisterScreen extends StatefulWidget {
-  const VisitorRegisterScreen({Key? key}) : super(key: key);
+class VisitorRegTab extends StatefulWidget {
+  const VisitorRegTab({Key? key}) : super(key: key);
   static const String routeName = '/visitor-register';
 
   @override
-  State<VisitorRegisterScreen> createState() => _VisitorRegisterScreenState();
+  State<VisitorRegTab> createState() => _VisitorRegisterScreenState();
 }
 
-class _VisitorRegisterScreenState extends State<VisitorRegisterScreen> {
+class _VisitorRegisterScreenState extends State<VisitorRegTab> {
   final fullNameTextController = TextEditingController();
   final phoneNoTextController = TextEditingController();
   final carPlateTextController = TextEditingController();
@@ -127,54 +126,47 @@ class _VisitorRegisterScreenState extends State<VisitorRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Theme.of(context).primaryColor;
+    // Color backgroundColor = Theme.of(context).primaryColor;
     // int remainingParkingLots =
     //     Provider.of<VisitorDetailsProvider>(context, listen: false)
     //         .returnRemainingParkingLot();
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: GlobalVariables.secondaryColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
             child: Form(
               key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 50),
                   const Text(
-                    "Register a visitor",
+                    "Register Visitor\nDetails",
                     style: TextStyle(
-                      color: GlobalVariables.backgroundColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28,
-                    ),
-                  ),
-                  const Text(
-                    "Key in visitor details",
-                    style: TextStyle(
-                      color: GlobalVariables.backgroundColor,
-                      fontSize: 16,
+                      color: GlobalVariables.primaryColor,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 30,
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
                   MyTextField(
                     controller: fullNameTextController,
-                    hintText: 'Full Name',
+                    labelText: 'Full Name',
                     keyboardType: TextInputType.text,
-                    prefixIcon: Icons.person,
+                    // prefixIcon: Icons.person,
                   ),
 
-                  const SizedBox(height: 13),
+                  const SizedBox(height: 30),
                   Container(
                     child: Column(
                       children: [
                         MyTextField(
                           controller: dateTextController,
-                          hintText: 'Check-in date',
+                          labelText: 'Check-in date',
                           obscureText: false,
                           keyboardType: TextInputType.none,
 
@@ -190,27 +182,27 @@ class _VisitorRegisterScreenState extends State<VisitorRegisterScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 13),
+                  const SizedBox(height: 30),
                   MyTextField(
                     controller: carPlateTextController,
-                    hintText: 'Car Plate',
+                    labelText: 'Car Plate',
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       return null; // No validation error
                     },
-                    prefixIcon: Icons.car_rental,
+                    // prefixIcon: Icons.car_rental,
                   ),
 
-                  const SizedBox(height: 13),
+                  const SizedBox(height: 30),
                   MyTextField(
                     controller: phoneNoTextController,
-                    hintText: 'Phone no.',
+                    labelText: 'Phone no.',
                     keyboardType: TextInputType.phone,
-                    prefixIcon: Icons.phone,
+                    // prefixIcon: Icons.phone,
                   ),
 
-                  //signin button
-                  const SizedBox(height: 25),
+                  //generate qr code button
+                  const SizedBox(height: 40),
                   MyButton(
                       onTap: () {
                         if (formKey.currentState!.validate()) {

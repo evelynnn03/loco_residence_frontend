@@ -7,7 +7,7 @@ import '../../src/constants/global_variables.dart';
 import '../../guard/screens/guard_home_screen.dart';
 import '../../guard/widget/guard_arguments.dart';
 import '../../src/provider/resident_details_provider.dart';
-import '../../src/screens/reset_password_screen.dart';
+import '../../src/screens/settings/reset_password_screen.dart';
 import '../../src/widgets/bottom_nav_bar.dart';
 import '../../src/widgets/resident_argument.dart';
 import '../../config/themes/theme_provider.dart';
@@ -182,14 +182,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 40),
                 MyTextField(
                   controller: emailTextController,
-                  hintText: 'Email',
+                  labelText: 'Email',
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email,
                 ),
                 const SizedBox(height: 20),
                 MyTextField(
                   controller: passwordTextController,
-                  hintText: 'Password',
+                  labelText: 'Password',
                   obscureText: obscurePassword,
                   keyboardType: TextInputType.visiblePassword,
                   prefixIcon: Icons.lock,

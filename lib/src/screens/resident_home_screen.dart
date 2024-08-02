@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/auth/login_screen.dart';
@@ -24,139 +25,106 @@ class ResidentHomeScreen extends StatefulWidget {
   State<ResidentHomeScreen> createState() => _ResidentHomeScreenState();
 }
 
-class HomepageTitle extends StatelessWidget {
-  final String tileName;
-
-  HomepageTitle({
-    super.key,
-    required this.tileName,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final mode = Provider.of<ThemeProvider>(context);
-    Color boxShadowColor = Color.fromRGBO(130, 101, 234, 0.769);
-    Color cardColor = Theme.of(context).cardColor;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      child: Container(
-        height: 200,
-        width: 400,
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 22),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: cardColor,
-          boxShadow: mode.isDark
-              ? [
-                  BoxShadow(
-                    color: boxShadowColor,
-                    offset: const Offset(
-                      0.0,
-                      0.0,
-                    ),
-                    blurRadius: 8.0,
-                    spreadRadius: 0.0,
-                  ), //BoxShadow
-                  //BoxShadow
-                ]
-              : null,
-        ),
-        child: Flex(
-          direction: Axis.horizontal,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            if (tileName == 'Analytics')
-              Row(
-                children: [
-                  Icon(
-                    Icons.poll_outlined,
-                    color: Colors.white,
-                    size: 95,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    tileName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 35,
-                    ),
-                  ),
-                ],
-              ),
-
-            if (tileName == 'Facility\nInformation')
-              Row(
-                children: [
-                  Icon(
-                    Icons.run_circle_outlined,
-                    color: Colors.white,
-                    size: 95,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    tileName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 35,
-                    ),
-                  ),
-                ],
-              ),
-
-            //
-            if (tileName == 'Service\nContact')
-              Row(
-                children: [
-                  SizedBox(width: 10),
-                  Icon(
-                    Icons.contact_phone_outlined,
-                    color: Colors.white,
-                    size: 80,
-                  ),
-                  SizedBox(width: 20),
-                  Text(
-                    tileName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 35,
-                    ),
-                  ),
-                ],
-              ),
-
-            if (tileName == 'Submit\nFeedback')
-              Row(
-                children: [
-                  SizedBox(width: 10),
-                  Icon(
-                    Icons.textsms_outlined,
-                    color: Colors.white,
-                    size: 90,
-                  ),
-                  SizedBox(width: 15),
-                  Text(
-                    tileName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 35,
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
   late String residentId;
   late String unitNumber;
+  bool isSelected = false;
+  int selectedIndex = -1;
+
+  final List<Map<String, dynamic>> tiles = [
+    {
+      'title': 'Book\nFacility',
+      'icon': Icons.calendar_month_rounded,
+      'route': FacilityInfoScreen.routeName,
+    },
+    {
+      'title': 'Submit\nFeedback',
+      'icon': Icons.feedback_outlined,
+      'route': FeedbackScreen.routeName,
+    },
+    {
+      'title': 'View Data\nCharts',
+      'icon': Icons.analytics_outlined,
+      'route': AnalyticsScreen.routeName,
+    },
+    {
+      'title': 'View\nServices',
+      'icon': Icons.phone_in_talk_outlined,
+      'route': ServiceContactScreen.routeName,
+    },
+  ];
+
+  // Show a bottom sheet for specification or description
+  void _showBottomSheet(String title, String content, bool button) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.8,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(20.0),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 10),
+                    height: 5,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: GlobalVariables.secondaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: GlobalVariables.primaryColor,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        content,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  button
+                      ? Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: MyButton(
+                            text: 'Submit a Rating',
+                            onTap: () => Navigator.pop(context),
+                          ),
+                        )
+                      : Container(),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   // Function to retrieve user details from SharedPreferences
   Future<void> _retrieveUserDetails() async {
@@ -169,6 +137,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
   void initState() {
     super.initState();
     _retrieveUserDetails();
+    selectedIndex = -1;
   }
 
   CarouselController carouselController = CarouselController();
@@ -189,60 +158,68 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
         ModalRoute.of(context)?.settings.arguments as ResidentArgument?;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 25),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(
                   children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        'Loco Residence',
-                        style: TextStyle(
-                          color:
-                              Theme.of(context).textTheme.bodyMedium?.color ??
-                                  GlobalVariables.darkPurple,
-                          fontSize: 20,
-                          fontFamily: 'Anton',
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hello, Resident!',
+                          style: TextStyle(
+                            color: GlobalVariables.primaryColor,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Proxima Nova',
+                          ),
                         ),
-                      ),
+                        Text(
+                          'Welcome to Loco Residence',
+                          style: TextStyle(
+                            color: GlobalVariables.welcomeColor,
+                            fontSize: 15,
+                            fontFamily: 'Proxima Nova',
+                          ),
+                        ),
+                      ],
                     ),
                     Spacer(),
                     Align(
                       alignment: Alignment.topRight,
                       child: GestureDetector(
                         onTap: () {
-                          Popup(
-                            title: 'Warning',
-                            content: Text(
-                              "Are you sure you want to log out",
-                            ),
-                            buttons: [
-                              ButtonConfig(
-                                text: 'Cancel',
-                                onPressed: () async {},
-                              ),
-                              ButtonConfig(
-                                text: 'Yes',
-                                onPressed: () async {
-                                  clearUserData();
-                                  // Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          ).show(context);
+                          _showBottomSheet('Notifications', 'content', false);
+                          // Popup(
+                          //   title: 'Notifications',
+                          //   content: Text(
+                          //     "Are you sure you want to log out",
+                          //   ),
+                          //   buttons: [
+                          //     ButtonConfig(
+                          //       text: 'Cancel',
+                          //       onPressed: () async {},
+                          //     ),
+                          //     ButtonConfig(
+                          //       text: 'Yes',
+                          //       onPressed: () async {
+                          //         clearUserData();
+                          //         // Navigator.pop(context);
+                          //       },
+                          //     ),
+                          //   ],
+                          // ).show(context);
                         },
                         child: Icon(
-                          Icons.logout_rounded,
-                          size: 25,
-                          color:
-                              Theme.of(context).textTheme.bodyMedium?.color ??
-                                  GlobalVariables.darkPurple,
+                          Icons.notifications,
+                          size: 30,
+                          color: GlobalVariables.primaryColor,
 
                           //color: GlobalVariables.darkPurple
                         ),
@@ -251,45 +228,46 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                   ],
                 ),
                 SizedBox(
-                  height: 15,
+                  height: 30,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, ImportantContactScreen.routeName);
-                      },
-                      child: Icon(
-                        Icons.sos_outlined,
-                        size: 50,
-                        color: Colors.red,
-                      ),
+                // Padding(
+                //   padding: const EdgeInsets.all(12.0),
+                //   child: Align(
+                //     alignment: Alignment.topRight,
+                //     child: GestureDetector(
+                //       onTap: () {
+                //         Navigator.pushNamed(
+                //             context, ImportantContactScreen.routeName);
+                //       },
+                //       child: Icon(
+                //         Icons.sos_outlined,
+                //         size: 50,
+                //         color: Colors.red,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Announcements',
+                    style: TextStyle(
+                      color: GlobalVariables.primaryColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                Text(
-                  'Announcements',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall?.color ??
-                        GlobalVariables.primaryColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Tap for more details',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color ??
-                        GlobalVariables.darkPurple,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                // SizedBox(height: 10),
+                // Text(
+                //   'Tap for more details',
+                //   style: TextStyle(
+                //     color: Theme.of(context).textTheme.bodyMedium?.color ??
+                //         GlobalVariables.darkPurple,
+                //     fontSize: 13,
+                //     fontWeight: FontWeight.bold,
+                //   ),
+                // ),
                 SizedBox(height: 10),
                 StreamBuilder(
                   stream: FirebaseFirestore.instance
@@ -343,7 +321,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                         child: CachedNetworkImage(
                                           imageUrl: imageUrl,
                                           width: double.infinity,
-                                          height: 150,
+                                          height: 180,
                                           fit: BoxFit.cover,
                                           errorWidget: (context, url, error) =>
                                               Icon(Icons.error),
@@ -387,14 +365,10 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                   height: 6,
                                   margin: EdgeInsets.symmetric(horizontal: 4.0),
                                   decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: currentIndex == i
-                                        ? GlobalVariables.secondaryColor
-                                        : Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? GlobalVariables.darkPurple
-                                            : GlobalVariables.analyticsBarColor,
-                                  ),
+                                      shape: BoxShape.circle,
+                                      color: currentIndex == i
+                                          ? GlobalVariables.welcomeColor
+                                          : GlobalVariables.secondaryColor),
                                 ),
                             ],
                           ),
@@ -406,42 +380,58 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                Text(
-                  'Home',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall?.color ??
-                        GlobalVariables.primaryColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Home',
+                    style: TextStyle(
+                      color: GlobalVariables.primaryColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AnalyticsScreen.routeName);
-                    },
-                    child: HomepageTitle(tileName: 'Analytics')),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                          context, FacilityInfoScreen.routeName);
-                    },
-                    child: HomepageTitle(tileName: 'Facility\nInformation')),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                          context, ServiceContactScreen.routeName);
-                    },
-                    child: HomepageTitle(tileName: 'Service\nContact')),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        FeedbackScreen.routeName,
-                        arguments: args,
+                const SizedBox(height: 10),
+
+                GridView.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 15,
+                  crossAxisSpacing: 15,
+                  childAspectRatio: 190 / 210,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  children: List.generate(
+                    tiles.length,
+                    (index) {
+                      final tile = tiles[index];
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedIndex = index;
+                          });
+                          Navigator.pushNamed(
+                            context,
+                            tile['route'],
+                            arguments: index == 3 ? args : null,
+                          ).then((_) {
+                            setState(() {
+                              selectedIndex = -1;
+                            });
+                          });
+                        },
+                        child: _homeTile(
+                          context,
+                          index,
+                          tile['title'],
+                          tile['icon'],
+                          index == selectedIndex,
+                        ),
                       );
                     },
-                    child: HomepageTitle(tileName: 'Submit\nFeedback'))
+                  ),
+                ),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -449,4 +439,55 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
       ),
     );
   }
+}
+
+Widget _homeTile(BuildContext context, int index, String tileName,
+    IconData icon, bool isSelected) {
+  final mode = Provider.of<ThemeProvider>(context);
+  Color boxShadowColor = Color.fromARGB(255, 42, 188, 69);
+  return Container(
+    height: 210,
+    width: 190,
+    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 15),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(20),
+      color: isSelected
+          ? GlobalVariables.primaryColor
+          : GlobalVariables.secondaryColor,
+      boxShadow: mode.isDark
+          ? [
+              BoxShadow(
+                color: boxShadowColor,
+                offset: const Offset(
+                  0.0,
+                  0.0,
+                ),
+                blurRadius: 8.0,
+                spreadRadius: 0.0,
+              ), //BoxShadow
+              //BoxShadow
+            ]
+          : null,
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 10),
+        Icon(
+          icon,
+          color: isSelected ? Colors.white : GlobalVariables.primaryColor,
+          size: 30,
+        ),
+        SizedBox(width: 15),
+        Text(
+          tileName,
+          style: TextStyle(
+            color: isSelected ? Colors.white : GlobalVariables.primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+      ],
+    ),
+  );
 }

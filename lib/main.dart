@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loco_frontend/src/screens/resident_home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'guard/provider/visitor_parking_provider.dart';
@@ -85,10 +86,17 @@ class MyApp extends StatelessWidget {
           );
         },
         debugShowCheckedModeBanner: false,
-        theme: mode.isDark ? LightDark.darkTheme : LightDark.lightTheme,
+        theme: ThemeData(
+          fontFamily: 'Proxima Nova',
+        ).copyWith(
+          colorScheme: mode.isDark
+              ? LightDark.darkTheme.colorScheme
+              : LightDark.lightTheme.colorScheme,
+        ),
         themeMode: ThemeMode.system,
         onGenerateRoute: (settings) => generateRoute(settings),
-        home: email == null ? const WelcomeScreen() : MyBottomNavBar(),
+        home: MyBottomNavBar(),
+        // email == null ? const WelcomeScreen() : MyBottomNavBar()
       ),
     );
   }
