@@ -2,6 +2,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -154,11 +156,14 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
 
                   const SizedBox(height: 40),
                   MyTextField(
-                    controller: fullNameTextController,
-                    labelText: 'Full Name',
-                    keyboardType: TextInputType.text,
-                    // prefixIcon: Icons.person,
-                  ),
+                      controller: fullNameTextController,
+                      labelText: 'Full Name',
+                      keyboardType: TextInputType.text,
+                      onChanged: (text) {
+                        fullNameTextController.text = text.capitalize!;
+                      }
+                      // prefixIcon: Icons.person,
+                      ),
 
                   const SizedBox(height: 30),
                   Container(
@@ -184,20 +189,25 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
 
                   const SizedBox(height: 30),
                   MyTextField(
-                    controller: carPlateTextController,
-                    labelText: 'Car Plate',
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      return null; // No validation error
-                    },
-                    // prefixIcon: Icons.car_rental,
-                  ),
+                      controller: carPlateTextController,
+                      labelText: 'Car Plate',
+                      keyboardType: TextInputType.text,
+                      validator: (value) {
+                        return null; // No validation error
+                      },
+                      onChanged: (text) {
+                        // Automatically converts text to uppercase
+                        carPlateTextController.text = text.toUpperCase();
+                      }
+                      // prefixIcon: Icons.car_rental,
+                      ),
 
                   const SizedBox(height: 30),
                   MyTextField(
                     controller: phoneNoTextController,
                     labelText: 'Phone no.',
                     keyboardType: TextInputType.phone,
+                    inputFormatters: [PhoneInputFormatter()],
                     // prefixIcon: Icons.phone,
                   ),
 

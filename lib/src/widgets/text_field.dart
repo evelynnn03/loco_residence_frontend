@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 
 class MyTextField extends StatefulWidget {
@@ -17,6 +18,8 @@ class MyTextField extends StatefulWidget {
   final IconData? suffixIcon; // Added parameter for icon
   final int? maxLength;
   final bool enabled;
+  final List<TextInputFormatter>? inputFormatters;
+  final void Function(String)? onChanged;
 
   const MyTextField({
     super.key,
@@ -32,6 +35,8 @@ class MyTextField extends StatefulWidget {
     this.suffixIcon,
     this.maxLength,
     this.enabled = true,
+    this.inputFormatters,
+    this.onChanged,
   });
 
   @override
@@ -167,6 +172,12 @@ class _MyTextFieldState extends State<MyTextField> {
           //         ),
           // ),
         ),
+        inputFormatters: widget.inputFormatters,
+        onChanged: (text) {
+          if (widget.onChanged != null) {
+            widget.onChanged!(text.toUpperCase());
+          }
+        },
       ),
     );
   }

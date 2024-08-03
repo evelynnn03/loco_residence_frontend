@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:get/get.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
@@ -53,7 +56,7 @@ class _CardDetailsState extends State<CardDetails> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Fill in your VISA card details',
+                'Fill in your card details\n(Visa / Mastercard)',
                 style: TextStyle(
                   fontSize: 20,
                   color: GlobalVariables.primaryColor,
@@ -61,17 +64,21 @@ class _CardDetailsState extends State<CardDetails> {
               ),
               const SizedBox(height: 20),
               MyTextField(
-                controller: fullNameTextController,
-                labelText: 'Full Name',
-                keyboardType: TextInputType.text,
-                enabled: _isEditing,
-              ),
+                  controller: fullNameTextController,
+                  labelText: 'Full Name',
+                  keyboardType: TextInputType.text,
+                  enabled: _isEditing,
+                  onChanged: (text) {
+                    fullNameTextController.text = text.capitalize!;
+                  }),
               const SizedBox(height: 30),
               MyTextField(
                 controller: cardNumberTextController,
                 labelText: 'Card No.',
                 keyboardType: TextInputType.number,
                 enabled: _isEditing,
+                inputFormatters: [CardNumberFormatter()],
+                maxLength: 19,
               ),
               const SizedBox(height: 30),
               MyTextField(
@@ -79,6 +86,7 @@ class _CardDetailsState extends State<CardDetails> {
                 labelText: 'Expiry Date',
                 keyboardType: TextInputType.number,
                 enabled: _isEditing,
+                inputFormatters: [CreditCardExpirationDateFormatter()],
               ),
               const SizedBox(height: 30),
               MyTextField(
@@ -86,6 +94,7 @@ class _CardDetailsState extends State<CardDetails> {
                 labelText: 'CVV / CVC',
                 keyboardType: TextInputType.number,
                 enabled: _isEditing,
+                inputFormatters: [CreditCardCvcInputFormatter()],
               ),
               const SizedBox(height: 100),
               MyButton(
@@ -117,6 +126,26 @@ class _CardDetailsState extends State<CardDetails> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// format for card number to be 1234 1234 1234 1234
+class CardNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = newValue.text.replaceAll(RegExp(r'\D'), '');
+    String formattedText = '';
+    for (int i = 0; i < newText.length; i++) {
+      if (i > 0 && i % 4 == 0) {
+        formattedText += ' ';
+      }
+      formattedText += newText[i];
+    }
+    return newValue.copyWith(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
     );
   }
 }

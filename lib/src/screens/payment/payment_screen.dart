@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loco_frontend/src/widgets/card.dart';
 import 'package:loco_frontend/src/widgets/horizontal_tiles.dart';
 import 'package:pay/pay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ import '../../constants/global_variables.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/apple_pay_button_mimic.dart';
 import '../../../config/themes/theme_provider.dart';
+import 'package:flutter_credit_card/flutter_credit_card.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -22,6 +24,8 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   int outstandingAmount = 0;
   late String residentId = '';
+
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -59,6 +63,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  // Detect whether it's a Visa or Mastercard
+  // void _detectCardType(String input) {
+  //   if (input.startsWith('4')) {
+  //     setState(() {
+  //       cardType = 'visa';
+  //     });
+  //   } else if (input.startsWith('5')) {
+  //     setState(() {
+  //       cardType = 'mastercard';
+  //     });
+  //   } else {
+  //     setState(() {
+  //       cardType = 'error';
+  //     });
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context);
@@ -88,39 +109,70 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            body: const Padding(
-              padding: EdgeInsets.only(top: 25.0),
+            body: SingleChildScrollView(
               child: Column(
                 children: [
-                  HorizontalTiles(
-                    title: 'Payment Details',
-                    icon: Icons.arrow_circle_right_outlined,
-                    routeName: '/payment_details',
-                  ),
-                  SizedBox(height: 25),
-                  HorizontalTiles(
-                    title: 'Card Settings',
-                    icon: Icons.expand_more_rounded,
-                    isDropdown: true,
-                    children: [
-                      SizedBox(height: 25),
-                      HorizontalTiles(
-                        title: 'Remove Card',
-                        icon: Icons.expand_more_rounded,
-                        tileColor: GlobalVariables.lightGrey,
-                        textColor: GlobalVariables.backgroundColor,
-                        isDropdown: true,
-                        children: [],
-                      ),
-                      SizedBox(height: 25),
-                      HorizontalTiles(
-                        title: 'Card Details',
-                        icon: Icons.credit_card,
-                        routeName: '/card_details',
-                        tileColor: GlobalVariables.lightGrey,
-                        textColor: GlobalVariables.backgroundColor,
-                      )
-                    ],
+                  CardContainer(),
+                  // CreditCardWidget(
+                  //   cardNumber: cardNumber,
+                  //   expiryDate: expiryDate,
+                  //   cardHolderName: cardHolderName,
+                  //   cvvCode: cvvCode,
+                  //   showBackView: true,
+                  //   onCreditCardWidgetChange: (CreditCardBrand cardBrand) {},
+                  //   cardBgColor: GlobalVariables.primaryColor,
+                  //   obscureCardCvv: true,
+                  //   cardType: _buildCardLogo(),
+                  // ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 25.0),
+                    child: Column(
+                      children: [
+                        // TextFormField(
+                        //   decoration: InputDecoration(
+                        //     labelText: 'Card Number',
+                        //   ),
+                        //   keyboardType: TextInputType.number,
+                        //   onChanged: (value) {
+                        //     setState(() {
+                        //       cardNumber = value;
+                        //     });
+                        //     // _detectCardType(value);
+                        //   },
+                        // ),
+                        HorizontalTiles(
+                          title: 'Payment Details',
+                          icon: Icons.arrow_circle_right_outlined,
+                          routeName: '/payment_details',
+                        ),
+                        const SizedBox(height: 25),
+                        HorizontalTiles(
+                          title: 'Card Settings',
+                          icon: Icons.expand_more_rounded,
+                          isDropdown: true,
+                          dropdownHeight: 400,
+                          children: [
+                            SizedBox(height: 25),
+                            HorizontalTiles(
+                              title: 'Remove Card',
+                              icon: Icons.expand_more_rounded,
+                              tileColor: GlobalVariables.lightGrey,
+                              textColor: GlobalVariables.backgroundColor,
+                              isDropdown: true,
+                              children: [],
+                            ),
+                            SizedBox(height: 25),
+                            HorizontalTiles(
+                              title: 'Card Details',
+                              icon: Icons.credit_card,
+                              routeName: '/card_details',
+                              tileColor: GlobalVariables.lightGrey,
+                              textColor: GlobalVariables.backgroundColor,
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -132,8 +184,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 }
 
-
-
 // if (outstandingAmount != 0) {
 //                                 showPaymentDialog(context);
 //                               } else {
@@ -144,12 +194,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 //                                 ));
 //                               }
 
-
 // Text(
-                          //   'RM ${outstandingAmount.toDouble().toString()}',
-                          //   style: const TextStyle(
-                          //     fontSize: 20,
-                          //     color: GlobalVariables.primaryColor,
-                          //     fontWeight: FontWeight.w500,
-                          //   ),
-                          // ),
+//   'RM ${outstandingAmount.toDouble().toString()}',
+//   style: const TextStyle(
+//     fontSize: 20,
+//     color: GlobalVariables.primaryColor,
+//     fontWeight: FontWeight.w500,
+//   ),
+// ),

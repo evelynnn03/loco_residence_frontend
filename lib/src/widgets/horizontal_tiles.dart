@@ -17,6 +17,7 @@ class HorizontalTiles extends StatefulWidget {
     this.tileColor = GlobalVariables.secondaryColor,
     this.textColor = GlobalVariables.primaryColor,
     this.iconSize = 40,
+    this.dropdownHeight = 0,
   });
 
   final String title;
@@ -27,6 +28,7 @@ class HorizontalTiles extends StatefulWidget {
   final Color tileColor;
   final Color textColor;
   final double iconSize;
+  final double dropdownHeight;
 
   @override
   State<HorizontalTiles> createState() => _HorizontalTilesState();
@@ -109,7 +111,14 @@ class _HorizontalTilesState extends State<HorizontalTiles> {
           ),
         ),
         if (_isExpanded && widget.isDropdown)
-          ...widget.children, // Display children if expanded
+          Container(
+            height: widget.dropdownHeight,
+            child: SingleChildScrollView(
+              child: Column(
+                children: widget.children,
+              ),
+            ),
+          ),
       ],
     );
   }
