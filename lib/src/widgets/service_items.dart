@@ -39,7 +39,7 @@ class ServiceItems extends StatelessWidget {
                 ]
               : null,
           color: GlobalVariables
-              .welcomeColor, // Set the background color to purple
+              .primaryColor, // Set the background color to purple
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(

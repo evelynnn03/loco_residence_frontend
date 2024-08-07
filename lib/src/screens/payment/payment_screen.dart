@@ -156,7 +156,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             HorizontalTiles(
                               title: 'Remove Card',
                               icon: Icons.expand_more_rounded,
-                              tileColor: GlobalVariables.lightGrey,
+                              tileColor: GlobalVariables.primaryColor,
                               textColor: GlobalVariables.backgroundColor,
                               isDropdown: true,
                               children: [],
@@ -166,7 +166,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               title: 'Card Details',
                               icon: Icons.credit_card,
                               routeName: '/card_details',
-                              tileColor: GlobalVariables.lightGrey,
+                              tileColor: GlobalVariables.primaryColor,
                               textColor: GlobalVariables.backgroundColor,
                             )
                           ],

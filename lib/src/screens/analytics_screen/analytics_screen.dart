@@ -105,183 +105,180 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           },
         ),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 35),
-              child: MySegmentedButtonRow(
-                selected:
-                    _tabController.index == 0 ? {'This Week'} : {'Last Week'},
-                onSelectionChanged: (newSelection) {
-                  setState(() {
-                    _tabController.index =
-                        newSelection.first == 'This Week' ? 0 : 1;
-                  });
-                },
-                segments: const [
-                  ButtonSegment(
-                    value: 'This Week',
-                    label: Text('This Week'),
-                  ),
-                  ButtonSegment(
-                    value: 'Last Week',
-                    label: Text('Last Week'),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 35.0),
-              child: MySegmentedButtonRow(
-                selected: {selectedDay},
-                onSelectionChanged: (newSelection) {
-                  setState(() {
-                    selectedDay = newSelection.first;
-                  });
-                },
-                segments: const [
-                  ButtonSegment(
-                    value: 'Monday',
-                    label: Text('M'),
-                  ),
-                  ButtonSegment(
-                    value: 'Tuesday',
-                    label: Text('T'),
-                  ),
-                  ButtonSegment(
-                    value: 'Wednesday',
-                    label: Text('W'),
-                  ),
-                  ButtonSegment(
-                    value: 'Thursday',
-                    label: Text('T'),
-                  ),
-                  ButtonSegment(
-                    value: 'Friday',
-                    label: Text('F'),
-                  ),
-                  ButtonSegment(
-                    value: 'Saturday',
-                    label: Text('S'),
-                  ),
-                  ButtonSegment(
-                    value: 'Sunday',
-                    label: Text('S'),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 70,
-            ),
-            _tabController.index == 0
-                ? Expanded(
-                    child: WeekChart(
-                      week: 'this_week',
-                      selectedDay: selectedDay,
-                      onPeakHourDetected: (peakHourBool) {
-                        if (peakHour != peakHourBool) {
-                          setState(
-                            () {
-                              peakHour = peakHourBool;
-                            },
-                          );
-                        }
-                      },
-                      showBottomIndicator: (bool) {
-                        if (showBottomIndicator != bool) {
-                          setState(
-                            () {
-                              showBottomIndicator = bool;
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  )
-                : Expanded(
-                    child: WeekChart(
-                      week: 'last_week',
-                      selectedDay: selectedDay,
-                      onPeakHourDetected: (peakHourBool) {
-                        if (peakHour != peakHourBool) {
-                          setState(() {
-                            peakHour = peakHourBool;
-                          });
-                        }
-                      },
-                      showBottomIndicator: (bool) {
-                        if (showBottomIndicator != bool) {
-                          setState(() {
-                            showBottomIndicator = bool;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-            Container(
-              height: 150,
-              decoration: BoxDecoration(
-                color: mode.isDark ? Theme.of(context).cardColor : Colors.white,
-                boxShadow: mode.isDark
-                    ? [
-                        BoxShadow(
-                          color: boxShadowColor,
-                          offset: const Offset(
-                            0.0,
-                            0.0,
-                          ),
-                          blurRadius: 8.0,
-                          spreadRadius: 0.0,
-                        ), //BoxShadow
-                        //BoxShadow
-                      ]
-                    : null,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+      body: Column(
+        children: [
+          SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 35),
+            child: MySegmentedButtonRow(
+              selected:
+                  _tabController.index == 0 ? {'This Week'} : {'Last Week'},
+              onSelectionChanged: (newSelection) {
+                setState(() {
+                  _tabController.index =
+                      newSelection.first == 'This Week' ? 0 : 1;
+                });
+              },
+              segments: const [
+                ButtonSegment(
+                  value: 'This Week',
+                  label: Text('This Week'),
                 ),
-              ),
-              child: showBottomIndicator
-                  ? Row(
-                      children: [
-                        isGymClosed()
-                            ? Lottie.network(animationLink['packed']![0])
-                            : peakHour
-                                ? Lottie.network(animationLink['packed']![0])
-                                : Lottie.network(
-                                    animationLink['no packed']![0]),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Current Time: $formattedHour $formattedMinute',
-                              style: TextStyle(
-                                  color: GlobalVariables.secondaryGrey),
-                            ),
-                            Text(
-                              isGymClosed()
-                                  ? 'Gym is closed'
-                                  : peakHour
-                                      ? animationLink['packed']![1]
-                                      : animationLink['no packed']![1],
-                              style: TextStyle(
-                                  color: GlobalVariables.primaryColor,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        )
-                      ],
-                    )
-                  : Container(),
+                ButtonSegment(
+                  value: 'Last Week',
+                  label: Text('Last Week'),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 35.0),
+            child: MySegmentedButtonRow(
+              selected: {selectedDay},
+              onSelectionChanged: (newSelection) {
+                setState(() {
+                  selectedDay = newSelection.first;
+                });
+              },
+              segments: const [
+                ButtonSegment(
+                  value: 'Monday',
+                  label: Text('M'),
+                ),
+                ButtonSegment(
+                  value: 'Tuesday',
+                  label: Text('T'),
+                ),
+                ButtonSegment(
+                  value: 'Wednesday',
+                  label: Text('W'),
+                ),
+                ButtonSegment(
+                  value: 'Thursday',
+                  label: Text('T'),
+                ),
+                ButtonSegment(
+                  value: 'Friday',
+                  label: Text('F'),
+                ),
+                ButtonSegment(
+                  value: 'Saturday',
+                  label: Text('S'),
+                ),
+                ButtonSegment(
+                  value: 'Sunday',
+                  label: Text('S'),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 70,
+          ),
+          _tabController.index == 0
+              ? Expanded(
+                  child: WeekChart(
+                    week: 'this_week',
+                    selectedDay: selectedDay,
+                    onPeakHourDetected: (peakHourBool) {
+                      if (peakHour != peakHourBool) {
+                        setState(
+                          () {
+                            peakHour = peakHourBool;
+                          },
+                        );
+                      }
+                    },
+                    showBottomIndicator: (bool) {
+                      if (showBottomIndicator != bool) {
+                        setState(
+                          () {
+                            showBottomIndicator = bool;
+                          },
+                        );
+                      }
+                    },
+                  ),
+                )
+              : Expanded(
+                  child: WeekChart(
+                    week: 'last_week',
+                    selectedDay: selectedDay,
+                    onPeakHourDetected: (peakHourBool) {
+                      if (peakHour != peakHourBool) {
+                        setState(() {
+                          peakHour = peakHourBool;
+                        });
+                      }
+                    },
+                    showBottomIndicator: (bool) {
+                      if (showBottomIndicator != bool) {
+                        setState(() {
+                          showBottomIndicator = bool;
+                        });
+                      }
+                    },
+                  ),
+                ),
+          Container(
+            height: 180,
+            decoration: BoxDecoration(
+              color: mode.isDark ? Theme.of(context).cardColor : Colors.white,
+              boxShadow: mode.isDark
+                  ? [
+                      BoxShadow(
+                        color: boxShadowColor,
+                        offset: const Offset(
+                          0.0,
+                          0.0,
+                        ),
+                        blurRadius: 8.0,
+                        spreadRadius: 0.0,
+                      ), //BoxShadow
+                      //BoxShadow
+                    ]
+                  : null,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: showBottomIndicator
+                ? Row(
+                    children: [
+                      isGymClosed()
+                          ? Lottie.network(animationLink['packed']![0])
+                          : peakHour
+                              ? Lottie.network(animationLink['packed']![0])
+                              : Lottie.network(animationLink['no packed']![0]),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Current Time: $formattedHour $formattedMinute',
+                            style:
+                                TextStyle(color: GlobalVariables.secondaryGrey),
+                          ),
+                          Text(
+                            isGymClosed()
+                                ? 'Gym is closed'
+                                : peakHour
+                                    ? animationLink['packed']![1]
+                                    : animationLink['no packed']![1],
+                            style: TextStyle(
+                                color: GlobalVariables.primaryColor,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      )
+                    ],
+                  )
+                : Container(),
+          ),
+        ],
       ),
     );
   }
