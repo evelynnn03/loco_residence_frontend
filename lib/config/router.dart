@@ -5,7 +5,7 @@ import '../../../guard/screens/parking_map_tab.dart';
 import '../../../guard/screens/visitor_map.dart';
 import 'package:flutter/material.dart';
 import '../../../guard/screens/scan_qrcode_screen.dart';
-import '../src/screens/visitor/visitor_register_screen.dart';
+import '../src/screens/visitor/visitor_screen.dart';
 import '../core/auth/login_screen.dart';
 import '../guard/screens/guard_home_screen.dart';
 import '../guard/screens/visitor_timestamp.dart';

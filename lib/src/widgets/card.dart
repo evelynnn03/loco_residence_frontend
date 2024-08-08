@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 
 class CardContainer extends StatefulWidget {

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../constants/global_variables.dart';
 import '../screens/payment/payment_screen.dart';
 import '../screens/settings/settings_screen.dart';
-import '../screens/visitor/visitor_register_screen.dart';
+import '../screens/visitor/visitor_screen.dart';
 import '../../config/themes/theme_provider.dart';
 
 class MyBottomNavBar extends StatefulWidget {
