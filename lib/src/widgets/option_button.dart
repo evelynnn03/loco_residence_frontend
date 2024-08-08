@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class FeedBackButton extends StatefulWidget {
+class OptionButton extends StatefulWidget {
   final String text;
   final Color color;
   final bool isChosen;
   final Function(bool) onSelected;
-  const FeedBackButton({
+  const OptionButton({
     super.key,
     required this.text,
     required this.color,
@@ -14,16 +14,15 @@ class FeedBackButton extends StatefulWidget {
   });
 
   @override
-  State<FeedBackButton> createState() => _FeedBackButtonState();
+  State<OptionButton> createState() => _OptionButtonState();
 }
 
-class _FeedBackButtonState extends State<FeedBackButton> {
-
+class _OptionButtonState extends State<OptionButton> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      onTap: (){
+      onTap: () {
         //The onSelected callback is responsible for updating the selection state
         widget.onSelected(!widget.isChosen);
       },

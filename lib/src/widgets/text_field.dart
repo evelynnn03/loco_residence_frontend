@@ -4,7 +4,8 @@ import 'package:loco_frontend/src/constants/global_variables.dart';
 
 class MyTextField extends StatefulWidget {
   final TextEditingController controller;
-  final String labelText;
+  final String? labelText;
+  final String? hintText;
   final bool?
       obscureText; // Only for password: to hide the text entered, eg:  abc -> ...
   final int? maxLines;
@@ -20,13 +21,15 @@ class MyTextField extends StatefulWidget {
   final bool enabled;
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onChanged;
+  final bool validate;
 
   const MyTextField({
     super.key,
     this.isDescriptionBox,
     this.maxLines,
     required this.controller,
-    required this.labelText,
+    this.labelText,
+    this.hintText,
     this.obscureText,
     required this.keyboardType,
     this.onTap,
@@ -37,6 +40,7 @@ class MyTextField extends StatefulWidget {
     this.enabled = true,
     this.inputFormatters,
     this.onChanged,
+    this.validate = true,
   });
 
   @override
@@ -55,30 +59,31 @@ class _MyTextFieldState extends State<MyTextField> {
         obscureText: widget.obscureText ?? false,
         keyboardType: widget.keyboardType,
         onTap: widget.onTap,
-        validator: (value) {
-          // If a custom validator is provided, use it
-          if (widget.validator != null) {
-            return widget.validator!(value);
-          }
-          // Default behavior: if value is empty, show error
-          else if (value!.isEmpty) {
-            return 'Please enter ${widget.labelText}';
-          }
-          return null;
-        },
+        validator: widget.validate
+            ? (value) {
+                if (widget.validator != null) {
+                  return widget.validator!(value);
+                }
+                if (value!.isEmpty) {
+                  return 'Please enter ${widget.labelText}';
+                }
+                return null;
+              }
+            : null,
         decoration: InputDecoration(
           prefix: widget.isDescriptionBox == true
-              ? Padding(
+              ? const Padding(
                   padding: EdgeInsets.only(top: 35, left: 15),
                 )
               : null,
           labelText: widget.labelText,
-          labelStyle: TextStyle(
+          hintText: widget.hintText,
+          labelStyle: const TextStyle(
             color: GlobalVariables.textLabel,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
-          floatingLabelStyle: TextStyle(
+          floatingLabelStyle: const TextStyle(
             color: GlobalVariables.textLabel,
             fontSize: 15,
             fontWeight: FontWeight.bold,
@@ -105,30 +110,30 @@ class _MyTextFieldState extends State<MyTextField> {
                 )
               : null,
 
-          contentPadding: EdgeInsets.symmetric(
+          contentPadding: const EdgeInsets.symmetric(
             horizontal: 15.0,
             vertical: 15.0,
           ),
 
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.transparent),
+            borderSide: const BorderSide(color: Colors.transparent),
             borderRadius: widget.isDescriptionBox == true
-                ? BorderRadius.all(
+                ? const BorderRadius.all(
                     Radius.circular(15),
                   ) // Add closing parenthesis here
-                : BorderRadius.all(
+                : const BorderRadius.all(
                     Radius.circular(25),
                   ),
           ),
 
           focusedBorder: OutlineInputBorder(
             borderSide:
-                BorderSide(color: GlobalVariables.primaryColor, width: 3),
+                const BorderSide(color: GlobalVariables.primaryColor, width: 3),
             borderRadius: widget.isDescriptionBox == true
-                ? BorderRadius.all(
+                ? const BorderRadius.all(
                     Radius.circular(15),
                   )
-                : BorderRadius.all(
+                : const BorderRadius.all(
                     Radius.circular(25),
                   ),
           ),
@@ -138,23 +143,23 @@ class _MyTextFieldState extends State<MyTextField> {
 
           // Customize the appearance during error state
           errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
+            borderSide: const BorderSide(color: Colors.red),
             borderRadius: widget.isDescriptionBox == true
-                ? BorderRadius.all(
+                ? const BorderRadius.all(
                     Radius.circular(20),
                   ) // Add closing parenthesis here
-                : BorderRadius.all(
+                : const BorderRadius.all(
                     Radius.circular(25),
                   ),
           ),
 
           focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 3),
+            borderSide: const BorderSide(color: Colors.red, width: 3),
             borderRadius: widget.isDescriptionBox == true
-                ? BorderRadius.all(
+                ? const BorderRadius.all(
                     Radius.circular(20),
                   )
-                : BorderRadius.all(
+                : const BorderRadius.all(
                     Radius.circular(25),
                   ),
           ),

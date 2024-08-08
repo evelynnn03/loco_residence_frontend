@@ -11,7 +11,7 @@ import '../guard/screens/guard_home_screen.dart';
 import '../guard/screens/visitor_timestamp.dart';
 import '../src/screens/analytics_screen/analytics_screen.dart';
 import '../src/screens/facility_info_screen.dart';
-import '../src/screens/feedback_screen/feedback_screen.dart';
+import '../src/screens/feedback_screen.dart';
 import '../src/screens/important_contact.dart';
 import '../src/screens/payment/payment_screen.dart';
 import '../src/screens/settings/reset_password_screen.dart';

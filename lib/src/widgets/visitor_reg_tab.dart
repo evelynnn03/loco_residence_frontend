@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loco_frontend/src/widgets/option_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/visitor/generate_qrcode_screen.dart';
@@ -33,6 +34,8 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
   String unitNo = '';
   int occupiedParking = 0;
   int remaining = 0;
+  int isSelectedIndex = 0;
+  String purpose = '';
 
   @override
   void initState() {
@@ -128,6 +131,8 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
 
   @override
   Widget build(BuildContext context) {
+    Color buttonColor1 = GlobalVariables.lightGrey;
+    Color buttonColor2 = GlobalVariables.primaryColor;
     // Color backgroundColor = Theme.of(context).primaryColor;
     // int remainingParkingLots =
     //     Provider.of<VisitorDetailsProvider>(context, listen: false)
@@ -192,9 +197,6 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                       controller: carPlateTextController,
                       labelText: 'Car Plate',
                       keyboardType: TextInputType.text,
-                      validator: (value) {
-                        return null; // No validation error
-                      },
                       onChanged: (text) {
                         // Automatically converts text to uppercase
                         carPlateTextController.text = text.toUpperCase();
@@ -211,6 +213,59 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                     // prefixIcon: Icons.phone,
                   ),
 
+                  const SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OptionButton(
+                          text: 'Visitor',
+                          color: isSelectedIndex == 0
+                              ? buttonColor2
+                              : buttonColor1,
+                          isChosen: isSelectedIndex == 0,
+                          onSelected: (boolSelect) {
+                            setState(() {
+                              purpose = 'Visitor';
+                              isSelectedIndex = boolSelect ? 0 : -1;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OptionButton(
+                          text: 'Delivery',
+                          color: isSelectedIndex == 1
+                              ? buttonColor2
+                              : buttonColor1,
+                          isChosen: isSelectedIndex == 1,
+                          onSelected: (boolSelect) {
+                            setState(() {
+                              purpose = 'Delivery';
+                              isSelectedIndex = boolSelect ? 1 : -1;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OptionButton(
+                          text: 'Constructor',
+                          color: isSelectedIndex == 2
+                              ? buttonColor2
+                              : buttonColor1,
+                          isChosen: isSelectedIndex == 2,
+                          onSelected: (boolSelect) {
+                            setState(() {
+                              purpose = 'Constructor';
+                              isSelectedIndex = boolSelect ? 2 : -1;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
                   //generate qr code button
                   const SizedBox(height: 40),
                   MyButton(
@@ -221,6 +276,8 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                         }
                       },
                       text: 'Generate QR Code'),
+
+                  const SizedBox(height: 40),
                 ],
               ),
             ),

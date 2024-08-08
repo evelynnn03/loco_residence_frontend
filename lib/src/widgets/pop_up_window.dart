@@ -6,11 +6,13 @@ class Popup {
   final String title;
   final Widget content;
   final List<ButtonConfig> buttons;
+  final TextAlign textAlign;
 
   Popup({
     required this.title,
     required this.content,
     required this.buttons,
+    this.textAlign = TextAlign.center,
   });
 
   Future<void> show(BuildContext context) async {
@@ -29,9 +31,12 @@ class Popup {
           ),
           textAlign: TextAlign.center,
         ),
-        content: DefaultTextStyle(
-          style: TextStyle(color: GlobalVariables.primaryColor),
-          child: content,
+        content: SingleChildScrollView(
+          child: DefaultTextStyle(
+            style: TextStyle(color: GlobalVariables.primaryColor),
+            textAlign: textAlign,
+            child: content,
+          ),
         ),
         backgroundColor: popUpBackground,
         actions: [

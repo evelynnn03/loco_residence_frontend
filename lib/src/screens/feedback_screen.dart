@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../widgets/buttons.dart';
-import '../../widgets/pop_up_window.dart';
-import 'widget/feedback_button.dart';
+import '../widgets/buttons.dart';
+import '../widgets/pop_up_window.dart';
+import '../widgets/option_button.dart';
 import 'package:flutter/material.dart';
-import '../../widgets/text_field.dart';
-import '../../constants/global_variables.dart';
+import '../widgets/text_field.dart';
+import '../constants/global_variables.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import '../../models/feedback.dart' as myfeedback;
+import '../models/feedback.dart' as myfeedback;
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -41,54 +41,53 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   // Function to submit feedback
   void submitFeedback() async {
-    try {
-      if (unitNo.isEmpty || residentId.isEmpty) {
-        // print('Unit number is empty');
-        // print('Resident Id is also empty');
-        return;
-      }
-      final feedbackDetails = desController.text.trim();
-      if (feedbackDetails == '') {
-        Popup(
-                title: 'Warning',
-                content: SizedBox(
-                    height: 60,
-                    child: Center(child: Text("Please enter your feedback"))),
-                buttons: [ButtonConfig(text: 'OK', onPressed: () {})])
-            .show(context);
-      } else {
-        myfeedback.Feedback feedback = myfeedback.Feedback(
-          unitNo: unitNo,
-          feedbackDetails: feedbackDetails,
-          feedbackCategory: feedbackCategory,
-          feedbackRating: userRating,
-        );
+    // try {
+    //   if (unitNo.isEmpty || residentId.isEmpty) {
+    //     // print('Unit number is empty');
+    //     // print('Resident Id is also empty');
+    //     return;
+    //   }
+    final feedbackDetails = desController.text.trim();
+    if (feedbackDetails == '') {
+      Popup(
+          title: 'Warning',
+          content: SizedBox(
+              height: 60,
+              child: Center(child: Text("Please enter your feedback"))),
+          buttons: [ButtonConfig(text: 'OK', onPressed: () {})]).show(context);
+    } else {
+      myfeedback.Feedback feedback = myfeedback.Feedback(
+        unitNo: unitNo,
+        feedbackDetails: feedbackDetails,
+        feedbackCategory: feedbackCategory,
+        feedbackRating: userRating,
+      );
 
-        FirebaseFirestore.instance.collection('Feedback').add(
-              feedback.toMap(),
-            );
+      FirebaseFirestore.instance.collection('Feedback').add(
+            feedback.toMap(),
+          );
 
-        desController.clear();
+      desController.clear();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Feedback submitted successfully!'),
-          ),
-        );
-      }
-
-      // setState(() {
-      //   feedbackDetails = desController.text;
-      // });
-
-      // print('Unit Number: $unitNo');
-    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching unit number: $e'),
+        const SnackBar(
+          content: Text('Feedback submitted successfully!'),
         ),
       );
     }
+
+    // setState(() {
+    //   feedbackDetails = desController.text;
+    // });
+
+    // print('Unit Number: $unitNo');
+    // } catch (e) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Error fetching unit number: $e'),
+    //     ),
+    //   );
+    // }
   }
 
   final formKey = GlobalKey<FormState>();
@@ -119,9 +118,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15.0),
-                    child: const Text(
+                  const Padding(
+                    padding: EdgeInsets.only(left: 15.0),
+                    child: Text(
                       "Feedback",
                       style: TextStyle(
                         color: GlobalVariables.primaryColor,
@@ -137,20 +136,55 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       isDescriptionBox: true,
                       maxLines: 8,
                       controller: desController,
-                      labelText: 'Write your feedback here...',
+                      hintText: 'Write your feedback here...',
                       keyboardType: TextInputType.text,
+                      validate: false,
                     ),
                   ),
                   const SizedBox(
                     height: 20,
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 15,
+                    ),
+                    child: Container(
+                      height: 55,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      child: Center(
+                        child: RatingBar.builder(
+                          initialRating: initialRating.toDouble(),
+                          minRating: 1,
+                          direction: Axis.horizontal,
+                          allowHalfRating: false,
+                          itemCount: 5,
+                          itemPadding: const EdgeInsets.symmetric(
+                            horizontal: 7.0,
+                          ),
+                          itemBuilder: (context, _) => const Icon(
+                            Icons.star,
+                            size: 7,
+                            color: Colors.amber,
+                          ),
+                          onRatingUpdate: (rating) {
+                            userRating = rating.toInt();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
                     child: Row(
                       children: [
                         Expanded(
                           //isSelectedIndex 0
-                          child: FeedBackButton(
+                          child: OptionButton(
                             text: 'Facility',
                             color: isSelectedIndex == 0
                                 ? buttonColor2
@@ -166,12 +200,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             },
                           ),
                         ),
-                        SizedBox(
-                          width: 15,
-                        ),
+                        const SizedBox(width: 15),
                         //isSelectedIndex 1
                         Expanded(
-                          child: FeedBackButton(
+                          child: OptionButton(
                             text: 'Maintenance',
                             color: isSelectedIndex == 1
                                 ? buttonColor2
@@ -192,12 +224,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     height: 15,
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
                     child: Row(
                       children: [
                         //isSelectedIndex 2
                         Expanded(
-                          child: FeedBackButton(
+                          child: OptionButton(
                             text: 'Security',
                             color: isSelectedIndex == 2
                                 ? buttonColor2
@@ -211,13 +243,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             isChosen: isSelectedIndex == 2,
                           ),
                         ),
-                        SizedBox(
-                          width: 15,
-                        ),
+                        const SizedBox(width: 15),
                         //isSelectedIndex 3
                         Expanded(
-                          child: FeedBackButton(
-                            text: 'Suggestion',
+                          child: OptionButton(
+                            text: 'Other',
                             color: isSelectedIndex == 3
                                 ? buttonColor2
                                 : buttonColor1,
@@ -233,45 +263,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 15,
-                    ),
-                    child: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: Center(
-                        child: RatingBar.builder(
-                          initialRating: initialRating.toDouble(),
-                          minRating: 1,
-                          direction: Axis.horizontal,
-                          allowHalfRating: false,
-                          itemCount: 5,
-                          itemPadding: EdgeInsets.symmetric(
-                            horizontal: 7.0,
-                          ),
-                          itemBuilder: (context, _) => Icon(
-                            Icons.star,
-                            size: 7,
-                            color: Colors.amber,
-                          ),
-                          onRatingUpdate: (rating) {
-                            userRating = rating.toInt();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
+                  const SizedBox(height: 50),
                   GestureDetector(
                     onTap: submitFeedback,
                     child: MyButton(
@@ -281,7 +273,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             submitFeedback();
                           }
                         },
-                        text: 'Send Feedback'),
+                        text: 'Send'),
                   )
                 ],
               ),
