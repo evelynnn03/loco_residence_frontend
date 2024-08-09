@@ -69,26 +69,50 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     filteredVisitorData = visitorData;
   }
 
+  // show the calendar
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2022),
-      lastDate: DateTime(2101),
+      firstDate: DateTime(2022), // starts from year 2022
+      lastDate: DateTime(2101), // ends year 2101
     );
+
     if (pickedDate != null && pickedDate != _selectedDate) {
       setState(() {
-        _selectedDate = pickedDate;
+        // Strip the time component from pickedDate
+        _selectedDate =
+            DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
+
+        // Format the selected date to 'dd/MM/yyyy'
         _searchTextController.text =
-            DateFormat('yyyy-MM-dd').format(pickedDate);
+            DateFormat('dd/MM/yyyy').format(_selectedDate!);
+
+        // Filter the visitors based on the selected date
         _filterVisitors(_searchTextController.text);
       });
     }
   }
 
+  // filter the visitor data list for searching
   void _filterVisitors(String query) {
     final searchQuery = query.toLowerCase();
     final selectedDate = _selectedDate;
+
+    // Function to strip time from a DateTime object
+    DateTime _stripTime(DateTime dateTime) {
+      return DateTime(dateTime.year, dateTime.month, dateTime.day);
+    }
+
+    // Check if the search query is a date
+    bool _isDateQuery = false;
+    DateTime? _dateQuery;
+    try {
+      _dateQuery = DateFormat('dd/MM/yyyy').parseStrict(query);
+      _isDateQuery = true;
+    } catch (e) {
+      _isDateQuery = false;
+    }
 
     if (searchQuery.isEmpty) {
       // If search query is empty, show all data
@@ -100,17 +124,28 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
         final name = visitor['name'].toLowerCase();
         final carplate = visitor['carplate']?.toLowerCase() ?? '';
         final residentName = visitor['residentName']?.toLowerCase() ?? '';
-        final checkinDate = visitor['checkin'] as DateTime;
+        final checkinDate = _stripTime(visitor['checkin'] as DateTime);
+        final checkoutDate = visitor['checkout'] != null
+            ? _stripTime(visitor['checkout'] as DateTime)
+            : null;
 
+        // If the query is a date, match it against the check-in and check-out dates
+        if (_isDateQuery) {
+          return (checkinDate == _stripTime(_dateQuery!)) ||
+              (checkoutDate != null && checkoutDate == _stripTime(_dateQuery!));
+        }
+
+        // Otherwise, match against name, carplate, and residentName
+        final matchesQuery = name.contains(searchQuery) ||
+            carplate.contains(searchQuery) ||
+            residentName.contains(searchQuery);
+
+        // Check if the selected date matches the checkin or checkout date
         final dateMatches = selectedDate == null ||
-            (checkinDate.year == selectedDate.year &&
-                checkinDate.month == selectedDate.month &&
-                checkinDate.day == selectedDate.day);
+            checkinDate == _stripTime(selectedDate) ||
+            (checkoutDate != null && checkoutDate == _stripTime(selectedDate));
 
-        return (name.contains(searchQuery) ||
-                carplate.contains(searchQuery) ||
-                residentName.contains(searchQuery)) &&
-            dateMatches;
+        return matchesQuery && dateMatches;
       }).toList();
 
       setState(() {
@@ -120,6 +155,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     }
   }
 
+  // function for the header text
   String _getHeaderText(DateTime date) {
     final today = DateTime.now();
     final thisWeekStart = today.subtract(Duration(days: today.weekday - 1));
@@ -167,7 +203,10 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.calendar_today),
+                  icon: Icon(
+                    Icons.calendar_today,
+                    color: GlobalVariables.primaryColor,
+                  ),
                   onPressed: () => _selectDate(context),
                 ),
               ],
