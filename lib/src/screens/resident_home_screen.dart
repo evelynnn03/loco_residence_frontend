@@ -140,7 +140,8 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
     selectedIndex = -1;
   }
 
-  CarouselController carouselController = CarouselController();
+
+  CarouselSliderController carouselController = CarouselSliderController();
   int currentIndex = 0;
   void clearUserData() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -168,7 +169,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
               children: [
                 Row(
                   children: [
-                    Column(
+                    const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
