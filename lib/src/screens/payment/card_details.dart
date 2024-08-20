@@ -5,6 +5,9 @@ import 'package:get/get.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/finance_provider.dart';
 
 class CardDetails extends StatefulWidget {
   const CardDetails({super.key});
@@ -20,11 +23,15 @@ class _CardDetailsState extends State<CardDetails> {
   final expDateTextController = TextEditingController();
   final cvvTextController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  final residentId = 7; // Hardcoded for now
 
   bool _isEditing = false;
 
+
+
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(

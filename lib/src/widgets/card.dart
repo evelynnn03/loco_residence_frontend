@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/finance_provider.dart';
 
 class CardContainer extends StatefulWidget {
   const CardContainer({super.key});
@@ -9,11 +12,12 @@ class CardContainer extends StatefulWidget {
 }
 
 class _CardContainerState extends State<CardContainer> {
-  late String cardNumber = '';
+  late String cardNumber = '1212121';
   late String expiryDate = '';
   late String cardHolderName = '';
   late String cvvCode = '';
   String cardType = '';
+  int residentId = 7; // Hardcoded for now
 
   Widget _buildCardLogo() {
     if (cardNumber.startsWith('4')) {
@@ -38,7 +42,16 @@ class _CardContainerState extends State<CardContainer> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // fetch card details
+    Provider.of<Financeprovider>(context, listen: false)
+        .fetchCardDetails(residentId);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final cardDetails = Provider.of<Financeprovider>(context).cardDetails; //get the card details from the provider
     return Padding(
       padding: const EdgeInsets.all(25.0),
       child: Column(
@@ -99,7 +112,7 @@ class _CardContainerState extends State<CardContainer> {
                         ),
                       ),
                       Text(
-                        '12/26',
+                        '${cardDetails['cardExpiry']}',
                         style: TextStyle(
                           color: Colors.black54,
                           fontSize: 16,
@@ -113,7 +126,7 @@ class _CardContainerState extends State<CardContainer> {
           ),
           TextFormField(
             decoration: InputDecoration(
-              labelText: 'Card Number',
+              labelText: '${cardDetails['cardName']}',
             ),
             keyboardType: TextInputType.number,
             onChanged: (value) {
