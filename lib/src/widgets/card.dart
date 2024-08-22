@@ -16,7 +16,7 @@ class _CardContainerState extends State<CardContainer> {
   late String cardHolderName = '';
   late String cvvCode = '';
   String cardType = '';
-  int residentId = 7; // Hardcoded for now
+  int residentId = 8; // Hardcoded for now
 
   Widget _buildCardLogo() {
     if (cardNumber.startsWith('4')) {
@@ -54,7 +54,8 @@ class _CardContainerState extends State<CardContainer> {
   Widget build(BuildContext context) {
     final cardDetails = Provider.of<FinanceProvider>(context).cardDetails;
     final totalOutstandingAmount =
-        Provider.of<FinanceProvider>(context).totalOutstandingAmount;
+      Provider.of<FinanceProvider>(context).totalOutstandingAmount;
+    final formattedAmount = totalOutstandingAmount.toStringAsFixed(2);
         //if cardDetails['cardNo'] is empty, it means the data is still loading
     final isLoading = cardDetails['cardNo'] == '';
 
@@ -103,7 +104,7 @@ class _CardContainerState extends State<CardContainer> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'RM $totalOutstandingAmount',
+                          'RM $formattedAmount',
                           style: const TextStyle(
                             color: GlobalVariables.primaryColor,
                             fontSize: 32,

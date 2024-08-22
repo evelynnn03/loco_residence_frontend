@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/models/invoice.dart';
 
 class MyListTile extends StatelessWidget {
   const MyListTile({super.key, required this.items});
-  final List<Map<String, String>> items;
+  final List<Invoice> items;
 
   @override
   Widget build(BuildContext context) {
@@ -23,21 +24,21 @@ class MyListTile extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${item['date']}',
+                  item.formattedDate,
                   style: const TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
               ),
               Expanded(
                 child: Text(
-                  'RM ${item['total']}',
+                  item.amount.toString(),
                   style: const TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
               ),
               Expanded(
                 child: Text(
-                  'R${item['invoiceNo']}',
+                  item.invoiceNo.toString(),
                   style: const TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/services/finance_service.dart';
+import 'package:intl/intl.dart';
 
 import '../models/invoice.dart';
 
@@ -46,9 +47,12 @@ class FinanceProvider with ChangeNotifier {
     try {
       _invoices = await FinanceService().getInvoiceDetails(residentId);
       // Calculate total outstanding amount
-      for (var invoice in _invoices) {
+    for (var invoice in _invoices) {
+      if (invoice.status.toLowerCase() == 'unpaid') {
+        // Convert amount to double and add to total outstanding amount
         _totalOutstandingAmount += double.parse(invoice.amount);
       }
+    }
       notifyListeners();
     } catch (e) {
       // Handle error

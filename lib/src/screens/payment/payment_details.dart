@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/models/invoice.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
+import 'package:provider/provider.dart';
 import '../../constants/global_variables.dart';
+import '../../provider/finance_provider.dart';
 import '../../widgets/list_tiles.dart';
 
 class PaymentDetails extends StatefulWidget {
@@ -14,8 +17,19 @@ class PaymentDetails extends StatefulWidget {
 }
 
 class _PaymentDetailsState extends State<PaymentDetails> {
+  int residentId = 8; // Hardcoded for now
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Provider.of<FinanceProvider>(context, listen: false)
+        .fetchInvoices(residentId);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final invoiceList = Provider.of<FinanceProvider>(context).invoices;
     return DefaultTabController(
       length: 2, // invoice and history
       child: Scaffold(
@@ -157,30 +171,20 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   // the contents for invoice tab
-  List<Map<String, String>> getInvoiceItems() {
-    return [
-      {'date': '30th Apr 2024', 'total': '50.00', 'invoiceNo': '1235'},
-      {'date': '30th Mar 2024', 'total': '50.00', 'invoiceNo': '1234'},
-      {'date': '30th Apr 2024', 'total': '50.00', 'invoiceNo': '1235'},
-      {'date': '30th Mar 2024', 'total': '50.00', 'invoiceNo': '1234'},
-      {'date': '30th Apr 2024', 'total': '50.00', 'invoiceNo': '1235'},
-      {'date': '30th Mar 2024', 'total': '50.00', 'invoiceNo': '1234'},
-      {'date': '30th Apr 2024', 'total': '50.00', 'invoiceNo': '1235'},
-      {'date': '30th Mar 2024', 'total': '50.00', 'invoiceNo': '1234'},
-      {'date': '30th Apr 2024', 'total': '50.00', 'invoiceNo': '1235'},
-      {'date': '30th Mar 2024', 'total': '50.00', 'invoiceNo': '1234'},
-      {'date': '30th Apr 2024', 'total': '50.00', 'invoiceNo': '1235'},
-      {'date': '30th Mar 2024', 'total': '50.00', 'invoiceNo': '1234'},
-      {'date': '30th Apr 2024', 'total': '50.00', 'invoiceNo': '1235'},
-      {'date': '30th Mar 2024', 'total': '50.00', 'invoiceNo': '1234'},
-    ];
+  List<Invoice> getInvoiceItems() {
+    final invoiceList = Provider.of<FinanceProvider>(context).invoices;
+    // Filter the invoices where status is 'unpaid'
+    final unpaidInvoices =
+        invoiceList.where((invoice) => invoice.status == 'unpaid').toList();
+    return unpaidInvoices;
   }
 
   // the contents for history tab
-  List<Map<String, String>> getHistoryItems() {
-    return [
-      {'date': '1st May 2024', 'total': '45.00', 'invoiceNo': '5678'},
-      {'date': '2nd May 2024', 'total': '30.00', 'invoiceNo': '5679'},
-    ];
+  List<Invoice> getHistoryItems() {
+    final invoiceList = Provider.of<FinanceProvider>(context).invoices;
+    // Filter the invoices where status is 'paid'
+    final paidInvoices =
+        invoiceList.where((invoice) => invoice.status == 'paid').toList();
+    return paidInvoices;
   }
 }

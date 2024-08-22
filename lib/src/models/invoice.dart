@@ -1,3 +1,5 @@
+import '../utils/date__utils.dart';
+
 class Invoice {
   final int id;
   final int residentId;
@@ -41,4 +43,7 @@ class Invoice {
   String toString() {
     return 'Invoice #$id for Resident $residentId - Amount: $amount';
   }
+
+    // Getter for formatted date
+  String get formattedDate => DateUtils.formatDate(createdAt);
 }
