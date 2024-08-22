@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:provider/provider.dart';
-
 import '../provider/finance_provider.dart';
 
 class CardContainer extends StatefulWidget {
@@ -12,7 +11,7 @@ class CardContainer extends StatefulWidget {
 }
 
 class _CardContainerState extends State<CardContainer> {
-  late String cardNumber = '1212121';
+  late String cardNumber = '';
   late String expiryDate = '';
   late String cardHolderName = '';
   late String cvvCode = '';
@@ -44,106 +43,104 @@ class _CardContainerState extends State<CardContainer> {
   @override
   void initState() {
     super.initState();
-    // fetch card details
-    Provider.of<Financeprovider>(context, listen: false)
+    // Fetch card details and invoice details
+    Provider.of<FinanceProvider>(context, listen: false)
         .fetchCardDetails(residentId);
+    Provider.of<FinanceProvider>(context, listen: false)
+        .fetchInvoices(residentId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final cardDetails = Provider.of<Financeprovider>(context).cardDetails; //get the card details from the provider
+    final cardDetails = Provider.of<FinanceProvider>(context).cardDetails;
+    final totalOutstandingAmount =
+        Provider.of<FinanceProvider>(context).totalOutstandingAmount;
+        //if cardDetails['cardNo'] is empty, it means the data is still loading
+    final isLoading = cardDetails['cardNo'] == '';
+
     return Padding(
       padding: const EdgeInsets.all(25.0),
-      child: Column(
-        children: [
-          Container(
-            height: 230,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
-              color: Colors.lightBlueAccent,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  offset: const Offset(0.0, 0.0),
-                  blurRadius: 8.0,
-                  spreadRadius: 0.0,
+      child: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                Container(
+                  height: 230,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: Colors.lightBlueAccent,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.grey,
+                        offset: Offset(0.0, 0.0),
+                        blurRadius: 8.0,
+                        spreadRadius: 0.0,
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Outstanding Amount',
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 16,
+                              ),
+                            ),
+                            _buildCardLogo(),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'RM $totalOutstandingAmount',
+                          style: const TextStyle(
+                            color: GlobalVariables.primaryColor,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              cardDetails['cardNo'] ?? '',
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              cardDetails['cardExpiry'] ?? '',
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(),
+                  readOnly: true,
+                  initialValue: cardDetails['cardName'] ?? '',
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(16),
-            child: Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Outstanding Amount',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                        ),
-                      ),
-                      _buildCardLogo(),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'RM 0',
-                    style: TextStyle(
-                      color: GlobalVariables.primaryColor,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '$cardNumber',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        '${cardDetails['cardExpiry']}',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: '${cardDetails['cardName']}',
-            ),
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              setState(() {
-                cardNumber = value;
-              });
-            },
-          ),
-        ],
-      ),
     );
   }
 }
-
-// onChanged: (value) {
-//                           setState(() {
-//                             cardNumber = value;
-//                           });
-//                           // _detectCardType(value);
-//                         },

@@ -49,7 +49,7 @@ void main() async {
             create: (context) => ResidentParkingDetailsProvider(),
           ),
           ChangeNotifierProvider(
-            create: (context) => Financeprovider(),
+            create: (context) => FinanceProvider(),
           ),
         ],
         child: MyApp(

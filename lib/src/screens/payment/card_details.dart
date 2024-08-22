@@ -5,9 +5,6 @@ import 'package:get/get.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
-import 'package:provider/provider.dart';
-
-import '../../provider/finance_provider.dart';
 
 class CardDetails extends StatefulWidget {
   const CardDetails({super.key});
