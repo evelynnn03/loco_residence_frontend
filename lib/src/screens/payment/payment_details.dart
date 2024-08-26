@@ -19,7 +19,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     return DefaultTabController(
       length: 2, // invoice and history
       child: Scaffold(
-        backgroundColor: GlobalVariables.backgroundColor,
+        backgroundColor: GlobalVariables.white,
         appBar: AppBar(
           backgroundColor: GlobalVariables.secondaryColor,
           title: Text(

@@ -67,7 +67,7 @@ class _HorizontalTilesState extends State<HorizontalTiles> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Container(
-              height: 80,
+              height: MediaQuery.of(context).size.height * 0.1,
               decoration: BoxDecoration(
                 color: widget.tileColor,
                 borderRadius: BorderRadius.circular(25),
@@ -89,11 +89,7 @@ class _HorizontalTilesState extends State<HorizontalTiles> {
                   children: [
                     Text(
                       widget.title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: widget.textColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: GlobalVariables.bold20(context, widget.textColor),
                     ),
                     Icon(
                       widget.isDropdown
@@ -102,7 +98,8 @@ class _HorizontalTilesState extends State<HorizontalTiles> {
                               : Icons.expand_more)
                           : widget.icon,
                       color: widget.textColor,
-                      size: widget.iconSize,
+                      size: GlobalVariables.responsiveIconSize(
+                          context, widget.iconSize),
                     ),
                   ],
                 ),

@@ -157,7 +157,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               title: 'Remove Card',
                               icon: Icons.expand_more_rounded,
                               tileColor: GlobalVariables.primaryColor,
-                              textColor: GlobalVariables.backgroundColor,
+                              textColor: GlobalVariables.white,
                               isDropdown: true,
                               children: [],
                             ),
@@ -167,7 +167,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               icon: Icons.credit_card,
                               routeName: '/card_details',
                               tileColor: GlobalVariables.primaryColor,
-                              textColor: GlobalVariables.backgroundColor,
+                              textColor: GlobalVariables.white,
                             )
                           ],
                         ),

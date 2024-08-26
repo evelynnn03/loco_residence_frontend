@@ -76,22 +76,15 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
           Positioned(
             top: 50,
             left: 10,
-            child: IconButton(
-              onPressed: () {
-                Navigator.pop(context); // Navigate back when back button is pressed
-              },
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-            ),
+            child: GlobalVariables.backButton(context,
+                color: GlobalVariables.white),
           ),
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
-              height: 700, // Adjust the height as needed
+              height: MediaQuery.of(context).size.height * 0.9,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
@@ -102,22 +95,18 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
             ),
           ),
           Positioned(
-            bottom: 260,
+            bottom: MediaQuery.of(context).size.height * 0.4,
             left: 20,
             child: FadeTransition(
               opacity: _titleAnimation,
-              child: const Text(
+              child: Text(
                 'Loco Gym',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: GlobalVariables.facilityTitleStyle(context),
               ),
             ),
           ),
           Positioned(
-            bottom: 35,
+            bottom: MediaQuery.of(context).size.height * 0.1,
             left: 20,
             child: Container(
               width: MediaQuery.of(context).size.width - 40,
@@ -126,26 +115,16 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
                 child: RichText(
                   text: TextSpan(
                     text: 'Operating hours: \n',
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold),
+                    style: GlobalVariables.importantTitleStyle(context),
                     children: [
                       TextSpan(
                         text: 'Open daily 6:00am - 10:00pm\n\n',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 19,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: GlobalVariables.facilityOpenTimeStyle(context),
                       ),
                       TextSpan(
                         text:
                             'Step into Loco Gym, your premier residential fitness destination, blending cutting-edge equipment, personalized training, and a vibrant community spirit. Our modern facilities cater to fitness enthusiasts of all levels, offering a unique blend of convenience and camaraderie. At Loco Gym, we prioritize your health and well-being, providing a welcoming space for individuals to embark on their fitness journey right within the comfort of their neighborhood. Join us today!!!',
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal),
+                        style: GlobalVariables.facilityDetailsStyle(context),
                       ),
                     ],
                   ),

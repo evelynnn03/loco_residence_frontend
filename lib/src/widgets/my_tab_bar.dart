@@ -21,8 +21,7 @@ class MyTabBar extends StatelessWidget {
           bottom: TabBar(
             indicatorColor: GlobalVariables.primaryColor,
             tabAlignment: TabAlignment.fill,
-            labelStyle:
-                const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            labelStyle: GlobalVariables.bold16(context),
             labelColor: GlobalVariables.primaryColor,
             unselectedLabelColor: GlobalVariables.tabNotSelected,
             tabs: tabLabels.map((label) => Tab(text: label)).toList(),

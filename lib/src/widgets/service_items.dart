@@ -17,12 +17,16 @@ class ServiceItems extends StatelessWidget {
     final mode = Provider.of<ThemeProvider>(context);
     Color backgroundColor = Theme.of(context).cardColor;
     Color boxShadowColor = Color.fromRGBO(129, 101, 234, 1);
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double containerHeight = screenHeight * 0.32;
+    double imageHeight = screenHeight * 0.2;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Container(
-        height: 300,
-        width: 400,
+        height: containerHeight,
+        width: double.infinity,
         decoration: BoxDecoration(
           boxShadow: mode.isDark
               ? [
@@ -50,37 +54,36 @@ class ServiceItems extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
                 width: double.infinity,
-                height: 200,
+                height: imageHeight,
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) => Icon(
                   Icons.error,
-                  size: 60,
+                  size: GlobalVariables.responsiveIconSize(context, 60),
                   color: GlobalVariables.greyishPurple,
                 ),
               ),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Text(
-                title,
-                style: TextStyle(
-                    fontSize: 24,
-                    color: GlobalVariables.backgroundColor,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 10),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
+              padding: const EdgeInsets.only(left: 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.phone_in_talk,
-                      color: GlobalVariables.backgroundColor),
-                  Text(
-                    '  $phoneNum',
-                    style: TextStyle(
-                        fontSize: 17, color: GlobalVariables.backgroundColor),
+                  Text(title,
+                      style: GlobalVariables.importantTitleStyle(context)),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.phone_in_talk,
+                        color: GlobalVariables.white,
+                        size: GlobalVariables.responsiveIconSize(context, 23),
+                      ),
+                      Text(
+                        '  $phoneNum',
+                        style: GlobalVariables.importantDetailStyle(context),
+                      ),
+                    ],
                   ),
                 ],
               ),

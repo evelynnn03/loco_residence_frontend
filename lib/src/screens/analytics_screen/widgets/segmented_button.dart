@@ -24,10 +24,10 @@ class _MySegmentedButtonRowState extends State<MySegmentedButtonRow> {
         Expanded(
           child: SegmentedButton(
             style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all(Colors.white),
-              backgroundColor: MaterialStateProperty.resolveWith(
+              foregroundColor: WidgetStateProperty.all(Colors.white),
+              backgroundColor: WidgetStateProperty.resolveWith(
                 (states) {
-                  if (states.contains(MaterialState.selected)) {
+                  if (states.contains(WidgetState.selected)) {
                     return Color.fromARGB(66, 255, 255, 255);
                   }
                   return Color.fromARGB(40, 32, 32, 32);

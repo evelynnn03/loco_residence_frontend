@@ -24,16 +24,12 @@ class Popup {
       builder: (context) => AlertDialog(
         title: Text(
           title,
-          style: TextStyle(
-            color: GlobalVariables.primaryColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: GlobalVariables.bold20(context, GlobalVariables.primaryColor),
           textAlign: TextAlign.center,
         ),
         content: SingleChildScrollView(
           child: DefaultTextStyle(
-            style: TextStyle(color: GlobalVariables.primaryColor),
+            style: const TextStyle(color: GlobalVariables.primaryColor),
             textAlign: textAlign,
             child: content,
           ),

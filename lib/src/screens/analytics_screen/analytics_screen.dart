@@ -83,31 +83,23 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       formattedMinute = currentMinutes.toString();
     }
 
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: GlobalVariables.primaryColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text(
-          'Gym Visits',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: GlobalVariables.backgroundColor,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: GlobalVariables.backgroundColor,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        title: Text('Gym Visits',
+            style: GlobalVariables.appbarStyle(
+              context,
+              color: GlobalVariables.white,
+            )),
+        leading:
+            GlobalVariables.backButton(context, color: GlobalVariables.white),
       ),
       body: Column(
         children: [
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 35),
             child: MySegmentedButtonRow(
@@ -131,7 +123,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               ],
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 35.0),
             child: MySegmentedButtonRow(
@@ -173,9 +165,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               ],
             ),
           ),
-          SizedBox(
-            height: 70,
-          ),
+          SizedBox(height: screenHeight * 0.04),
           _tabController.index == 0
               ? Expanded(
                   child: WeekChart(
@@ -222,7 +212,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   ),
                 ),
           Container(
-            height: 180,
+            height: screenHeight * 0.2,
             decoration: BoxDecoration(
               color: mode.isDark ? Theme.of(context).cardColor : Colors.white,
               boxShadow: mode.isDark
@@ -239,7 +229,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                       //BoxShadow
                     ]
                   : null,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
@@ -258,8 +248,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                         children: [
                           Text(
                             'Current Time: $formattedHour $formattedMinute',
-                            style:
-                                TextStyle(color: GlobalVariables.secondaryGrey),
+                            style: const TextStyle(
+                                color: GlobalVariables.secondaryGrey),
                           ),
                           Text(
                             isGymClosed()
@@ -267,7 +257,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                                 : peakHour
                                     ? animationLink['packed']![1]
                                     : animationLink['no packed']![1],
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: GlobalVariables.primaryColor,
                                 fontSize: 28,
                                 fontWeight: FontWeight.w600),

@@ -7,7 +7,7 @@ class LightDark {
     primaryColor: GlobalVariables.primaryColor, // purple background color
     cardColor: GlobalVariables.primaryColor, // container color (box decoration)
     scaffoldBackgroundColor:
-        GlobalVariables.backgroundColor, // white background color
+        GlobalVariables.white, // white background color
     canvasColor: GlobalVariables.secondaryColor, // text field color
     indicatorColor: GlobalVariables.primaryColor,
     focusColor: GlobalVariables.secondaryColor,
@@ -15,7 +15,7 @@ class LightDark {
     appBarTheme: const AppBarTheme(
       color: GlobalVariables.primaryColor,
       iconTheme: IconThemeData(
-        color: GlobalVariables.backgroundColor,
+        color: GlobalVariables.white,
       ),
     ),
 

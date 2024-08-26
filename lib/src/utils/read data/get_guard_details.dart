@@ -2,9 +2,9 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/constants/global_variables.dart';
 
 import '../../models/guard.dart';
-
 
 class GetGuardDetails extends StatelessWidget {
   final String documentId;
@@ -21,6 +21,8 @@ class GetGuardDetails extends StatelessWidget {
       CollectionReference guards =
           FirebaseFirestore.instance.collection('Guard');
 
+      double imageRadius = MediaQuery.of(context).size.height * 0.04;
+
       return FutureBuilder<DocumentSnapshot>(
           future: guards.doc(documentId).get(),
           builder: (context, snapshot) {
@@ -35,42 +37,39 @@ class GetGuardDetails extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
-                        Row(
-                          children: [
-                            if (showImage && guard.imageUrl.isNotEmpty)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: NetworkImage(guard.imageUrl, ),
-                                  
-                                ),
-                              ),
-                            SizedBox(height: 8),
+                      Row(
+                        children: [
+                          if (showImage && guard.imageUrl.isNotEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    guard.guardName,
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    'H/P No.: ${guard.guardHP}',
-                                    style: TextStyle(
-                                        fontSize: 11, color: Colors.white),
-                                  ),
-                                ],
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 10.0),
+                              child: CircleAvatar(
+                                radius: imageRadius,
+                                backgroundImage: NetworkImage(guard.imageUrl),
                               ),
                             ),
-                          ],
-                        ),
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  guard.guardName,
+                                  style: GlobalVariables.importantTitleStyle(
+                                      context),
+                                ),
+                                Text(
+                                  'H/P No: ${guard.guardHP}',
+                                  style: GlobalVariables.importantDetailStyle(
+                                      context),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   );
                 } else {

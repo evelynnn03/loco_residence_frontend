@@ -29,12 +29,13 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
   @override
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context);
+    final iconSize = GlobalVariables.responsiveIconSize(context, 30.0);
 
     return Scaffold(
       body: _pages[_selectedIndex],
       extendBody: true,
       bottomNavigationBar: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
         ),
@@ -49,12 +50,9 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
           backgroundColor: GlobalVariables.primaryColor,
           selectedItemColor: GlobalVariables.bottomNavSelectedIcons,
           unselectedItemColor: GlobalVariables.bottomNavIcons,
-          selectedLabelStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
+          selectedLabelStyle: GlobalVariables.bottomNavStyle(context),
           unselectedFontSize: 13,
-          iconSize: 30,
+          iconSize: iconSize,
           items: const [
             BottomNavigationBarItem(
               icon: Padding(

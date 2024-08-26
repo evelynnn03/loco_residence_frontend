@@ -150,13 +150,9 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 50),
-                  const Text(
+                  Text(
                     "Register Visitor\nDetails",
-                    style: TextStyle(
-                      color: GlobalVariables.primaryColor,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 30,
-                    ),
+                    style: GlobalVariables.headingStyle(context),
                   ),
 
                   const SizedBox(height: 40),
@@ -171,25 +167,19 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                       ),
 
                   const SizedBox(height: 30),
-                  Container(
-                    child: Column(
-                      children: [
-                        MyTextField(
-                          controller: dateTextController,
-                          labelText: 'Check-in date',
-                          obscureText: false,
-                          keyboardType: TextInputType.none,
+                  MyTextField(
+                    controller: dateTextController,
+                    labelText: 'Check-in date',
+                    obscureText: false,
+                    keyboardType: TextInputType.none,
 
-                          // SHOW THE CALENDER
-                          onTap: () async {
-                            // Show the date picker when the text field is tapped
-                            await showCalendar(context);
-                          },
+                    // SHOW THE CALENDER
+                    onTap: () async {
+                      // Show the date picker when the text field is tapped
+                      await showCalendar(context);
+                    },
 
-                          prefixIcon: Icons.date_range,
-                        ),
-                      ],
-                    ),
+                    prefixIcon: Icons.date_range,
                   ),
 
                   const SizedBox(height: 30),
@@ -305,7 +295,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
       dateTextController.text = formattedDate;
       // Do something with the selected date
     } else if (selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please select a date.'),
         duration: Duration(seconds: 3),
       ));

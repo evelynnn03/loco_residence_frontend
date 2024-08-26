@@ -78,16 +78,9 @@ class _MyTextFieldState extends State<MyTextField> {
               : null,
           labelText: widget.labelText,
           hintText: widget.hintText,
-          labelStyle: const TextStyle(
-            color: GlobalVariables.textLabel,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-          floatingLabelStyle: const TextStyle(
-            color: GlobalVariables.textLabel,
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-          ),
+          hintStyle: GlobalVariables.labelStyle(context),
+          labelStyle: GlobalVariables.labelStyle(context),
+          floatingLabelStyle: GlobalVariables.floatingLabelStyle(context),
           prefixIcon: widget.prefixIcon != null
               ? Icon(widget.prefixIcon, color: GlobalVariables.tabNotSelected)
               : null,
@@ -105,7 +98,7 @@ class _MyTextFieldState extends State<MyTextField> {
                         ? Icons.visibility_off
                         : Icons.visibility,
                     color: GlobalVariables.tabNotSelected,
-                    size: 23,
+                    size: GlobalVariables.responsiveIconSize(context, 23),
                   ),
                 )
               : null,
