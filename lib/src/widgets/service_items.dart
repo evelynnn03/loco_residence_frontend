@@ -15,7 +15,7 @@ class ServiceItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context);
-    Color backgroundColor = Theme.of(context).cardColor;
+    // Color backgroundColor = Theme.of(context).cardColor;
     Color boxShadowColor = Color.fromRGBO(129, 101, 234, 1);
     final screenHeight = MediaQuery.of(context).size.height;
 

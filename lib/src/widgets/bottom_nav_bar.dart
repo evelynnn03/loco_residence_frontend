@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/screens/resident_home_screen.dart';
-import 'package:provider/provider.dart';
 import '../constants/global_variables.dart';
 import '../screens/payment/payment_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/visitor/visitor_screen.dart';
-import '../../config/themes/theme_provider.dart';
 
 class MyBottomNavBar extends StatefulWidget {
   const MyBottomNavBar({Key? key}) : super(key: key);
@@ -28,7 +26,7 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    final mode = Provider.of<ThemeProvider>(context);
+    // final mode = Provider.of<ThemeProvider>(context);
     final iconSize = GlobalVariables.responsiveIconSize(context, 30.0);
 
     return Scaffold(
@@ -50,8 +48,8 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
           backgroundColor: GlobalVariables.primaryColor,
           selectedItemColor: GlobalVariables.bottomNavSelectedIcons,
           unselectedItemColor: GlobalVariables.bottomNavIcons,
-          selectedLabelStyle: GlobalVariables.bottomNavStyle(context),
-          unselectedFontSize: 13,
+          selectedLabelStyle: GlobalVariables.selectedBottomNavStyle(context),
+          unselectedFontSize: GlobalVariables.unselectedBottomNavStyle(context),
           iconSize: iconSize,
           items: const [
             BottomNavigationBarItem(
@@ -77,7 +75,7 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(top: 1.0),
+                padding: EdgeInsets.only(top: 10.0),
                 child: Icon(Icons.settings),
               ),
               label: 'Settings',

@@ -84,11 +84,16 @@ class GlobalVariables {
         color: white,
       );
 
-  // Bottom Nav Bar text
-  static TextStyle bottomNavStyle(BuildContext context) => TextStyle(
+  // Bottom Nav Bar selected text
+  static TextStyle selectedBottomNavStyle(BuildContext context) => TextStyle(
         fontSize: responsiveFontSize(context, 14.0),
         fontWeight: FontWeight.bold,
       );
+
+  // Bottom Nav Bar unselected text
+  static double unselectedBottomNavStyle(BuildContext context) {
+    return responsiveFontSize(context, 13.0);
+  }
 
   // Button text
   static TextStyle bold16(BuildContext context) => TextStyle(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/option_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +37,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
   int remaining = 0;
   int isSelectedIndex = 0;
   String purpose = '';
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -129,10 +131,22 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
     }
   }
 
+  // Date format when display on the check-in date text field
+  void _formatDate(DateTime date) {
+    // only takes year, month, and day, not time
+    _selectedDate = DateTime(date.year, date.month, date.day);
+
+    setState(() {
+      // set the check-in date text controller to this format
+      dateTextController.text = DateFormat('dd/MM/yyyy').format(_selectedDate!);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Color buttonColor1 = GlobalVariables.lightGrey;
     Color buttonColor2 = GlobalVariables.primaryColor;
+
     // Color backgroundColor = Theme.of(context).primaryColor;
     // int remainingParkingLots =
     //     Provider.of<VisitorDetailsProvider>(context, listen: false)
@@ -175,8 +189,14 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
 
                     // SHOW THE CALENDER
                     onTap: () async {
-                      // Show the date picker when the text field is tapped
-                      await showCalendar(context);
+                      DateTime? pickedDate = await showCalendar(context,
+                          minDate: DateTime.now(),
+                          maxDate: DateTime.now().add(const Duration(days: 7)));
+
+                      if (pickedDate != null) {
+                        // Format the date if necessary and set it to the controller
+                        _formatDate(pickedDate);
+                      }
                     },
 
                     prefixIcon: Icons.date_range,
@@ -277,28 +297,28 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
     );
   }
 
-  Future<void> showCalendar(BuildContext context) async {
-    DateTime currentDate = DateTime.now();
+  // Future<void> showCalendar(BuildContext context) async {
+  //   DateTime currentDate = DateTime.now();
 
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: currentDate,
-      firstDate: currentDate, // Restrict to dates from today onwards
-      lastDate: DateTime(2024, 12, 31), // Adjust the last date as needed
-    );
+  //   DateTime? selectedDate = await showDatePicker(
+  //     context: context,
+  //     initialDate: currentDate,
+  //     firstDate: currentDate, // Restrict to dates from today onwards
+  //     lastDate: DateTime(2024, 12, 31), // Adjust the last date as needed
+  //   );
 
-    if (selectedDate != null && selectedDate != currentDate) {
-      // Handle the selected date
-      String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
-      print('$formattedDate');
+  //   if (selectedDate != null && selectedDate != currentDate) {
+  //     // Handle the selected date
+  //     String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+  //     print('$formattedDate');
 
-      dateTextController.text = formattedDate;
-      // Do something with the selected date
-    } else if (selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Please select a date.'),
-        duration: Duration(seconds: 3),
-      ));
-    }
-  }
+  //     dateTextController.text = formattedDate;
+  //     // Do something with the selected date
+  //   } else if (selectedDate == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  //       content: Text('Please select a date.'),
+  //       duration: Duration(seconds: 3),
+  //     ));
+  //   }
+  // }
 }

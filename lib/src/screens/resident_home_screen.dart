@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/auth/login_screen.dart';
@@ -147,7 +146,6 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double iconSize = GlobalVariables.responsiveIconSize(context, 30);
     ResidentArgument? args =
         ModalRoute.of(context)?.settings.arguments as ResidentArgument?;
 

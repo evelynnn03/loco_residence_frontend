@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
-
 import 'pop_up_window.dart';
 
 class VisitorHistoryTab extends StatefulWidget {
@@ -71,29 +72,70 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
   }
 
   // show the calendar (showDatePicker)
-  Future<void> _selectDate(BuildContext context) async {
-    // stores the date selected
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2022), // starts from year 2022
-      lastDate: DateTime(2101), // ends year 2101
-    );
+  // Future<void> _selectDate(BuildContext context) async {
+  //   final calendarWidth = MediaQuery.of(context).size.width;
+  //   final calendarHeight = MediaQuery.of(context).size.height * 0.5;
+  //   // stores the date selected
+  //   // final DateTime? pickedDate = await showDatePicker(
+  //   //   context: context,
+  //   //   initialDate: DateTime.now(),
+  //   //   firstDate: DateTime(2022), // starts from year 2022
+  //   //   lastDate: DateTime(2101), // ends year 2101
+  //   // );
 
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      setState(() {
-        // Strip the time component from pickedDate
-        _selectedDate =
-            DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
+  //   final DateTime? pickedDate = await showDialog<DateTime>(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         child: SingleChildScrollView(
+  //           child: ConstrainedBox(
+  //             constraints: BoxConstraints(
+  //               maxWidth: calendarWidth,
+  //               maxHeight: calendarHeight,
+  //             ),
+  //             child: CalendarDatePicker(
+  //               initialDate: null,
+  //               firstDate: DateTime(2022),
+  //               lastDate: DateTime(2101),
+  //               onDateChanged: (DateTime selectedDates) {
+  //                 Navigator.of(context).pop(selectedDates);
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       );
 
-        // Format the selected date to 'dd/MM/yyyy' and assigns it to the _searchTextController.text
-        _searchTextController.text =
-            DateFormat('dd/MM/yyyy').format(_selectedDate!);
+  //     },
+  //   );
 
-        // Filter the visitors based on the selected date
-        _filterVisitors(_searchTextController.text);
-      });
-    }
+  //   if (pickedDate != null && pickedDate != _selectedDate) {
+  //     setState(() {
+  //       // Strip the time component from pickedDate
+  //       _selectedDate =
+  //           DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
+
+  //       // Format the selected date to 'dd/MM/yyyy' and assigns it to the _searchTextController.text
+  //       _searchTextController.text =
+  //           DateFormat('dd/MM/yyyy').format(_selectedDate!);
+
+  //       // Filter the visitors based on the selected date
+  //       _filterVisitors(_searchTextController.text);
+  //     });
+  //   }
+  // }
+
+  void _onDateSelected(DateTime date) {
+    setState(() {
+      // Strip the time component from pickedDate
+      _selectedDate = DateTime(date.year, date.month, date.day);
+
+      // Format the selected date to 'dd/MM/yyyy' and assigns it to the _searchTextController.text
+      _searchTextController.text =
+          DateFormat('dd/MM/yyyy').format(_selectedDate!);
+
+      // Filter the visitors based on the selected date
+      _filterVisitors(_searchTextController.text);
+    });
   }
 
   // filter the visitor data list for searching
@@ -220,10 +262,18 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                 ),
                 IconButton(
                   icon: const Icon(
-                    Icons.calendar_today,
+                    Icons.date_range,
                     color: GlobalVariables.primaryColor,
                   ),
-                  onPressed: () => _selectDate(context),
+                  onPressed: () async {
+                    DateTime? pickedDate =
+                        await showCalendar(context, minDate: DateTime(2022), maxDate: DateTime.now());
+
+                    // When a date is selected, apply it
+                    if (pickedDate != null) {
+                      _onDateSelected(pickedDate);
+                    }
+                  },
                 ),
               ],
             ),

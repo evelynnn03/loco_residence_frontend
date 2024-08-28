@@ -30,7 +30,7 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
 
   @override
   Widget build(BuildContext context) {
-    Color? iconColor = Theme.of(context).indicatorColor;
+    // Color? iconColor = Theme.of(context).indicatorColor;
 
     return Scaffold(
         backgroundColor: GlobalVariables.secondaryColor,
