@@ -61,6 +61,7 @@ dependencies:
   flutter_credit_card: ^4.0.1
   flutter_multi_formatter: ^2.13.0
   syncfusion_flutter_datepicker: ^26.2.10
+  url_launcher: ^6.3.0
 
   
 dev_dependencies:

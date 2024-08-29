@@ -63,7 +63,8 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
   ];
 
   // Show a bottom sheet for notifications.
-  Future<void> _showBottomSheet(String title, String content, bool button) async {
+  Future<void> _showBottomSheet(
+      String title, String content, bool button) async {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -153,9 +154,9 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
 
     // Calculate the aspect ratio for grid containers
     double gridAspectRatio(double width) {
-      if (width < 400) return 1.0; // Narrow screens
-      if (width < 600) return 1.2; // Medium screens
-      return 1.5; // Wide screens
+      if (width < 380) return 0.8; // Narrow screens
+      if (width < 450) return 1.0; // Medium screens
+      return 1.2; // Wide screens
     }
 
     // Calculate the aspect ratio for announcements
@@ -416,11 +417,12 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                             selectedIndex = index;
                           });
                           if (index == 5) {
-                            _showBottomSheet('Notifications', 'content', false).then((_) {
-    setState(() {
-      selectedIndex = -1;
-    });
-  });
+                            _showBottomSheet('Notifications', 'content', false)
+                                .then((_) {
+                              setState(() {
+                                selectedIndex = -1;
+                              });
+                            });
                           } else {
                             Navigator.pushNamed(
                               context,

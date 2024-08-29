@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/global_variables.dart';
 import '../../config/themes/theme_provider.dart';
 
-class ServiceItems extends StatelessWidget {
+class ServiceItems extends StatefulWidget {
   final String imageUrl;
   final title;
   final phoneNum;
@@ -13,11 +13,17 @@ class ServiceItems extends StatelessWidget {
       {super.key, required this.imageUrl, this.title, this.phoneNum});
 
   @override
+  State<ServiceItems> createState() => _ServiceItemsState();
+}
+
+class _ServiceItemsState extends State<ServiceItems> {
+  @override
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context);
     // Color backgroundColor = Theme.of(context).cardColor;
     Color boxShadowColor = Color.fromRGBO(129, 101, 234, 1);
     final screenHeight = MediaQuery.of(context).size.height;
+    bool isPressed = false;
 
     double containerHeight = screenHeight * 0.32;
     double imageHeight = screenHeight * 0.2;
@@ -52,7 +58,7 @@ class ServiceItems extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: CachedNetworkImage(
-                imageUrl: imageUrl,
+                imageUrl: widget.imageUrl,
                 width: double.infinity,
                 height: imageHeight,
                 fit: BoxFit.cover,
@@ -69,7 +75,7 @@ class ServiceItems extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
+                  Text(widget.title,
                       style: GlobalVariables.importantTitleStyle(context)),
                   const SizedBox(height: 10),
                   Row(
@@ -79,9 +85,41 @@ class ServiceItems extends StatelessWidget {
                         color: GlobalVariables.white,
                         size: GlobalVariables.responsiveIconSize(context, 23),
                       ),
-                      Text(
-                        '  $phoneNum',
-                        style: GlobalVariables.importantDetailStyle(context),
+                      GestureDetector(
+                        onTapDown: (_) {
+                          setState(() {
+                            isPressed = true;
+                            print('Tapped down, isPressed: $isPressed');
+                          });
+                        },
+                        onTapUp: (_) {
+                          setState(() {
+                            isPressed = false;
+                            print('Tapped up, isPressed: $isPressed');
+                          });
+                        },
+                        onTapCancel: () {
+                          setState(() {
+                            isPressed = false;
+                            print('Tap canceled, isPressed: $isPressed');
+                          });
+                        },
+                        onTap: () async {
+                          final uri = Uri.parse('tel:${widget.phoneNum}');
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          } else {
+                            print('Unable to make a call');
+                          }
+                        },
+                        child: Text(
+                          '  ${widget.phoneNum}',
+                          style: TextStyle(
+                            fontSize: GlobalVariables.responsiveFontSize(
+                                context, 17.0),
+                            color: isPressed ? Colors.green : Colors.white,
+                          ),
+                        ),
                       ),
                     ],
                   ),

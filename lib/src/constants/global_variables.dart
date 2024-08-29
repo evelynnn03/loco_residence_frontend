@@ -71,10 +71,18 @@ class GlobalVariables {
         color: color ?? primaryColor,
       );
 
-  // Service Contacts' & Important Contacts' detail (phone num/address/etc)
+  // Important Contacts' detail (phone num/address/etc)
   static TextStyle importantDetailStyle(BuildContext context) => TextStyle(
         fontSize: responsiveFontSize(context, 17.0),
         color: white,
+      );
+
+  // Service Contacts phone text style
+  static TextStyle phoneTextStyle(BuildContext context,
+          {bool isPressed = true}) =>
+      TextStyle(
+        fontSize: responsiveFontSize(context, 17.0),
+        color: isPressed ? secondaryColor : white,
       );
 
   // Service Contacts' & Important Contacts' title (name/etc)
