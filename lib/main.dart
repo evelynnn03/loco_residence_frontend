@@ -5,6 +5,7 @@ import 'package:loco_frontend/src/screens/resident_home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'guard/provider/visitor_parking_provider.dart';
+import 'src/provider/finance_provider.dart';
 import 'src/provider/resident_details_provider.dart';
 import 'src/provider/resident_parking_provider.dart';
 import 'core/walk_through/welcome_screen.dart';
@@ -46,6 +47,9 @@ void main() async {
           ),
           ChangeNotifierProvider(
             create: (context) => ResidentParkingDetailsProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => FinanceProvider(),
           ),
         ],
         child: MyApp(
