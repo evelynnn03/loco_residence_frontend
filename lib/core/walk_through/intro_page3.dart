@@ -67,7 +67,7 @@ class _IntroPage3State extends State<IntroPage3>
           ],
         ),
       ),
-      color: GlobalVariables.backgroundColor,
+      color: GlobalVariables.white,
     );
   }
 }

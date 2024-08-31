@@ -68,7 +68,7 @@ class _IntroPage2State extends State<IntroPage2>
           ],
         ),
       ),
-      color: GlobalVariables.backgroundColor,
+      color: GlobalVariables.white,
     );
   }
 }

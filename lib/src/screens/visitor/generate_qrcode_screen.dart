@@ -32,7 +32,7 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios_new,
             color: GlobalVariables.primaryColor,
           ),
@@ -45,9 +45,7 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           children: [
-            SizedBox(
-              height: 150,
-            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
             Screenshot(
               controller: screenshotController,
               child: Column(
@@ -64,11 +62,8 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
             const SizedBox(height: 70),
             Text(
               'Scan the QR code upon arrrival',
-              style: TextStyle(
-                fontSize: 20,
-                color: GlobalVariables.primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
+              style:
+                  GlobalVariables.bold20(context, GlobalVariables.primaryColor),
             ),
             const SizedBox(height: 50),
             MyButton(

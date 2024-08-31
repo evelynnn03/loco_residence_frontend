@@ -105,33 +105,30 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        leading: GlobalVariables.backButton(context),
         elevation: 0,
         centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8),
             child: Form(
               key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 25),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 15.0),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0),
                     child: Text(
                       "Feedback",
-                      style: TextStyle(
-                        color: GlobalVariables.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                      ),
+                      style: GlobalVariables.headingStyle(context),
                     ),
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
-                    height: 250,
+                    height: MediaQuery.of(context).size.height * 0.3,
                     child: MyTextField(
                       isDescriptionBox: true,
                       maxLines: 8,
@@ -141,16 +138,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       validate: false,
                     ),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8.0,
                       vertical: 15,
                     ),
                     child: Container(
-                      height: 55,
+                      height: MediaQuery.of(context).size.height * 0.07,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(40),
@@ -162,12 +157,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           direction: Axis.horizontal,
                           allowHalfRating: false,
                           itemCount: 5,
-                          itemPadding: const EdgeInsets.symmetric(
-                            horizontal: 7.0,
-                          ),
-                          itemBuilder: (context, _) => const Icon(
+                          itemPadding:
+                              const EdgeInsets.symmetric(horizontal: 7.0),
+                          itemBuilder: (context, _) => Icon(
                             Icons.star,
-                            size: 7,
+                            size:
+                                GlobalVariables.responsiveIconSize(context, 8),
                             color: Colors.amber,
                           ),
                           onRatingUpdate: (rating) {
@@ -220,9 +215,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 15,
-                  ),
+                  const SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5.0),
                     child: Row(
@@ -267,13 +260,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   GestureDetector(
                     onTap: submitFeedback,
                     child: MyButton(
-                        onTap: () {
-                          if (formKey.currentState!.validate()) {
-                            // Form is valid, perform the submission
-                            submitFeedback();
-                          }
-                        },
-                        text: 'Send'),
+                      onTap: () {
+                        if (formKey.currentState!.validate()) {
+                          // Form is valid, perform the submission
+                          submitFeedback();
+                        }
+                      },
+                      text: 'Send',
+                    ),
                   )
                 ],
               ),

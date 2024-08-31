@@ -41,10 +41,10 @@ class _ParkingMapTabState extends State<ParkingMapTab>
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: GlobalVariables.backgroundColor,
+        backgroundColor: GlobalVariables.white,
         appBar: AppBar(
-          foregroundColor: GlobalVariables.backgroundColor,
-          backgroundColor: GlobalVariables.backgroundColor,
+          foregroundColor: GlobalVariables.white,
+          backgroundColor: GlobalVariables.white,
           shadowColor: Colors.transparent,
           leading: Builder(
             builder: (BuildContext context) {

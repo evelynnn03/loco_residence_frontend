@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   "Loco Residence",
                   style: TextStyle(
-                      color: GlobalVariables.backgroundColor,
+                      color: GlobalVariables.white,
                       fontSize: 32,
                       fontFamily: 'Anton'),
                 ),
@@ -213,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text(
                           "Forgot password?",
                           style: TextStyle(
-                            color: GlobalVariables.backgroundColor,
+                            color: GlobalVariables.white,
                           ),
                         ),
                       ),
@@ -239,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Text(
                         "I have read and accepted the terms and conditions",
                         style: TextStyle(
-                          color: GlobalVariables.backgroundColor,
+                          color: GlobalVariables.white,
                           fontSize: 10,
                         ),
                       ),

@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/auth/login_screen.dart';
@@ -52,11 +51,21 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
       'icon': Icons.phone_in_talk_outlined,
       'route': ServiceContactScreen.routeName,
     },
+    {
+      'title': 'Important\nContacts',
+      'icon': Icons.sos_outlined,
+      'route': ImportantContactScreen.routeName,
+    },
+    {
+      'title': 'Notifications',
+      'icon': Icons.notifications_outlined,
+    },
   ];
 
-  // Show a bottom sheet for specification or description
-  void _showBottomSheet(String title, String content, bool button) {
-    showModalBottomSheet(
+  // Show a bottom sheet for notifications.
+  Future<void> _showBottomSheet(
+      String title, String content, bool button) async {
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -67,7 +76,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
           maxChildSize: 0.8,
           builder: (BuildContext context, ScrollController scrollController) {
             return Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(20.0),
@@ -76,7 +85,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
               child: Column(
                 children: [
                   Container(
-                    margin: EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10),
                     height: 5,
                     width: 40,
                     decoration: BoxDecoration(
@@ -88,11 +97,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       title,
-                      style: TextStyle(
-                        color: GlobalVariables.primaryColor,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: GlobalVariables.notifTitleStyle(context),
                     ),
                   ),
                   Expanded(
@@ -101,22 +106,10 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         content,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                        ),
+                        style: GlobalVariables.listTextStyle(context),
                       ),
                     ),
                   ),
-                  button
-                      ? Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: MyButton(
-                            text: 'Submit a Rating',
-                            onTap: () => Navigator.pop(context),
-                          ),
-                        )
-                      : Container(),
                 ],
               ),
             );
@@ -140,7 +133,6 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
     selectedIndex = -1;
   }
 
-
   CarouselSliderController carouselController = CarouselSliderController();
   int currentIndex = 0;
   void clearUserData() async {
@@ -158,12 +150,42 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
     ResidentArgument? args =
         ModalRoute.of(context)?.settings.arguments as ResidentArgument?;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate the aspect ratio for grid containers
+    double gridAspectRatio(double width) {
+      if (width < 380) return 0.8; // Narrow screens
+      if (width < 450) return 1.0; // Medium screens
+      return 1.2; // Wide screens
+    }
+
+    // Calculate the aspect ratio for announcements
+    double announcementAspectRatio(double width) {
+      if (width < 380) return 1.9; // Narrow screens
+      if (width < 450) return 1.7; // Medium screens
+      return 1.5; // Wide screens
+    }
+
+    // Define dot sizes based on screen width
+    double getDotSize(double width) {
+      if (width < 380) return 4; // Narrow screens
+      if (width < 450) return 6; // Medium screens
+      return 8; // Wide screens
+    }
+
+    // Define dot sizes based on screen width
+    double imageSize(double width) {
+      if (width < 380) return 150; // Narrow screens
+      if (width < 450) return 180; // Medium screens
+      return 200; // Wide screens
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25),
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -174,63 +196,52 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                       children: [
                         Text(
                           'Hello, Resident!',
-                          style: TextStyle(
-                            color: GlobalVariables.primaryColor,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Proxima Nova',
-                          ),
+                          style: GlobalVariables.headingStyle(context),
                         ),
                         Text(
                           'Welcome to Loco Residence',
-                          style: TextStyle(
-                            color: GlobalVariables.welcomeColor,
-                            fontSize: 15,
-                            fontFamily: 'Proxima Nova',
-                          ),
+                          style: GlobalVariables.welcomeStyle(context),
                         ),
                       ],
                     ),
-                    Spacer(),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          _showBottomSheet('Notifications', 'content', false);
-                          // Popup(
-                          //   title: 'Notifications',
-                          //   content: Text(
-                          //     "Are you sure you want to log out",
-                          //   ),
-                          //   buttons: [
-                          //     ButtonConfig(
-                          //       text: 'Cancel',
-                          //       onPressed: () async {},
-                          //     ),
-                          //     ButtonConfig(
-                          //       text: 'Yes',
-                          //       onPressed: () async {
-                          //         clearUserData();
-                          //         // Navigator.pop(context);
-                          //       },
-                          //     ),
-                          //   ],
-                          // ).show(context);
-                        },
-                        child: Icon(
-                          Icons.notifications,
-                          size: 30,
-                          color: GlobalVariables.primaryColor,
+                    // const Spacer(),
+                    // Align(
+                    //   alignment: Alignment.topRight,
+                    //   child: GestureDetector(
+                    //     onTap: () {
+                    //       _showBottomSheet('Notifications', 'content', false);
+                    //       // Popup(
+                    //       //   title: 'Notifications',
+                    //       //   content: Text(
+                    //       //     "Are you sure you want to log out",
+                    //       //   ),
+                    //       //   buttons: [
+                    //       //     ButtonConfig(
+                    //       //       text: 'Cancel',
+                    //       //       onPressed: () async {},
+                    //       //     ),
+                    //       //     ButtonConfig(
+                    //       //       text: 'Yes',
+                    //       //       onPressed: () async {
+                    //       //         clearUserData();
+                    //       //         // Navigator.pop(context);
+                    //       //       },
+                    //       //     ),
+                    //       //   ],
+                    //       // ).show(context);
+                    //     },
+                    //     child: Icon(
+                    //       Icons.notifications,
+                    //       size: iconSize,
+                    //       color: GlobalVariables.primaryColor,
 
-                          //color: GlobalVariables.darkPurple
-                        ),
-                      ),
-                    ),
+                    //       //color: GlobalVariables.darkPurple
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
-                SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 // Padding(
                 //   padding: const EdgeInsets.all(12.0),
                 //   child: Align(
@@ -252,11 +263,8 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                   alignment: Alignment.topLeft,
                   child: Text(
                     'Announcements',
-                    style: TextStyle(
-                      color: GlobalVariables.primaryColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GlobalVariables.bold20(
+                        context, GlobalVariables.primaryColor),
                   ),
                 ),
                 // SizedBox(height: 10),
@@ -269,7 +277,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                 //     fontWeight: FontWeight.bold,
                 //   ),
                 // ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection('Announcement')
@@ -322,10 +330,10 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                         child: CachedNetworkImage(
                                           imageUrl: imageUrl,
                                           width: double.infinity,
-                                          height: 180,
+                                          height: imageSize(screenWidth),
                                           fit: BoxFit.cover,
                                           errorWidget: (context, url, error) =>
-                                              Icon(Icons.error),
+                                              const Icon(Icons.error),
                                         ),
                                       ),
                                   ],
@@ -337,7 +345,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                   false, // Disable the auto infinite scroll when theres ontly 1 image
                               viewportFraction: 1,
                               autoPlay: true,
-                              autoPlayInterval: Duration(seconds: 5),
+                              autoPlayInterval: const Duration(seconds: 5),
 
                               onPageChanged: (index, reason) {
                                 if (reason ==
@@ -349,10 +357,10 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                 });
                               },
                               pauseAutoPlayOnTouch: true,
-                              aspectRatio: 2.0,
+                              aspectRatio: announcementAspectRatio(screenWidth),
                               enlargeCenterPage: false,
-                              scrollPhysics: BouncingScrollPhysics(),
-                              pageViewKey: PageStorageKey('carousel'),
+                              scrollPhysics: const BouncingScrollPhysics(),
+                              pageViewKey: const PageStorageKey('carousel'),
                             ),
                           ),
                           Row(
@@ -362,9 +370,10 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                   i < min(announcements.length, 3);
                                   i++)
                                 Container(
-                                  width: 6,
-                                  height: 6,
-                                  margin: EdgeInsets.symmetric(horizontal: 4.0),
+                                  width: getDotSize(screenWidth),
+                                  height: getDotSize(screenWidth),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 4.0),
                                   decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: currentIndex == i
@@ -378,30 +387,26 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                     );
                   },
                 ),
-                SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
                     'Home',
-                    style: TextStyle(
-                      color: GlobalVariables.primaryColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GlobalVariables.bold20(
+                        context, GlobalVariables.primaryColor),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(height: 10),
 
+                // 6 containers below 'Home'
                 GridView.count(
                   crossAxisCount: 2,
                   mainAxisSpacing: 15,
                   crossAxisSpacing: 15,
-                  childAspectRatio: 190 / 210,
+                  childAspectRatio: gridAspectRatio(screenWidth),
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   children: List.generate(
                     tiles.length,
                     (index) {
@@ -411,15 +416,24 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                           setState(() {
                             selectedIndex = index;
                           });
-                          Navigator.pushNamed(
-                            context,
-                            tile['route'],
-                            arguments: index == 3 ? args : null,
-                          ).then((_) {
-                            setState(() {
-                              selectedIndex = -1;
+                          if (index == 5) {
+                            _showBottomSheet('Notifications', 'content', false)
+                                .then((_) {
+                              setState(() {
+                                selectedIndex = -1;
+                              });
                             });
-                          });
+                          } else {
+                            Navigator.pushNamed(
+                              context,
+                              tile['route'],
+                              arguments: index == 5 ? args : null,
+                            ).then((_) {
+                              setState(() {
+                                selectedIndex = -1;
+                              });
+                            });
+                          }
                         },
                         child: _homeTile(
                           context,
@@ -432,7 +446,6 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                     },
                   ),
                 ),
-                SizedBox(height: 20),
               ],
             ),
           ),
@@ -445,11 +458,11 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
 Widget _homeTile(BuildContext context, int index, String tileName,
     IconData icon, bool isSelected) {
   final mode = Provider.of<ThemeProvider>(context);
-  Color boxShadowColor = Color.fromARGB(255, 42, 188, 69);
+  Color boxShadowColor = const Color.fromARGB(255, 42, 188, 69);
+
   return Container(
-    height: 210,
-    width: 190,
-    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 15),
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 1),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(20),
       color: isSelected
@@ -473,21 +486,18 @@ Widget _homeTile(BuildContext context, int index, String tileName,
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Icon(
           icon,
           color: isSelected ? Colors.white : GlobalVariables.primaryColor,
-          size: 30,
+          size: GlobalVariables.responsiveIconSize(context, 30.0),
         ),
-        SizedBox(width: 15),
-        Text(
-          tileName,
-          style: TextStyle(
-            color: isSelected ? Colors.white : GlobalVariables.primaryColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
+        const SizedBox(width: 15),
+        Text(tileName,
+            style: GlobalVariables.bold20(
+              context,
+              isSelected ? Colors.white : GlobalVariables.primaryColor,
+            )),
       ],
     ),
   );

@@ -30,6 +30,10 @@ class _PurpleListTileState extends State<PurpleListTile> {
   // doc id
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double containerHeight = screenHeight * 0.11;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15),
       child: widget.hasSlidable == true
@@ -120,7 +124,7 @@ class _PurpleListTileState extends State<PurpleListTile> {
                 ],
               ),
               child: Container(
-                height: 80,
+                height: containerHeight,
                 decoration: BoxDecoration(
                   color: GlobalVariables.primaryColor,
                   borderRadius: BorderRadius.circular(10),
@@ -128,9 +132,7 @@ class _PurpleListTileState extends State<PurpleListTile> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 20,
-                    ),
+                    const SizedBox(width: 20),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +143,7 @@ class _PurpleListTileState extends State<PurpleListTile> {
               ),
             )
           : Container(
-              height: 80,
+              height: containerHeight,
               decoration: BoxDecoration(
                 color: GlobalVariables.primaryColor,
                 borderRadius: BorderRadius.circular(10),
@@ -149,9 +151,7 @@ class _PurpleListTileState extends State<PurpleListTile> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 20,
-                  ),
+                  const SizedBox(width: 20),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +216,7 @@ class _PurpleListTileState extends State<PurpleListTile> {
             onPressed: () {
               Navigator.pop(context); // Close the dialog
             },
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -238,7 +238,7 @@ class _PurpleListTileState extends State<PurpleListTile> {
               );
               Navigator.pop(context); // Close the dialog
             },
-            child: Text('Delete'),
+            child: const Text('Delete'),
           ),
         ],
       ),

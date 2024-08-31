@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/constants/global_variables.dart';
 
 class OptionButton extends StatefulWidget {
   final String text;
@@ -20,6 +21,7 @@ class OptionButton extends StatefulWidget {
 class _OptionButtonState extends State<OptionButton> {
   @override
   Widget build(BuildContext context) {
+    double containerHeight = MediaQuery.of(context).size.height * 0.08;
     return InkWell(
       borderRadius: BorderRadius.circular(15),
       onTap: () {
@@ -31,14 +33,10 @@ class _OptionButtonState extends State<OptionButton> {
         child: Center(
           child: Text(
             widget.text,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: GlobalVariables.bold16(context),
           ),
         ),
-        height: 70,
+        height: containerHeight,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           color: widget.color,

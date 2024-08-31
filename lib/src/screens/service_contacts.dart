@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../constants/global_variables.dart';
 import '../widgets/service_items.dart';
 
@@ -15,32 +14,18 @@ class ServiceContactScreen extends StatelessWidget {
       backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
         backgroundColor: GlobalVariables.secondaryColor,
-        title: const Text(
+        title: Text(
           'Service Contacts',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: GlobalVariables.primaryColor,
-          ),
+          style: GlobalVariables.appbarStyle(context),
         ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: GlobalVariables.primaryColor,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        leading: GlobalVariables.backButton(context),
       ),
       body: const SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               ServiceItems(
                 imageUrl:
                     'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/cleaning_service.jpg?alt=media&token=274458c9-f634-43d3-a0a1-903a8f2bdec3',
@@ -56,18 +41,14 @@ class ServiceContactScreen extends StatelessWidget {
                 title: 'Repair Service',
                 phoneNum: '+03 488 3791',
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               ServiceItems(
                 imageUrl:
                     'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/pest_control.jpeg?alt=media&token=84359c68-7bf2-4086-8050-a2830c89bc76',
                 title: 'Pest Control',
                 phoneNum: '+03 521 8622',
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
             ],
           ),
         ),

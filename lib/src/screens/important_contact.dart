@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../constants/global_variables.dart';
@@ -31,33 +30,17 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
 
   @override
   Widget build(BuildContext context) {
-    Color? iconColor = Theme.of(context).indicatorColor;
+    // Color? iconColor = Theme.of(context).indicatorColor;
 
     return Scaffold(
+        backgroundColor: GlobalVariables.secondaryColor,
         appBar: AppBar(
+          backgroundColor: GlobalVariables.secondaryColor,
           title: Text(
-            'Important Contact',
-            style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall?.color ??
-                    GlobalVariables.primaryColor,
-                fontWeight: FontWeight.bold),
+            'Important Contacts',
+            style: GlobalVariables.appbarStyle(context),
           ),
-          centerTitle: true,
-          foregroundColor: GlobalVariables.backgroundColor,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: iconColor,
-            ),
-            onPressed: () {
-              if (mounted) {
-                Navigator.pop(
-                    context); // Navigate back when back button is pressed
-              }
-            },
-          ),
+          leading: GlobalVariables.backButton(context),
         ),
         body: Column(
           children: [
@@ -66,11 +49,12 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
               controller: _tabController,
               isScrollable: true,
               labelColor: GlobalVariables.primaryColor,
-              labelStyle: TextStyle(fontWeight: FontWeight.bold),
-              unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+              unselectedLabelStyle:
+                  const TextStyle(fontWeight: FontWeight.normal),
               unselectedLabelColor: GlobalVariables.primaryGrey,
               indicatorSize: TabBarIndicatorSize.tab,
-              tabs: [
+              tabs: const [
                 Tab(
                   child: Text(
                     'Guards',
@@ -95,7 +79,7 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
             ),
             Expanded(
               child: TabBarView(controller: _tabController, children: [
-                Column(
+                const Column(
                   children: [
                     Expanded(
                       child: GuardDetails(
@@ -207,7 +191,6 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
                 phoneNum: data[index]['phoneNum']!,
                 address: data[index]['address']!,
               ),
-              SizedBox(height: 30), // Adjust the height as needed
             ],
           );
         },

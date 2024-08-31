@@ -88,15 +88,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
         backgroundColor: GlobalVariables.secondaryColor,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: GlobalVariables.primaryColor,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        leading: GlobalVariables.backButton(context),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -107,14 +99,10 @@ class _ResetPasswordState extends State<ResetPassword> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 100),
-                  const Text(
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                  Text(
                     "Reset Password",
-                    style: TextStyle(
-                      color: GlobalVariables.primaryColor,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GlobalVariables.headingStyle(context),
                   ),
                   const SizedBox(height: 40),
                   MyTextField(

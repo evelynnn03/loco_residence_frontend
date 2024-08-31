@@ -436,7 +436,7 @@ class _QRScannerState extends State<QRScanner> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: GlobalVariables.backgroundColor,
+            color: GlobalVariables.white,
           ),
           onPressed: () {
             Navigator.pop(context); // Navigate back when back button is pressed

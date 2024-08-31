@@ -163,6 +163,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         textColor: GlobalVariables.backgroundColor,
                       )
                     ],
+
                   ),
                 ],
               ),

@@ -37,7 +37,7 @@ class WeekChart extends StatelessWidget {
     int currentHour = currentDate.hour;
     DateTime thisWeekStart =
         currentDate.subtract(Duration(days: currentDate.weekday - 1));
-    DateTime lastWeekStart = thisWeekStart.subtract(Duration(days: 7));
+    DateTime lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -72,23 +72,23 @@ class WeekChart extends StatelessWidget {
                 if ((week == 'this_week' &&
                         visitDateTime.isAfter(
                           thisWeekStart.subtract(
-                            Duration(days: 1),
+                            const Duration(days: 1),
                           ),
                         ) &&
                         visitDateTime.isBefore(
                           thisWeekStart.add(
-                            Duration(days: 7),
+                            const Duration(days: 7),
                           ),
                         )) ||
                     (week == 'last_week' &&
                         visitDateTime.isAfter(
                           lastWeekStart.subtract(
-                            Duration(days: 1),
+                            const Duration(days: 1),
                           ),
                         ) &&
                         visitDateTime.isBefore(
                           lastWeekStart.add(
-                            Duration(days: 7),
+                            const Duration(days: 7),
                           ),
                         ))) {
                   // Check if the visit is on the selected day
@@ -131,14 +131,14 @@ class WeekChart extends StatelessWidget {
             List<MapEntry<int, int>> sortedVisitCounts = visitTimeCounts.entries
                 .toList()
               ..sort((a, b) => a.key.compareTo(b.key));
-            Future.delayed(Duration(seconds: 0), () {
+            Future.delayed(const Duration(seconds: 0), () {
               showBottomIndicator(true); // Pass the boolean data
             });
 
             return Padding(
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 right: 30.0,
-                bottom: 50,
+                bottom: MediaQuery.of(context).size.height * 0.03,
               ),
               child: LineChart(
                 LineChartData(
@@ -148,32 +148,30 @@ class WeekChart extends StatelessWidget {
                     verticalInterval: 2.0,
                     getDrawingHorizontalLine: (value) {
                       if (value == 0) {
-                        return FlLine(
-                            color: const Color(0xff37434d), strokeWidth: 1);
+                        return const FlLine(
+                            color: Color(0xff37434d), strokeWidth: 1);
                       }
-                      return FlLine(
-                        color: const Color(0xff37434d),
+                      return const FlLine(
+                        color: Color(0xff37434d),
                         strokeWidth: 0.2,
                       );
                     },
                     getDrawingVerticalLine: (value) {
                       if (value == 0) {
-                        return FlLine(
-                            color: const Color(0xff37434d), strokeWidth: 1);
+                        return const FlLine(
+                            color: Color(0xff37434d), strokeWidth: 1);
                       }
-                      return FlLine(
-                        color: const Color(0xff37434d),
+                      return const FlLine(
+                        color: Color(0xff37434d),
                         strokeWidth: 0.2,
                       );
                     },
                   ),
                   titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
+                    leftTitles: const AxisTitles(
                       axisNameWidget: Text(
                         'No of visitors',
-                        style: TextStyle(
-                          color: Colors.white60,
-                        ),
+                        style: TextStyle(color: Colors.white60),
                       ),
                       sideTitles: SideTitles(
                         getTitlesWidget: leftTitleWidgets,
@@ -183,7 +181,7 @@ class WeekChart extends StatelessWidget {
                       ),
                     ),
                     bottomTitles: AxisTitles(
-                      axisNameWidget: Text(
+                      axisNameWidget: const Text(
                         'Hours',
                         style: TextStyle(color: Colors.white60),
                       ),
@@ -195,21 +193,21 @@ class WeekChart extends StatelessWidget {
                           if (hour >= 6 && hour <= 22 && hour % 2 == 0) {
                             return Text(
                               '$hour',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white60,
                               ),
                             );
                           }
-                          return Text('');
+                          return const Text('');
                         },
                       ),
                     ),
-                    topTitles: AxisTitles(
+                    topTitles: const AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: false,
                       ),
                     ),
-                    rightTitles: AxisTitles(
+                    rightTitles: const AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: false,
                       ),
@@ -238,7 +236,7 @@ class WeekChart extends StatelessWidget {
                           // Check the conditions and print the desired message
                           if (hour == currentHour && count < 5) {
                             Future.delayed(
-                              Duration(seconds: 0),
+                              const Duration(seconds: 0),
                               () {
                                 onPeakHourDetected(
                                     false); // Pass the boolean data
@@ -248,14 +246,14 @@ class WeekChart extends StatelessWidget {
                               count >= 5 &&
                               count <= 10) {
                             Future.delayed(
-                              Duration(seconds: 0),
+                              const Duration(seconds: 0),
                               () {
                                 onPeakHourDetected(
                                     false); // Pass the boolean data
                               },
                             );
                           } else if (hour == currentHour && count > 10) {
-                            Future.delayed(Duration(seconds: 0), () {
+                            Future.delayed(const Duration(seconds: 0), () {
                               onPeakHourDetected(true); // Pass the boolean data
                             });
                           }
@@ -266,7 +264,7 @@ class WeekChart extends StatelessWidget {
                       color: Colors.white,
                       barWidth: 3,
                       isStrokeCapRound: true,
-                      dotData: FlDotData(show: false),
+                      dotData: const FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
                         gradient: LinearGradient(
@@ -287,9 +285,7 @@ class WeekChart extends StatelessWidget {
 }
 
 Widget leftTitleWidgets(double value, TitleMeta meta) {
-  final style = TextStyle(
-    color: Colors.white60,
-  );
+  final style = TextStyle(color: Colors.white60);
 
   final intValue = value.toInt();
 

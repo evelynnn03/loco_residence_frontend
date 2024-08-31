@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
-
 import 'pop_up_window.dart';
 
 class VisitorHistoryTab extends StatefulWidget {
@@ -63,35 +64,78 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
   String _searchQuery = '';
   DateTime? _selectedDate;
 
+  // by default, all data will be displayed
   @override
   void initState() {
     super.initState();
     filteredVisitorData = visitorData;
   }
 
-  // show the calendar
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2022), // starts from year 2022
-      lastDate: DateTime(2101), // ends year 2101
-    );
+  // show the calendar (showDatePicker)
+  // Future<void> _selectDate(BuildContext context) async {
+  //   final calendarWidth = MediaQuery.of(context).size.width;
+  //   final calendarHeight = MediaQuery.of(context).size.height * 0.5;
+  //   // stores the date selected
+  //   // final DateTime? pickedDate = await showDatePicker(
+  //   //   context: context,
+  //   //   initialDate: DateTime.now(),
+  //   //   firstDate: DateTime(2022), // starts from year 2022
+  //   //   lastDate: DateTime(2101), // ends year 2101
+  //   // );
 
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      setState(() {
-        // Strip the time component from pickedDate
-        _selectedDate =
-            DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
+  //   final DateTime? pickedDate = await showDialog<DateTime>(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         child: SingleChildScrollView(
+  //           child: ConstrainedBox(
+  //             constraints: BoxConstraints(
+  //               maxWidth: calendarWidth,
+  //               maxHeight: calendarHeight,
+  //             ),
+  //             child: CalendarDatePicker(
+  //               initialDate: null,
+  //               firstDate: DateTime(2022),
+  //               lastDate: DateTime(2101),
+  //               onDateChanged: (DateTime selectedDates) {
+  //                 Navigator.of(context).pop(selectedDates);
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       );
 
-        // Format the selected date to 'dd/MM/yyyy'
-        _searchTextController.text =
-            DateFormat('dd/MM/yyyy').format(_selectedDate!);
+  //     },
+  //   );
 
-        // Filter the visitors based on the selected date
-        _filterVisitors(_searchTextController.text);
-      });
-    }
+  //   if (pickedDate != null && pickedDate != _selectedDate) {
+  //     setState(() {
+  //       // Strip the time component from pickedDate
+  //       _selectedDate =
+  //           DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
+
+  //       // Format the selected date to 'dd/MM/yyyy' and assigns it to the _searchTextController.text
+  //       _searchTextController.text =
+  //           DateFormat('dd/MM/yyyy').format(_selectedDate!);
+
+  //       // Filter the visitors based on the selected date
+  //       _filterVisitors(_searchTextController.text);
+  //     });
+  //   }
+  // }
+
+  void _onDateSelected(DateTime date) {
+    setState(() {
+      // Strip the time component from pickedDate
+      _selectedDate = DateTime(date.year, date.month, date.day);
+
+      // Format the selected date to 'dd/MM/yyyy' and assigns it to the _searchTextController.text
+      _searchTextController.text =
+          DateFormat('dd/MM/yyyy').format(_selectedDate!);
+
+      // Filter the visitors based on the selected date
+      _filterVisitors(_searchTextController.text);
+    });
   }
 
   // filter the visitor data list for searching
@@ -99,15 +143,16 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     final searchQuery = query.toLowerCase();
     final selectedDate = _selectedDate;
 
-    // Function to strip time from a DateTime object
+    // function to strip time from a DateTime object
     DateTime _stripTime(DateTime dateTime) {
       return DateTime(dateTime.year, dateTime.month, dateTime.day);
     }
 
-    // Check if the search query is a date
+    // check if the search query is a date
     bool _isDateQuery = false;
     DateTime? _dateQuery;
     try {
+      // if it is a date, then set _isDateQuery to true
       _dateQuery = DateFormat('dd/MM/yyyy').parseStrict(query);
       _isDateQuery = true;
     } catch (e) {
@@ -148,6 +193,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
         return matchesQuery && dateMatches;
       }).toList();
 
+      // The filtered results are stored in filteredVisitorData, and the search query is stored in _searchQuery.
       setState(() {
         filteredVisitorData = results;
         _searchQuery = query;
@@ -184,6 +230,18 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
       return bDate.compareTo(aDate);
     });
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    double containerHeight = screenHeight * 0.18;
+    double boxHeight = screenHeight * 0.03;
+    double boxWidth = screenWidth * 0.25;
+    double sizedBoxHeight(double height) {
+      if (height < 600)
+        return 10;
+      else
+        return 12;
+    }
+
     return Scaffold(
       backgroundColor: GlobalVariables.secondaryColor,
       body: Column(
@@ -203,11 +261,19 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(
-                    Icons.calendar_today,
+                  icon: const Icon(
+                    Icons.date_range,
                     color: GlobalVariables.primaryColor,
                   ),
-                  onPressed: () => _selectDate(context),
+                  onPressed: () async {
+                    DateTime? pickedDate =
+                        await showCalendar(context, minDate: DateTime(2022), maxDate: DateTime.now());
+
+                    // When a date is selected, apply it
+                    if (pickedDate != null) {
+                      _onDateSelected(pickedDate);
+                    }
+                  },
                 ),
               ],
             ),
@@ -230,16 +296,12 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: filteredVisitorData.isEmpty
-                    ? const Column(
+                    ? Column(
                         children: [
                           Center(
                             child: Text(
                               'No Results',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: GlobalVariables.primaryGrey,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: GlobalVariables.noResultStyle(context),
                             ),
                           ),
                         ],
@@ -260,7 +322,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 15.0),
+                              SizedBox(height: sizedBoxHeight(screenHeight)),
 
                               // the header text 'Today' / 'This Week', etc
                               if (index == 0 ||
@@ -272,14 +334,13 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                   padding: const EdgeInsets.only(left: 20.0),
                                   child: Text(
                                     headerText,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: GlobalVariables
+                                        .visitorHistoryTitleStyle(context),
                                   ),
                                 ),
-                              const SizedBox(height: 15.0),
+                              SizedBox(
+                                height: sizedBoxHeight(screenHeight),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 15.0),
@@ -308,7 +369,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                     ).show(context);
                                   },
                                   child: Container(
-                                    height: 150,
+                                    height: containerHeight,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
                                       color: GlobalVariables.primaryColor,
@@ -327,33 +388,30 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                         children: [
                                           Text(
                                             visitor['name'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            style: GlobalVariables.bold20(
+                                                context, GlobalVariables.white),
                                           ),
-                                          const SizedBox(height: 15),
+                                          SizedBox(
+                                              height:
+                                                  sizedBoxHeight(screenHeight)),
 
                                           // checked-in date and time
                                           Row(
                                             children: [
                                               Container(
-                                                height: 25,
-                                                width: 110,
+                                                height: boxHeight,
+                                                width: boxWidth,
                                                 decoration: BoxDecoration(
                                                     color: Colors.green,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             25.0)),
-                                                child: const Center(
+                                                child: Center(
                                                   child: Text(
                                                     'Checked-in',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
+                                                    style: GlobalVariables
+                                                        .visitorHistoryDetail(
+                                                            context),
                                                   ),
                                                 ),
                                               ),
@@ -361,8 +419,10 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                               Text(
                                                 DateFormat('dd/MM/yyyy hh:mm a')
                                                     .format(checkinDate),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
+                                                style: GlobalVariables
+                                                    .visitorHistoryDetail(
+                                                  context,
+                                                  isBold: false,
                                                 ),
                                               )
                                             ],
@@ -374,33 +434,30 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                             Row(
                                               children: [
                                                 Container(
-                                                  height: 25,
-                                                  width: 110,
+                                                  height: boxHeight,
+                                                  width: boxWidth,
                                                   decoration: BoxDecoration(
                                                       color: Colors.red,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               25.0)),
-                                                  child: const Center(
-                                                    child: Text(
-                                                      'Checked-out',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
+                                                  child: Center(
+                                                    child: Text('Checked-out',
+                                                        style: GlobalVariables
+                                                            .visitorHistoryDetail(
+                                                                context)),
                                                   ),
                                                 ),
                                                 const SizedBox(width: 10),
                                                 Text(
-                                                  DateFormat(
-                                                          'dd/MM/yyyy hh:mm a')
-                                                      .format(checkoutDate),
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
+                                                    DateFormat(
+                                                            'dd/MM/yyyy hh:mm a')
+                                                        .format(checkoutDate),
+                                                    style: GlobalVariables
+                                                        .visitorHistoryDetail(
+                                                      context,
+                                                      isBold: false,
+                                                    )),
                                               ],
                                             ),
                                         ],

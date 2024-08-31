@@ -25,29 +25,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Settings',
-          style: TextStyle(
-            color: GlobalVariables.primaryColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 25,
-          ),
+          style: GlobalVariables.appbarStyle(context),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 25.0),
+        padding: const EdgeInsets.only(top: 25.0),
         child: Column(
           children: [
-            HorizontalTiles(
+            const HorizontalTiles(
               title: 'Reset Password',
               icon: Icons.arrow_circle_right_outlined,
               routeName: '/reset_password',
             ),
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
             HorizontalTiles(
               title: 'Light / Dark Mode',
               icon: mode.isDark ? Icons.light_mode : Icons.dark_mode,
-              iconSize: 33,
+              iconSize: GlobalVariables.responsiveIconSize(context, 33),
             ),
           ],
         ),

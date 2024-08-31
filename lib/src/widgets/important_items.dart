@@ -28,12 +28,16 @@ class _ImportantItemsState extends State<ImportantItems> {
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context);
     print(mode.isDark);
-    Color container = Theme.of(context).cardColor;
     Color boxShadowColor = Color.fromRGBO(129, 101, 234, 1);
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double imageHeight = screenHeight * 0.2;
+    double containerHeight = screenHeight * 0.36;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
+        height: containerHeight,
         decoration: BoxDecoration(
           boxShadow: mode.isDark
               ? [
@@ -49,78 +53,74 @@ class _ImportantItemsState extends State<ImportantItems> {
                   //BoxShadow
                 ]
               : null,
-          color: container,
+          color: GlobalVariables.primaryColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: CachedNetworkImage(
-                imageUrl: widget.imageUrl,
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
-            ),
-            SizedBox(height: 20),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Text(
-                widget.title,
-                style: TextStyle(
-                  fontSize: 24,
-                  color: GlobalVariables.backgroundColor,
-                  fontWeight: FontWeight.bold,
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageUrl,
+                  width: double.infinity,
+                  height: imageHeight,
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
             ),
-            SizedBox(height: 10),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.phone_in_talk,
-                      color: GlobalVariables.backgroundColor),
-                  Text(
-                    '  ${widget.phoneNum}',
-                    style: TextStyle(
-                      fontSize: 17,
-                      color: GlobalVariables.backgroundColor,
-                    ),
+                  Text(widget.title,
+                      style: GlobalVariables.importantTitleStyle(context),
+                      overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.phone_in_talk,
+                        color: GlobalVariables.white,
+                        size: GlobalVariables.responsiveIconSize(context, 23),
+                      ),
+                      Text(
+                        '  ${widget.phoneNum}',
+                        style: GlobalVariables.importantDetailStyle(context),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                children: [
-                  Icon(Icons.location_pin,
-                      color: GlobalVariables.backgroundColor),
-                  SizedBox(width: 5),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '  ${widget.address}',
-                          style: TextStyle(
-                            fontSize: 17,
-                            color: GlobalVariables.backgroundColor,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_pin,
+                        color: GlobalVariables.white,
+                        size: GlobalVariables.responsiveIconSize(context, 23),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '  ${widget.address}',
+                              style:
+                                  GlobalVariables.importantDetailStyle(context),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 12),
           ],
         ),
       ),
