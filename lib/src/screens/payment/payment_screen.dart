@@ -6,6 +6,7 @@ import 'package:loco_frontend/src/widgets/card.dart';
 import 'package:loco_frontend/src/widgets/horizontal_tiles.dart';
 import 'package:pay/pay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../provider/finance_provider.dart';
 import '../../utils/payment_configuration.dart';
 import '../../widgets/pop_up_window.dart';
 import '../../constants/global_variables.dart';
@@ -31,7 +32,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-
+    const residentId = 10;
+    Provider.of<FinanceProvider>(context, listen: false)
+        .fetchCardDetails(residentId);
+    Provider.of<FinanceProvider>(context, listen: false)
+        .fetchInvoices(residentId);
   }
 
   // Future<void> _retrieveUserDetails() async {
@@ -138,7 +143,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     icon: Icons.arrow_circle_right_outlined,
                     routeName: '/payment_details',
                   ),
-                  const SizedBox(height: 25),
+                  SizedBox(height: 25),
                   HorizontalTiles(
                     title: 'Card Settings',
                     icon: Icons.expand_more_rounded,
@@ -150,7 +155,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         title: 'Remove Card',
                         icon: Icons.expand_more_rounded,
                         tileColor: GlobalVariables.primaryColor,
-                        textColor: GlobalVariables.backgroundColor,
+                        textColor: GlobalVariables.white,
                         isDropdown: true,
                         children: [],
                       ),
@@ -160,10 +165,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         icon: Icons.credit_card,
                         routeName: '/card_details',
                         tileColor: GlobalVariables.primaryColor,
-                        textColor: GlobalVariables.backgroundColor,
+                        textColor: GlobalVariables.white,
                       )
                     ],
-
                   ),
                 ],
               ),

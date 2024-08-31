@@ -16,7 +16,7 @@ class _CardContainerState extends State<CardContainer> {
   late String cardHolderName = '';
   late String cvvCode = '';
   String cardType = '';
-  int residentId = 8; // Hardcoded for now
+  int residentId = 10; // Hardcoded for now
 
   Widget _buildCardLogo() {
     if (cardNumber.startsWith('4')) {
@@ -44,10 +44,7 @@ class _CardContainerState extends State<CardContainer> {
   void initState() {
     super.initState();
     // Fetch card details and invoice details
-    Provider.of<FinanceProvider>(context, listen: false)
-        .fetchCardDetails(residentId);
-    Provider.of<FinanceProvider>(context, listen: false)
-        .fetchInvoices(residentId);
+
   }
 
   @override

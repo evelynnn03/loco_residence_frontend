@@ -17,19 +17,14 @@ class PaymentDetails extends StatefulWidget {
 }
 
 class _PaymentDetailsState extends State<PaymentDetails> {
-  int residentId = 8; // Hardcoded for now
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    Provider.of<FinanceProvider>(context, listen: false)
-        .fetchInvoices(residentId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final invoiceList = Provider.of<FinanceProvider>(context).invoices;
     return DefaultTabController(
       length: 2, // invoice and history
       child: Scaffold(

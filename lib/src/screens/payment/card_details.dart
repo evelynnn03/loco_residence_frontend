@@ -20,15 +20,11 @@ class _CardDetailsState extends State<CardDetails> {
   final expDateTextController = TextEditingController();
   final cvvTextController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  final residentId = 8; // Hardcoded for now
 
   bool _isEditing = false;
 
-
-
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
@@ -43,90 +39,93 @@ class _CardDetailsState extends State<CardDetails> {
           },
         ),
       ),
-      body: Form(
-        key: formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(25.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Card Details',
-                style: TextStyle(
-                  fontSize: 30,
-                  color: GlobalVariables.primaryColor,
-                  fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Form(
+          key: formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Card Details',
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: GlobalVariables.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Fill in your card details\n(Visa / Mastercard)',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: GlobalVariables.primaryColor,
+                const SizedBox(height: 20),
+                Text(
+                  'Fill in your card details\n(Visa / Mastercard)',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: GlobalVariables.primaryColor,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              MyTextField(
-                  controller: fullNameTextController,
-                  labelText: 'Full Name',
-                  keyboardType: TextInputType.text,
+                const SizedBox(height: 20),
+                MyTextField(
+                    controller: fullNameTextController,
+                    labelText: 'Full Name',
+                    keyboardType: TextInputType.text,
+                    enabled: _isEditing,
+                    onChanged: (text) {
+                      fullNameTextController.text = text.capitalize!;
+                    }),
+                const SizedBox(height: 30),
+                MyTextField(
+                  controller: cardNumberTextController,
+                  labelText: 'Card No.',
+                  keyboardType: TextInputType.number,
                   enabled: _isEditing,
-                  onChanged: (text) {
-                    fullNameTextController.text = text.capitalize!;
-                  }),
-              const SizedBox(height: 30),
-              MyTextField(
-                controller: cardNumberTextController,
-                labelText: 'Card No.',
-                keyboardType: TextInputType.number,
-                enabled: _isEditing,
-                inputFormatters: [CardNumberFormatter()],
-                maxLength: 19,
-              ),
-              const SizedBox(height: 30),
-              MyTextField(
-                controller: expDateTextController,
-                labelText: 'Expiry Date',
-                keyboardType: TextInputType.number,
-                enabled: _isEditing,
-                inputFormatters: [CreditCardExpirationDateFormatter()],
-              ),
-              const SizedBox(height: 30),
-              MyTextField(
-                controller: cvvTextController,
-                labelText: 'CVV / CVC',
-                keyboardType: TextInputType.number,
-                enabled: _isEditing,
-                inputFormatters: [CreditCardCvcInputFormatter()],
-              ),
-              const SizedBox(height: 100),
-              MyButton(
-                onTap: () {
-                  if (_isEditing) {
-                    if (formKey.currentState!.validate()) {
-                      // Save data logic
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Save successful'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                  inputFormatters: [CardNumberFormatter()],
+                  maxLength: 19,
+                ),
+                const SizedBox(height: 30),
+                MyTextField(
+                  controller: expDateTextController,
+                  labelText: 'Expiry Date',
+                  keyboardType: TextInputType.number,
+                  enabled: _isEditing,
+                  inputFormatters: [CreditCardExpirationDateFormatter()],
+                ),
+                const SizedBox(height: 30),
+                MyTextField(
+                  controller: cvvTextController,
+                  labelText: 'CVV / CVC',
+                  keyboardType: TextInputType.number,
+                  enabled: _isEditing,
+                  inputFormatters: [CreditCardCvcInputFormatter()],
+                ),
+                const SizedBox(height: 100),
+                MyButton(
+                  onTap: () {
+                    if (_isEditing) {
+                      if (formKey.currentState!.validate()) {
+                        // Save data logic
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Save successful'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        setState(() {
+                          _isEditing =
+                              false; // Switch to view mode after saving
+                        });
+                      }
+                    } else {
                       setState(() {
-                        _isEditing = false; // Switch to view mode after saving
+                        _isEditing = true; // Switch to edit mode
                       });
                     }
-                  } else {
-                    setState(() {
-                      _isEditing = true; // Switch to edit mode
-                    });
-                  }
-                },
-                text: _isEditing
-                    ? 'Save'
-                    : 'Modify', // Change button text based on mode
-              ),
-            ],
+                  },
+                  text: _isEditing
+                      ? 'Save'
+                      : 'Modify', // Change button text based on mode
+                ),
+              ],
+            ),
           ),
         ),
       ),

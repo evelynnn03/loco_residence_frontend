@@ -191,7 +191,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
               children: [
                 Row(
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(

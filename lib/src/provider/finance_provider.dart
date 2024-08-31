@@ -17,6 +17,7 @@ class FinanceProvider with ChangeNotifier {
 
   List<Invoice> _invoices = [];
 
+
   Map<String, String> get cardDetails => cardDetailsToShow;
   List<Invoice> get invoices => _invoices;
   double get totalOutstandingAmount => _totalOutstandingAmount;
@@ -31,8 +32,8 @@ class FinanceProvider with ChangeNotifier {
   }
 
   fetchCardDetails(int residentId) async {
-    final cardList = await FinanceService().getCardDetails(residentId);
-    final card = cardList.first;
+    final cardList = await FinanceService().getCardDetails(residentId); //return list of cards
+    final card = cardList.first; //get the first card -> Card object
     final cardDetails = {
       'cardNo': card.cardNo,
       'cardType': card.cardType,
