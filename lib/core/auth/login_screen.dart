@@ -160,24 +160,18 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 100),
-                const Text(
+                Text(
                   "Welcome to",
-                  style: TextStyle(
-                      color: GlobalVariables.darkPurple,
-                      fontSize: 32,
-                      fontFamily: 'Anton'),
+                  style: GlobalVariables.logInTitleStyle(context),
                 ),
-                const Text(
+                Text(
                   "Loco Residence",
-                  style: TextStyle(
-                      color: GlobalVariables.white,
-                      fontSize: 32,
-                      fontFamily: 'Anton'),
+                  style: GlobalVariables.logInTitleStyle(context),
                 ),
                 const SizedBox(height: 1),
-                const Text(
+                Text(
                   "Login your account",
-                  style: TextStyle(color: Colors.white24, fontSize: 16),
+                  style: GlobalVariables.logInSubtitleStyle(context),
                 ),
                 const SizedBox(height: 40),
                 MyTextField(
@@ -212,36 +206,48 @@ class _LoginScreenState extends State<LoginScreen> {
                             context, ResetPassword.routeName),
                         child: const Text(
                           "Forgot password?",
-                          style: TextStyle(
-                            color: GlobalVariables.white,
-                          ),
+                          style: TextStyle(color: GlobalVariables.white),
                         ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 30),
-                MyButton(onTap: homeScreenDisplayed, text: 'Log In'),
+                MyButton(
+                  onTap: homeScreenDisplayed,
+                  text: 'Log In',
+                  color: GlobalVariables.secondaryColor,
+                  textColor: GlobalVariables.primaryColor,
+                ),
                 const SizedBox(height: 230),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Checkbox(
-                        value: checkBox,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            checkBox = !checkBox;
-                          });
-                        },
-                      ),
-                      const Text(
-                        "I have read and accepted the terms and conditions",
-                        style: TextStyle(
-                          color: GlobalVariables.white,
-                          fontSize: 10,
+                      Transform.scale(
+                        scale: 0.8,
+                        child: Checkbox(
+                          activeColor: GlobalVariables.secondaryColor,
+                          checkColor: GlobalVariables.primaryColor,
+                          value: checkBox,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              checkBox = !checkBox;
+                            });
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          side: const BorderSide(
+                            color: GlobalVariables.secondaryColor,
+                            width: 1.5,
+                          ),
                         ),
+                      ),
+                      Text(
+                        "I have read and accepted the terms and conditions",
+                        style: GlobalVariables.logInTCStyle(context),
                       ),
                     ],
                   ),

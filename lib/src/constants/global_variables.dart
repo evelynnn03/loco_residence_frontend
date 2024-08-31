@@ -50,6 +50,25 @@ class GlobalVariables {
     return fontSize; // default font size
   }
 
+  // Log in Title text style
+  static TextStyle logInTitleStyle(BuildContext context) => TextStyle(
+        fontSize: responsiveFontSize(context, 32),
+        color: secondaryColor,
+        fontWeight: FontWeight.bold,
+      );
+
+  // Log in Subtitle text style
+  static TextStyle logInSubtitleStyle(BuildContext context) => TextStyle(
+        fontSize: responsiveFontSize(context, 18.0),
+        color: Colors.white24,
+      );
+
+  // Log in T&C style
+  static TextStyle logInTCStyle(BuildContext context) => TextStyle(
+        fontSize: responsiveFontSize(context, 14.0),
+        color: white,
+      );
+
   //
   static TextStyle headingStyle(BuildContext context) => TextStyle(
         fontSize: responsiveFontSize(context, 30.0),
@@ -104,10 +123,11 @@ class GlobalVariables {
   }
 
   // Button text
-  static TextStyle bold16(BuildContext context) => TextStyle(
+  static TextStyle bold16(BuildContext context, {Color? color = white}) =>
+      TextStyle(
         fontSize: responsiveFontSize(context, 16.0),
         fontWeight: FontWeight.bold,
-        color: white,
+        color: color,
       );
 
   // List Tile text (Invoice ...)
