@@ -106,7 +106,9 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) {
     // Facility Name fetched from the prev screen (Facility info screen)
     final String title = ModalRoute.of(context)?.settings.arguments as String;
-    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate!);
+    String formattedDate = selectedDate != null
+        ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+        : 'Date not selected'; // Or any default/fallback value
     return Scaffold(
       backgroundColor: GlobalVariables.primaryColor,
       appBar: AppBar(
