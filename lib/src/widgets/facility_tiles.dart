@@ -44,7 +44,7 @@ class FacilityTiles extends StatelessWidget {
         width: double.infinity,
         height: containerHeight,
         decoration: BoxDecoration(
-          color: Colors.grey[300],
+          color: Colors.white70,
           borderRadius: BorderRadius.circular(25.0),
           boxShadow: [
             BoxShadow(
