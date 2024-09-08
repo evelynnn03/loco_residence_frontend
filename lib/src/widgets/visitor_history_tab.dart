@@ -266,8 +266,8 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                     color: GlobalVariables.primaryColor,
                   ),
                   onPressed: () async {
-                    DateTime? pickedDate =
-                        await showCalendar(context, minDate: DateTime(2022), maxDate: DateTime.now());
+                    DateTime? pickedDate = await showCalendar(context,
+                        minDate: DateTime(2022), maxDate: DateTime.now());
 
                     // When a date is selected, apply it
                     if (pickedDate != null) {

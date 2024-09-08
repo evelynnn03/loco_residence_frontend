@@ -5,12 +5,13 @@ import '../../../guard/screens/parking_map_tab.dart';
 import '../../../guard/screens/visitor_map.dart';
 import 'package:flutter/material.dart';
 import '../../../guard/screens/scan_qrcode_screen.dart';
+import '../src/screens/facility/booking_screen.dart';
 import '../src/screens/visitor/visitor_screen.dart';
 import '../core/auth/login_screen.dart';
 import '../guard/screens/guard_home_screen.dart';
 import '../guard/screens/visitor_timestamp.dart';
 import '../src/screens/analytics_screen/analytics_screen.dart';
-import '../src/screens/facility_info_screen.dart';
+import '../src/screens/facility/facility_info_screen.dart';
 import '../src/screens/feedback_screen.dart';
 import '../src/screens/important_contact.dart';
 import '../src/screens/payment/payment_screen.dart';
@@ -145,6 +146,12 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
       return MaterialPageRoute(
         settings: routeSettings,
         builder: (_) => CardDetails(),
+      );
+
+    case BookingScreen.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (_) => BookingScreen(),
       );
 
     default:

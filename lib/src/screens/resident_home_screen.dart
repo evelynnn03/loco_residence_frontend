@@ -11,7 +11,7 @@ import '../constants/global_variables.dart';
 import '../widgets/resident_argument.dart';
 import '../../config/themes/theme_provider.dart';
 import 'analytics_screen/analytics_screen.dart';
-import 'facility_info_screen.dart';
+import 'facility/facility_info_screen.dart';
 import 'feedback_screen.dart';
 import 'important_contact.dart';
 import 'service_contacts.dart';

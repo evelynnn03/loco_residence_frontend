@@ -148,6 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context).isDark;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     print(mode);
     return Scaffold(
       backgroundColor: GlobalVariables.primaryColor,
@@ -159,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
               //mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 100),
+                SizedBox(height: screenHeight * 0.2),
                 Text(
                   "Welcome to",
                   style: GlobalVariables.logInTitleStyle(context),
@@ -219,14 +221,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: GlobalVariables.secondaryColor,
                   textColor: GlobalVariables.primaryColor,
                 ),
-                const SizedBox(height: 230),
+                SizedBox(height: screenHeight * 0.2),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Transform.scale(
-                        scale: 0.8,
+                        scale: 0.8, // scale the size of the checkbox
                         child: Checkbox(
                           activeColor: GlobalVariables.secondaryColor,
                           checkColor: GlobalVariables.primaryColor,

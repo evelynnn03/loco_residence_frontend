@@ -203,9 +203,17 @@ class GlobalVariables {
 
   // Facility Info Details
   static TextStyle facilityDetailsStyle(BuildContext context) => TextStyle(
-      color: Colors.white.withOpacity(0.8),
-      fontSize: responsiveFontSize(context, 15),
-      fontWeight: FontWeight.normal);
+        color: Colors.white.withOpacity(0.8),
+        fontSize: responsiveFontSize(context, 15),
+        fontWeight: FontWeight.normal,
+      );
+
+  // Facility Info Booking "choose a date" etc style
+  static TextStyle facilityBookingStyle(BuildContext context) => TextStyle(
+        color: primaryColor,
+        fontSize: responsiveFontSize(context, 25),
+        fontWeight: FontWeight.bold,
+      );
 
   // Icon style
   // Responsive Icon Size

@@ -191,7 +191,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                     onTap: () async {
                       DateTime? pickedDate = await showCalendar(context,
                           minDate: DateTime.now(),
-                          maxDate: DateTime.now().add(const Duration(days: 7)));
+                          maxDate: DateTime.now().add(const Duration(days: 7)),);
 
                       if (pickedDate != null) {
                         // Format the date if necessary and set it to the controller
