@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:loco_frontend/src/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/auth/login_screen.dart';
@@ -61,63 +62,6 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
       'icon': Icons.notifications_outlined,
     },
   ];
-
-  // Show a bottom sheet for notifications.
-  Future<void> _showBottomSheet(
-      String title, String content, bool button) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.5,
-          minChildSize: 0.3,
-          maxChildSize: 0.8,
-          builder: (BuildContext context, ScrollController scrollController) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(20.0),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    height: 5,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: GlobalVariables.secondaryColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      title,
-                      style: GlobalVariables.notifTitleStyle(context),
-                    ),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        content,
-                        style: GlobalVariables.listTextStyle(context),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
 
   // Function to retrieve user details from SharedPreferences
   Future<void> _retrieveUserDetails() async {
@@ -417,8 +361,12 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                             selectedIndex = index;
                           });
                           if (index == 5) {
-                            _showBottomSheet('Notifications', 'content', false)
-                                .then((_) {
+                            showBottomSheetModal(
+                              context,
+                              'Notification',
+                              'This is the content of the notification.',
+                              false, 
+                            ).then((_) {
                               setState(() {
                                 selectedIndex = -1;
                               });

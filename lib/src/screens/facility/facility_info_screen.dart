@@ -10,13 +10,15 @@ class FacilityInfoScreen extends StatefulWidget {
 }
 
 class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
-  final List<String> facility = [
-    'Loco Pickle Ball Court',
-    'Loco Gym',
-    'Loco Meeting Room',
-    'Loco Event Hall'
+  // List of facilities and whether they require booking
+  final List<Map<String, dynamic>> facility = [
+    {'name': 'Loco Pickle Ball Court', 'requiresBooking': true},
+    {'name': 'Loco Gym', 'requiresBooking': false},
+    {'name': 'Loco Meeting Room', 'requiresBooking': true},
+    {'name': 'Loco Event Hall', 'requiresBooking': true},
   ];
 
+  // List of facilities' images
   final List<String> image = [
     'assets/images/pickleballcourt.jpg',
     'assets/images/gym.jpeg',
@@ -24,11 +26,11 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
     'assets/images/eventhall.jpg',
   ];
 
+  // Operating hours of the facility
   final String hours = '8 AM - 10 PM';
 
   @override
   Widget build(BuildContext context) {
-    // String facility = 'Loco Pickle Ball Court';
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     double containerHeight = screenHeight * 0.15;
@@ -73,6 +75,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
       body: ListView.builder(
         itemCount: facility.length,
         itemBuilder: (BuildContext context, int index) {
+          bool isBookingRequired = facility[index]['requiresBooking'];
           return Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
@@ -108,13 +111,17 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                     SizedBox(width: sizedBoxWidth(screenWidth)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: isBookingRequired
+                          ? MainAxisAlignment.start
+                          : MainAxisAlignment.center,
                       children: [
                         Text(
-                          facility[index],
+                          facility[index]['name'],
                           style: TextStyle(
-                              fontSize: GlobalVariables.responsiveFontSize(
-                                  context, 15.0),
-                              fontWeight: FontWeight.bold),
+                            fontSize: GlobalVariables.responsiveFontSize(
+                                context, 15.0),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Text(
                           '8 AM - 10 PM',
@@ -126,24 +133,29 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                         SizedBox(height: containerHeight * 0.1),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/booking_screen',
-                                arguments: facility[index]);
+                            if (isBookingRequired) {
+                              Navigator.pushNamed(context, '/booking_screen',
+                                  arguments: facility[index]['name']);
+                            }
                           },
-                          child: Container(
-                            height: buttonHeight(containerHeight),
-                            width: buttonWidth(screenWidth),
-                            decoration: BoxDecoration(
-                              color: GlobalVariables.primaryColor,
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Book Now',
-                                style: TextStyle(
-                                    fontSize:
-                                        GlobalVariables.responsiveFontSize(
-                                            context, 15.0),
-                                    color: GlobalVariables.white),
+                          child: Visibility(
+                            visible: isBookingRequired,
+                            child: Container(
+                              height: buttonHeight(containerHeight),
+                              width: buttonWidth(screenWidth),
+                              decoration: BoxDecoration(
+                                color: GlobalVariables.primaryColor,
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Book Now',
+                                  style: TextStyle(
+                                      fontSize:
+                                          GlobalVariables.responsiveFontSize(
+                                              context, 15.0),
+                                      color: GlobalVariables.white),
+                                ),
                               ),
                             ),
                           ),

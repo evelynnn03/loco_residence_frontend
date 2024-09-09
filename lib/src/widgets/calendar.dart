@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../constants/global_variables.dart';
 
@@ -83,6 +82,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SfDateRangePicker(
+          initialSelectedDate: DateTime.now(),
           minDate: widget.minDate,
           maxDate: effectiveMaxDate,
           todayHighlightColor: Colors.transparent,
@@ -148,7 +148,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             if (args.value is DateTime) {
               setState(() {
                 _selectedDate = args.value;
-              });              
+              });
               widget.onDateSelected(_selectedDate!);
             }
           },

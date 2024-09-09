@@ -183,7 +183,7 @@ class GlobalVariables {
   // Bottom Sheet Title (Notifications)
   static TextStyle notifTitleStyle(BuildContext context) => TextStyle(
         color: primaryColor,
-        fontSize: responsiveFontSize(context, 18.0),
+        fontSize: responsiveFontSize(context, 20.0),
         fontWeight: FontWeight.bold,
       );
 
@@ -216,7 +216,8 @@ class GlobalVariables {
       );
 
   // Booking time container style
-  static TextStyle bookingTimeStyle(BuildContext context, {Color? color}) => TextStyle(
+  static TextStyle bookingTimeStyle(BuildContext context, {Color? color}) =>
+      TextStyle(
         fontSize: 16,
         color: color,
         fontWeight: FontWeight.w800,
