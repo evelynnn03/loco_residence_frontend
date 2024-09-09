@@ -412,7 +412,8 @@ class _BookingScreenState extends State<BookingScreen> {
                         Popup(
                           title: 'Booking Details',
                           content: Text(
-                            'Location: $title\nDate: $formattedDate\nTime: $selectedSlot',
+                            'Location: $title\nDate: $formattedDate\nTime: $selectedSlot\nDuration: ${_formatDuration(durations[selectedIndex])}',
+                            textAlign: TextAlign.start,
                           ),
                           buttons: [
                             ButtonConfig(

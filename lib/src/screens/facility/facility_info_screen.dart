@@ -10,9 +10,25 @@ class FacilityInfoScreen extends StatefulWidget {
 }
 
 class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
+  final List<String> facility = [
+    'Loco Pickle Ball Court',
+    'Loco Gym',
+    'Loco Meeting Room',
+    'Loco Event Hall'
+  ];
+
+  final List<String> image = [
+    'assets/images/pickleballcourt.jpg',
+    'assets/images/gym.jpeg',
+    'assets/images/meetingroom.jpg',
+    'assets/images/eventhall.jpg',
+  ];
+
+  final String hours = '8 AM - 10 PM';
+
   @override
   Widget build(BuildContext context) {
-    String facility = 'Loco Pickle Ball Court';
+    // String facility = 'Loco Pickle Ball Court';
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     double containerHeight = screenHeight * 0.15;
@@ -54,85 +70,92 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
         ),
         leading: GlobalVariables.backButton(context),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
-        child: Container(
-          width: double.infinity,
-          height: containerHeight,
-          decoration: BoxDecoration(
-            color: Colors.white70,
-            borderRadius: BorderRadius.circular(25.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 8,
-                offset: Offset(4, 6),
-              ),
-            ],
-          ),
-          child: Padding(
+      body: ListView.builder(
+        itemCount: facility.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 15.0, vertical: 12.0),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(15.0),
-                  child: Image.asset(
-                    'assets/images/gym.jpeg',
-                    width: 115,
-                    height: containerHeight * 0.8,
-                    fit: BoxFit.cover,
+                const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
+            child: Container(
+              width: double.infinity,
+              height: containerHeight,
+              decoration: BoxDecoration(
+                color: Colors.white70,
+                borderRadius: BorderRadius.circular(25.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: Offset(4, 6),
                   ),
-                ),
-                SizedBox(width: sizedBoxWidth(screenWidth)),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 15.0, vertical: 12.0),
+                child: Row(
                   children: [
-                    Text(
-                      facility,
-                      style: TextStyle(
-                          fontSize:
-                              GlobalVariables.responsiveFontSize(context, 15.0),
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '8 AM - 10 PM',
-                      style: TextStyle(
-                        fontSize:
-                            GlobalVariables.responsiveFontSize(context, 15.0),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0),
+                      child: Image.asset(
+                        image[index],
+                        width: 115,
+                        height: containerHeight * 0.8,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    SizedBox(height: containerHeight * 0.1),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/booking_screen',
-                            arguments: facility);
-                      },
-                      child: Container(
-                        height: buttonHeight(containerHeight),
-                        width: buttonWidth(screenWidth),
-                        decoration: BoxDecoration(
-                          color: GlobalVariables.primaryColor,
-                          borderRadius: BorderRadius.circular(25.0),
+                    SizedBox(width: sizedBoxWidth(screenWidth)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          facility[index],
+                          style: TextStyle(
+                              fontSize: GlobalVariables.responsiveFontSize(
+                                  context, 15.0),
+                              fontWeight: FontWeight.bold),
                         ),
-                        child: Center(
-                          child: Text(
-                            'Book Now',
-                            style: TextStyle(
-                                fontSize: GlobalVariables.responsiveFontSize(
-                                    context, 15.0),
-                                color: GlobalVariables.white),
+                        Text(
+                          '8 AM - 10 PM',
+                          style: TextStyle(
+                            fontSize: GlobalVariables.responsiveFontSize(
+                                context, 15.0),
                           ),
                         ),
-                      ),
-                    )
+                        SizedBox(height: containerHeight * 0.1),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/booking_screen',
+                                arguments: facility[index]);
+                          },
+                          child: Container(
+                            height: buttonHeight(containerHeight),
+                            width: buttonWidth(screenWidth),
+                            decoration: BoxDecoration(
+                              color: GlobalVariables.primaryColor,
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Book Now',
+                                style: TextStyle(
+                                    fontSize:
+                                        GlobalVariables.responsiveFontSize(
+                                            context, 15.0),
+                                    color: GlobalVariables.white),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
