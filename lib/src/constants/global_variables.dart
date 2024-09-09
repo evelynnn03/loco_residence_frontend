@@ -215,6 +215,13 @@ class GlobalVariables {
         fontWeight: FontWeight.bold,
       );
 
+  // Booking time container style
+  static TextStyle bookingTimeStyle(BuildContext context, {Color? color}) => TextStyle(
+        fontSize: 16,
+        color: color,
+        fontWeight: FontWeight.w800,
+      );
+
   // Icon style
   // Responsive Icon Size
   static double responsiveIconSize(BuildContext context, double iconSize) {

@@ -1,65 +1,49 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:loco_frontend/src/widgets/facility_tiles.dart';
-
-import '../../constants/global_variables.dart';
+import 'package:loco_frontend/src/constants/global_variables.dart';
 
 class FacilityInfoScreen extends StatefulWidget {
-  const FacilityInfoScreen({Key? key}) : super(key: key);
-  static const String routeName = '/facility_info';
+  const FacilityInfoScreen({super.key});
+  static const String routeName = '/facility_screen';
 
   @override
-  _FacilityInfoScreenState createState() => _FacilityInfoScreenState();
+  State<FacilityInfoScreen> createState() => _FacilityInfoScreenState();
 }
 
-class _FacilityInfoScreenState extends State<FacilityInfoScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _titleController;
-  late AnimationController _desController;
-  late Animation<double> _titleAnimation;
-  late Animation<double> _desAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Initialize title controller
-    _titleController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
-
-    // Initialize description controller
-    _desController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
-
-    // Title animation
-    _titleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_titleController);
-
-    // Description animation
-    _desAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_desController);
-
-    // Start title animation
-    _titleController.forward();
-
-    // Delay description animation by 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        _desController.forward();
-      }
-    });
-  }
-
+class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
   @override
   Widget build(BuildContext context) {
+    String facility = 'Loco Pickle Ball Court';
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    double containerHeight = screenHeight * 0.15;
+
+    double buttonHeight(double height) {
+      if (containerHeight < 100) {
+        return 25;
+      } else if (containerHeight < 200) {
+        return 30;
+      }
+      return 35;
+    }
+
+    double buttonWidth(double width) {
+      if (screenWidth < 380) {
+        return 85;
+      } else if (screenWidth < 450) {
+        return 90;
+      }
+      return 95;
+    }
+
+    double sizedBoxWidth(double screenWidth) {
+      if (screenWidth < 380) {
+        return 10;
+      } else if (screenWidth < 450) {
+        return 15;
+      }
+      return 20;
+    }
+
     return Scaffold(
       backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
@@ -70,88 +54,86 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen>
         ),
         leading: GlobalVariables.backButton(context),
       ),
-      body: FacilityTiles(),
-      // body: Stack(
-      //   children: [
-      //     CachedNetworkImage(
-      //       imageUrl:
-      //           'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/gymInfo.jpg?alt=media&token=10706d02-5f8e-4316-bca4-0992019c4a3c',
-      //       height: double.infinity,
-      //       fit: BoxFit.cover,
-      //       errorWidget: (context, url, error) => Icon(
-      //         Icons.image,
-      //         size: 60,
-      //         color: GlobalVariables.greyishPurple,
-      //       ),
-      //     ),
-      //     Positioned(
-      //       top: 50,
-      //       left: 10,
-      //       child: GlobalVariables.backButton(context,
-      //           color: GlobalVariables.white),
-      //     ),
-      //     Positioned(
-      //       bottom: 0,
-      //       left: 0,
-      //       right: 0,
-      //       child: Container(
-      //         height: MediaQuery.of(context).size.height * 0.9,
-      //         decoration: BoxDecoration(
-      //           gradient: LinearGradient(
-      //             begin: Alignment.bottomCenter,
-      //             end: Alignment.topCenter,
-      //             colors: [Colors.black.withOpacity(1), Colors.transparent],
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //     Positioned(
-      //       bottom: MediaQuery.of(context).size.height * 0.4,
-      //       left: 20,
-      //       child: FadeTransition(
-      //         opacity: _titleAnimation,
-      //         child: Text(
-      //           'Loco Gym',
-      //           style: GlobalVariables.facilityTitleStyle(context),
-      //         ),
-      //       ),
-      //     ),
-      //     Positioned(
-      //       bottom: MediaQuery.of(context).size.height * 0.1,
-      //       left: 20,
-      //       child: Container(
-      //         width: MediaQuery.of(context).size.width - 40,
-      //         child: FadeTransition(
-      //           opacity: _desAnimation,
-      //           child: RichText(
-      //             text: TextSpan(
-      //               text: 'Operating hours: \n',
-      //               style: GlobalVariables.importantTitleStyle(context),
-      //               children: [
-      //                 TextSpan(
-      //                   text: 'Open daily 6:00am - 10:00pm\n\n',
-      //                   style: GlobalVariables.facilityOpenTimeStyle(context),
-      //                 ),
-      //                 TextSpan(
-      //                   text:
-      //                       'Step into Loco Gym, your premier residential fitness destination, blending cutting-edge equipment, personalized training, and a vibrant community spirit. Our modern facilities cater to fitness enthusiasts of all levels, offering a unique blend of convenience and camaraderie. At Loco Gym, we prioritize your health and well-being, providing a welcoming space for individuals to embark on their fitness journey right within the comfort of their neighborhood. Join us today!!!',
-      //                   style: GlobalVariables.facilityDetailsStyle(context),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
+        child: Container(
+          width: double.infinity,
+          height: containerHeight,
+          decoration: BoxDecoration(
+            color: Colors.white70,
+            borderRadius: BorderRadius.circular(25.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: Offset(4, 6),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 15.0, vertical: 12.0),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Image.asset(
+                    'assets/images/gym.jpeg',
+                    width: 115,
+                    height: containerHeight * 0.8,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(width: sizedBoxWidth(screenWidth)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      facility,
+                      style: TextStyle(
+                          fontSize:
+                              GlobalVariables.responsiveFontSize(context, 15.0),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '8 AM - 10 PM',
+                      style: TextStyle(
+                        fontSize:
+                            GlobalVariables.responsiveFontSize(context, 15.0),
+                      ),
+                    ),
+                    SizedBox(height: containerHeight * 0.1),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/booking_screen',
+                            arguments: facility);
+                      },
+                      child: Container(
+                        height: buttonHeight(containerHeight),
+                        width: buttonWidth(screenWidth),
+                        decoration: BoxDecoration(
+                          color: GlobalVariables.primaryColor,
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Book Now',
+                            style: TextStyle(
+                                fontSize: GlobalVariables.responsiveFontSize(
+                                    context, 15.0),
+                                color: GlobalVariables.white),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _desController.dispose();
-    super.dispose();
   }
 }

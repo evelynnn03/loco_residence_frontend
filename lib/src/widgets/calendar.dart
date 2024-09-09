@@ -148,9 +148,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             if (args.value is DateTime) {
               setState(() {
                 _selectedDate = args.value;
-              });
-              // Format the date to display only the date part
-              
+              });              
               widget.onDateSelected(_selectedDate!);
             }
           },

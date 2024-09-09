@@ -1,12 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/pop_up_window.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+// import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -108,7 +106,44 @@ class _BookingScreenState extends State<BookingScreen> {
     final String title = ModalRoute.of(context)?.settings.arguments as String;
     String formattedDate = selectedDate != null
         ? DateFormat('yyyy-MM-dd').format(selectedDate!)
-        : 'Date not selected'; // Or any default/fallback value
+        : 'Date not selected';
+
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Calculate the sized box height for time & duration title (Slots Avail, Duration)
+    double titleSizedBoxHeight(double height) {
+      if (height < 600) {
+        return 8;
+      } else {
+        return 10;
+      }
+    }
+
+    double smallSizedBoxHeight(double height) {
+      if (height < 600) {
+        return 13;
+      } else {
+        return 15;
+      }
+    }
+
+    double buttonSizedeBox(double height) {
+      if (height < 600) {
+        return 35;
+      } else {
+        return 40;
+      }
+    }
+
+    double marginSize(double width) {
+      if (width < 380) {
+        return 3;
+      } else if (width < 450) {
+        return 5;
+      }
+      return 8;
+    }
+
     return Scaffold(
       backgroundColor: GlobalVariables.primaryColor,
       appBar: AppBar(
@@ -125,13 +160,6 @@ class _BookingScreenState extends State<BookingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            //   child: Text(
-            //     'Date',
-            //     style: GlobalVariables.facilityBookingStyle(context),
-            //   ),
-            // ),
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 10, horizontal: 25.0),
@@ -143,14 +171,12 @@ class _BookingScreenState extends State<BookingScreen> {
                   setState(() {
                     selectedDate = date;
                   });
-
                   print('Selected date: $formattedDate');
                 },
                 showNavigationArrow: false,
                 isDialog: false,
               ),
             ),
-
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
@@ -166,7 +192,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 20),
+                    SizedBox(height: titleSizedBoxHeight(screenHeight)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Text(
@@ -174,9 +200,10 @@ class _BookingScreenState extends State<BookingScreen> {
                         style: GlobalVariables.facilityBookingStyle(context),
                       ),
                     ),
-                    SizedBox(height: 15.0),
+                    SizedBox(height: smallSizedBoxHeight(screenHeight)),
                     SizedBox(
-                      height: 100, // Height to accommodate two rows
+                      // Height to accommodate two rows
+                      height: screenHeight * 0.15,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: (slots.length / 2).ceil(),
@@ -187,16 +214,20 @@ class _BookingScreenState extends State<BookingScreen> {
                               GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    selectedSlot = slots[
-                                        index * 2]; // Store the selected string
+                                    // Store the selected string
+                                    selectedSlot = slots[index * 2];
                                     isSlotSelected = index * 2;
                                   });
                                   print('$selectedSlot');
                                 },
                                 child: Container(
-                                  width: 100,
-                                  height: 40,
-                                  margin: const EdgeInsets.all(5),
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.22,
+                                  height: screenHeight * 0.05,
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: marginSize(screenWidth),
+                                    vertical: marginSize(screenWidth),
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isSlotSelected == index * 2
                                         ? GlobalVariables.primaryColor
@@ -207,12 +238,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                     child: Text(
                                       // Ensure each row gets a different slot
                                       slots[index * 2],
-                                      style: TextStyle(
-                                        fontSize: 16,
+                                      style: GlobalVariables.bookingTimeStyle(
+                                        context,
                                         color: isSlotSelected == index * 2
                                             ? GlobalVariables.secondaryColor
                                             : GlobalVariables.primaryColor,
-                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
                                   ),
@@ -224,16 +254,18 @@ class _BookingScreenState extends State<BookingScreen> {
                                 GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      selectedSlot = slots[index * 2 +
-                                          1]; // Store the selected string
+                                      selectedSlot = slots[index * 2 + 1];
                                       isSlotSelected = index * 2 + 1;
                                     });
                                     print('$selectedSlot');
                                   },
                                   child: Container(
-                                    width: 100,
-                                    height: 40,
-                                    margin: EdgeInsets.all(5),
+                                    width: MediaQuery.of(context).size.width *
+                                        0.22,
+                                    height: screenHeight * 0.05,
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: marginSize(screenWidth),
+                                        vertical: marginSize(screenWidth)),
                                     decoration: BoxDecoration(
                                       color: isSlotSelected == index * 2 + 1
                                           ? GlobalVariables.primaryColor
@@ -244,12 +276,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                       child: Text(
                                         // Display the next slot for the second row
                                         slots[index * 2 + 1],
-                                        style: TextStyle(
-                                          fontSize: 16,
+                                        style: GlobalVariables.bookingTimeStyle(
+                                          context,
                                           color: isSlotSelected == index * 2 + 1
                                               ? GlobalVariables.secondaryColor
                                               : GlobalVariables.primaryColor,
-                                          fontWeight: FontWeight.w800,
                                         ),
                                       ),
                                     ),
@@ -306,7 +337,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     //     ),
                     //   ),
                     // ),
-                    SizedBox(height: 25.0),
+                    SizedBox(height: titleSizedBoxHeight(screenHeight)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Text(
@@ -314,7 +345,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         style: GlobalVariables.facilityBookingStyle(context),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: smallSizedBoxHeight(screenHeight)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -329,29 +360,26 @@ class _BookingScreenState extends State<BookingScreen> {
                           icon: Icon(
                             Icons.remove,
                             color: GlobalVariables.primaryColor,
+                            size: GlobalVariables.responsiveIconSize(
+                              context,
+                              20,
+                            ),
                           ),
                         ),
                         Container(
-                          height: 50,
-                          width: 150,
+                          height: screenHeight * 0.06,
+                          width: screenWidth * 0.3,
                           decoration: BoxDecoration(
                             color: GlobalVariables.primaryColor,
                             borderRadius: BorderRadius.circular(15.0),
-                            // boxShadow: [
-                            //   BoxShadow(
-                            //     color: Colors.grey.withOpacity(0.5),
-                            //     spreadRadius: 2,
-                            //     blurRadius: 8,
-                            //     offset: Offset(4, 6),
-                            //   ),
-                            // ],
                           ),
                           child: Center(
                             child: Text(
                               _formatDuration(durations[selectedIndex]),
                               style: TextStyle(
                                   color: GlobalVariables.white,
-                                  fontSize: 20,
+                                  fontSize: GlobalVariables.responsiveFontSize(
+                                      context, 20),
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -367,11 +395,15 @@ class _BookingScreenState extends State<BookingScreen> {
                           icon: Icon(
                             Icons.add,
                             color: GlobalVariables.primaryColor,
+                            size: GlobalVariables.responsiveIconSize(
+                              context,
+                              20,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 40),
+                    SizedBox(height: buttonSizedeBox(screenHeight)),
                     MyButton(
                       color: GlobalVariables.secondaryColor,
                       textColor: GlobalVariables.primaryColor,
@@ -380,7 +412,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         Popup(
                           title: 'Booking Details',
                           content: Text(
-                            'Location: $title\nDate: ${formattedDate}\nTime: $selectedSlot',
+                            'Location: $title\nDate: $formattedDate\nTime: $selectedSlot',
                           ),
                           buttons: [
                             ButtonConfig(
@@ -401,20 +433,20 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  DateTime _getAdjustedInitialTime() {
-    DateTime now = DateTime.now();
-    DateTime eightThirty = DateTime(now.year, now.month, now.day, 8, 30);
+  // DateTime _getAdjustedInitialTime() {
+  //   DateTime now = DateTime.now();
+  //   DateTime eightThirty = DateTime(now.year, now.month, now.day, 8, 30);
 
-    if (now.isBefore(eightThirty)) {
-      // If current time is before 8:30 AM, set to 8:30 AM
-      return eightThirty;
-    } else {
-      // Round to the nearest 30-minute interval after 8:30 AM
-      int roundedMinute = (now.minute < 30) ? 30 : 0;
-      int adjustedHour = (roundedMinute == 0) ? now.hour + 1 : now.hour;
+  //   if (now.isBefore(eightThirty)) {
+  //     // If current time is before 8:30 AM, set to 8:30 AM
+  //     return eightThirty;
+  //   } else {
+  //     // Round to the nearest 30-minute interval after 8:30 AM
+  //     int roundedMinute = (now.minute < 30) ? 30 : 0;
+  //     int adjustedHour = (roundedMinute == 0) ? now.hour + 1 : now.hour;
 
-      return DateTime(
-          now.year, now.month, now.day, adjustedHour, roundedMinute);
-    }
-  }
+  //     return DateTime(
+  //         now.year, now.month, now.day, adjustedHour, roundedMinute);
+  //   }
+  // }
 }
