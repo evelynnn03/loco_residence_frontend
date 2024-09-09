@@ -18,7 +18,7 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  DateTime? selectedDate;
+  DateTime selectedDate = DateTime.now();
   String? selectedSlot;
   int isSlotSelected = -1;
   bool isSelected = false;
@@ -181,9 +181,7 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) {
     // Facility Name fetched from the prev screen (Facility info screen)
     final String title = ModalRoute.of(context)?.settings.arguments as String;
-    String formattedDate = selectedDate != null
-        ? DateFormat('dd/MM/yyyy').format(selectedDate!)
-        : 'Date not selected';
+    String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
 
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -474,7 +472,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       textColor: GlobalVariables.primaryColor,
                       text: 'Next',
                       onTap: () {
-                        if (selectedDate != null && selectedSlot != null) {
+                        if (selectedSlot != null) {
                           showBottomSheetModal(
                             context,
                             'Booking Details',
