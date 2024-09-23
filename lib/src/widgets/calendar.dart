@@ -66,6 +66,12 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   DateTime? _selectedDate;
 
   @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final DateTime effectiveMaxDate = widget.maxDateEndOfYear
         ? DateTime(DateTime.now().year, 12, 31)
@@ -82,7 +88,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SfDateRangePicker(
-          initialSelectedDate: DateTime.now(),
+          initialSelectedDate: _selectedDate,
           minDate: widget.minDate,
           maxDate: effectiveMaxDate,
           todayHighlightColor: Colors.transparent,

@@ -32,7 +32,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-    const residentId = 10;
+    const residentId = 13;
     Provider.of<FinanceProvider>(context, listen: false)
         .fetchCardDetails(residentId);
     Provider.of<FinanceProvider>(context, listen: false)

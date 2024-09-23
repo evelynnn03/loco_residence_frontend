@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:loco_frontend/src/constants/api_path.dart';
 import 'package:loco_frontend/src/models/card.dart';
-
 import '../models/invoice.dart';
 
 //rmb to check what's the resident id after you seed the data

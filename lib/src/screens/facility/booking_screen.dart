@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:loco_frontend/src/provider/booking_provider.dart';
 import 'package:loco_frontend/src/widgets/bottom_sheet.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/pop_up_window.dart';
+import 'package:provider/provider.dart';
 // import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -178,6 +180,16 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    const facilityId = 3;
+    const date = '2024-9-23';
+    Provider.of<BookingProvider>(context, listen: false)
+        .fetchTimeSlotDetails(facilityId, date);
+    print(Provider.of<BookingProvider>(context, listen: false).timeSlots);
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Facility Name fetched from the prev screen (Facility info screen)
     final String title = ModalRoute.of(context)?.settings.arguments as String;
@@ -189,6 +201,9 @@ class _BookingScreenState extends State<BookingScreen> {
     if (isSlotSelected != -1) {
       _updateAvailableDurations();
     }
+
+    // List of Available Slots
+    List<String> availableSlots = _getAvailableSlots();
 
     // Calculate the sized box height for time & duration title (Slots Avail, Duration)
     double titleSizedBoxHeight(double height) => height < 600 ? 8 : 10;
@@ -208,30 +223,29 @@ class _BookingScreenState extends State<BookingScreen> {
         leading: GlobalVariables.backButton(context,
             color: GlobalVariables.secondaryColor),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 25.0),
-              child: CalendarWidget(
-                minDate: DateTime.now(),
-                maxDate:
-                    DateTime(DateTime.now().year, DateTime.now().month + 1, 0),
-                onDateSelected: (DateTime date) {
-                  setState(() {
-                    selectedDate = date;
-                    formattedDate = selectedDate.toString();
-                  });
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 25.0),
+            child: CalendarWidget(
+              minDate: DateTime.now(),
+              maxDate:
+                  DateTime(DateTime.now().year, DateTime.now().month + 1, 0),
+              onDateSelected: (DateTime date) {
+                setState(() {
+                  selectedDate = date;
+                  formattedDate = selectedDate.toString();
+                });
 
-                  print('Selected date: $formattedDate');
-                },
-                showNavigationArrow: false,
-                isDialog: false,
-              ),
+                print('Selected date: $formattedDate');
+              },
+              showNavigationArrow: false,
+              isDialog: false,
             ),
-            Container(
+          ),
+          Flexible(
+            child: Container(
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: GlobalVariables.white,
@@ -243,284 +257,299 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: titleSizedBoxHeight(screenHeight)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      child: Text(
-                        'Slots Available',
-                        style: GlobalVariables.facilityBookingStyle(context),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: titleSizedBoxHeight(screenHeight)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: Text(
+                          'Slots Available',
+                          style: GlobalVariables.facilityBookingStyle(context),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: smallSizedBoxHeight(screenHeight)),
-                    SizedBox(
-                      // Height to accommodate two rows
-                      height: screenHeight * 0.15,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: (_getAvailableSlots().length / 2).ceil(),
-                        itemBuilder: (context, index) {
-                          return Column(
-                            children: [
-                              // First row (odd indices)
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    // Store the selected string
-                                    selectedSlot =
-                                        _getAvailableSlots()[index * 2];
-                                    isSlotSelected = index * 2;
-                                  });
-                                  print('$selectedSlot');
-                                },
-                                child: Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.22,
-                                  height: screenHeight * 0.05,
-                                  margin: EdgeInsets.symmetric(
-                                    horizontal: marginSize(screenWidth),
-                                    vertical: marginSize(screenWidth),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: isSlotSelected == index * 2
-                                        ? GlobalVariables.primaryColor
-                                        : GlobalVariables.secondaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      // Ensure each row gets a different slot
-                                      _getAvailableSlots()[index * 2],
-                                      style: GlobalVariables.bookingTimeStyle(
-                                        context,
-                                        color: isSlotSelected == index * 2
-                                            ? GlobalVariables.secondaryColor
-                                            : GlobalVariables.primaryColor,
-                                      ),
-                                    ),
-                                  ),
+                      SizedBox(height: smallSizedBoxHeight(screenHeight)),
+                      availableSlots.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No available slots',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: GlobalVariables.primaryColor
+                                      .withOpacity(0.3),
                                 ),
                               ),
-                              // Second row (even indices)
-                              // Check to avoid index overflow
-                              if (index * 2 + 1 < _getAvailableSlots().length)
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedSlot =
-                                          _getAvailableSlots()[index * 2 + 1];
-                                      isSlotSelected = index * 2 + 1;
-                                    });
-                                    print('$selectedSlot');
-                                  },
-                                  child: Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.22,
-                                    height: screenHeight * 0.05,
-                                    margin: EdgeInsets.symmetric(
-                                        horizontal: marginSize(screenWidth),
-                                        vertical: marginSize(screenWidth)),
-                                    decoration: BoxDecoration(
-                                      color: isSlotSelected == index * 2 + 1
-                                          ? GlobalVariables.primaryColor
-                                          : GlobalVariables.secondaryColor,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        // Display the next slot for the second row
-                                        _getAvailableSlots()[index * 2 + 1],
-                                        style: GlobalVariables.bookingTimeStyle(
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  // Height to accommodate two rows
+                                  height: screenHeight * 0.15,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: (_getAvailableSlots().length / 2)
+                                        .ceil(),
+                                    itemBuilder: (context, index) {
+                                      return Column(
+                                        children: [
+                                          // First row (odd indices)
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                // Store the selected string
+                                                selectedSlot =
+                                                    _getAvailableSlots()[
+                                                        index * 2];
+                                                isSlotSelected = index * 2;
+                                              });
+                                              print('$selectedSlot');
+                                            },
+                                            child: Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.22,
+                                              height: screenHeight * 0.05,
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal:
+                                                    marginSize(screenWidth),
+                                                vertical:
+                                                    marginSize(screenWidth),
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    isSlotSelected == index * 2
+                                                        ? GlobalVariables
+                                                            .primaryColor
+                                                        : GlobalVariables
+                                                            .secondaryColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  // Ensure each row gets a different slot
+                                                  _getAvailableSlots()[
+                                                      index * 2],
+                                                  style: GlobalVariables
+                                                      .bookingTimeStyle(
+                                                    context,
+                                                    color: isSlotSelected ==
+                                                            index * 2
+                                                        ? GlobalVariables
+                                                            .secondaryColor
+                                                        : GlobalVariables
+                                                            .primaryColor,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          // Second row (even indices)
+                                          // Check to avoid index overflow
+                                          if (index * 2 + 1 <
+                                              _getAvailableSlots().length)
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  selectedSlot =
+                                                      _getAvailableSlots()[
+                                                          index * 2 + 1];
+                                                  isSlotSelected =
+                                                      index * 2 + 1;
+                                                });
+                                                print('$selectedSlot');
+                                              },
+                                              child: Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.22,
+                                                height: screenHeight * 0.05,
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal:
+                                                        marginSize(screenWidth),
+                                                    vertical: marginSize(
+                                                        screenWidth)),
+                                                decoration: BoxDecoration(
+                                                  color: isSlotSelected ==
+                                                          index * 2 + 1
+                                                      ? GlobalVariables
+                                                          .primaryColor
+                                                      : GlobalVariables
+                                                          .secondaryColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    // Display the next slot for the second row
+                                                    _getAvailableSlots()[
+                                                        index * 2 + 1],
+                                                    style: GlobalVariables
+                                                        .bookingTimeStyle(
+                                                      context,
+                                                      color: isSlotSelected ==
+                                                              index * 2 + 1
+                                                          ? GlobalVariables
+                                                              .secondaryColor
+                                                          : GlobalVariables
+                                                              .primaryColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                    height: titleSizedBoxHeight(screenHeight)),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15.0),
+                                  child: Text(
+                                    'Duration',
+                                    style: GlobalVariables.facilityBookingStyle(
+                                        context),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height: smallSizedBoxHeight(screenHeight)),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      onPressed:
+                                          availableDurations.isNotEmpty &&
+                                                  selectedIndex > 0
+                                              ? () {
+                                                  setState(() {
+                                                    selectedIndex--;
+                                                  });
+                                                }
+                                              : null,
+                                      icon: Icon(
+                                        Icons.remove,
+                                        color: GlobalVariables.primaryColor,
+                                        size:
+                                            GlobalVariables.responsiveIconSize(
                                           context,
-                                          color: isSlotSelected == index * 2 + 1
-                                              ? GlobalVariables.secondaryColor
-                                              : GlobalVariables.primaryColor,
+                                          20,
                                         ),
                                       ),
                                     ),
-                                  ),
+                                    Container(
+                                      height: screenHeight * 0.06,
+                                      width: screenWidth * 0.35,
+                                      decoration: BoxDecoration(
+                                        color: GlobalVariables.primaryColor,
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          availableDurations.isNotEmpty
+                                              ? _formatDuration(
+                                                  availableDurations[
+                                                      selectedIndex])
+                                              : 'Select a slot',
+                                          style: TextStyle(
+                                              color: GlobalVariables.white,
+                                              fontSize: GlobalVariables
+                                                  .responsiveFontSize(
+                                                      context, 20),
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: availableDurations
+                                                  .isNotEmpty &&
+                                              selectedIndex <
+                                                  availableDurations.length - 1
+                                          ? () {
+                                              setState(() {
+                                                selectedIndex++;
+                                              });
+                                            }
+                                          : null,
+                                      icon: Icon(
+                                        Icons.add,
+                                        color: GlobalVariables.primaryColor,
+                                        size:
+                                            GlobalVariables.responsiveIconSize(
+                                          context,
+                                          20,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-
-                    // CupertinoTheme(
-                    //   data: const CupertinoThemeData(
-                    //     textTheme: CupertinoTextThemeData(
-                    //       dateTimePickerTextStyle: TextStyle(
-                    //         color: GlobalVariables.primaryColor,
-                    //         fontSize: 18.0,
-                    //         fontWeight: FontWeight.bold,
-                    //       ),
-                    //     ),
-                    //   ),
-                    //   child: Center(
-                    //     child: Container(
-                    //       height: 100,
-                    //       width: 200,
-                    //       decoration: BoxDecoration(
-                    //         color: GlobalVariables.white,
-                    //         borderRadius: BorderRadius.circular(20.0),
-                    //         // boxShadow: [
-                    //         //   BoxShadow(
-                    //         //     color: Colors.grey.withOpacity(0.5),
-                    //         //     spreadRadius: 2,
-                    //         //     blurRadius: 8,
-                    //         //     offset: Offset(4, 6),
-                    //         //   ),
-                    //         // ],
-                    //       ),
-                    //       child: Padding(
-                    //         padding: const EdgeInsets.symmetric(
-                    //             vertical: 20.0, horizontal: 20.0),
-                    //         child: CupertinoDatePicker(
-                    //           mode: CupertinoDatePickerMode.time,
-                    //           minuteInterval: 30,
-                    //           initialDateTime: _getAdjustedInitialTime(),
-                    //           onDateTimeChanged: (DateTime value) {
-                    //             setState(() {
-                    //               selectedTime = TimeOfDay.fromDateTime(value);
-                    //             });
-                    //             print('Selected time: $selectedTime');
-                    //           },
-                    //           use24hFormat: false,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    SizedBox(height: titleSizedBoxHeight(screenHeight)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      child: Text(
-                        'Duration',
-                        style: GlobalVariables.facilityBookingStyle(context),
-                      ),
-                    ),
-                    SizedBox(height: smallSizedBoxHeight(screenHeight)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed:
-                              availableDurations.isNotEmpty && selectedIndex > 0
-                                  ? () {
-                                      setState(() {
-                                        selectedIndex--;
-                                      });
+                                SizedBox(height: buttonSizedBox(screenHeight)),
+                                MyButton(
+                                  color: GlobalVariables.secondaryColor,
+                                  textColor: GlobalVariables.primaryColor,
+                                  text: 'Next',
+                                  onTap: () {
+                                    if (selectedSlot != null) {
+                                      showBottomSheetModal(
+                                        context,
+                                        'Booking Details',
+                                        'Location: $title\nDate: $formattedDate\nTime: $selectedSlot\nDuration: ${_formatDuration(durations[selectedIndex])}',
+                                        true,
+                                        buttonText: 'Book Now',
+                                        isBooking: true,
+                                        rooms: rooms,
+                                        onTap: () {
+                                          Popup(
+                                              title: 'Booking Successful!',
+                                              content: Icon(
+                                                Icons.check_circle_rounded,
+                                                size: GlobalVariables
+                                                    .responsiveIconSize(
+                                                        context, 50),
+                                                color: Colors.green,
+                                              ),
+                                              buttons: [
+                                                ButtonConfig(
+                                                    text: 'OK',
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    })
+                                              ]).show(context);
+                                        },
+                                      );
+                                    } else {
+                                      Popup(
+                                          title: 'Incomplete Selection',
+                                          content: const Text(
+                                              'Please select a date or a time'),
+                                          buttons: [
+                                            ButtonConfig(
+                                              text: 'OK',
+                                              onPressed: () {
+                                                Navigator.of(context).pop;
+                                              },
+                                            ),
+                                          ]).show(context);
                                     }
-                                  : null,
-                          icon: Icon(
-                            Icons.remove,
-                            color: GlobalVariables.primaryColor,
-                            size: GlobalVariables.responsiveIconSize(
-                              context,
-                              20,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height: screenHeight * 0.06,
-                          width: screenWidth * 0.35,
-                          decoration: BoxDecoration(
-                            color: GlobalVariables.primaryColor,
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          child: Center(
-                            child: Text(
-                              availableDurations.isNotEmpty
-                                  ? _formatDuration(
-                                      availableDurations[selectedIndex])
-                                  : 'Select a slot',
-                              style: TextStyle(
-                                  color: GlobalVariables.white,
-                                  fontSize: GlobalVariables.responsiveFontSize(
-                                      context, 20),
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: availableDurations.isNotEmpty &&
-                                  selectedIndex < availableDurations.length - 1
-                              ? () {
-                                  setState(() {
-                                    selectedIndex++;
-                                  });
-                                  print(
-                                      'Plus button pressed. New selectedIndex: $selectedIndex');
-                                }
-                              : null,
-                          icon: Icon(
-                            Icons.add,
-                            color: GlobalVariables.primaryColor,
-                            size: GlobalVariables.responsiveIconSize(
-                              context,
-                              20,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: buttonSizedBox(screenHeight)),
-                    MyButton(
-                      color: GlobalVariables.secondaryColor,
-                      textColor: GlobalVariables.primaryColor,
-                      text: 'Next',
-                      onTap: () {
-                        if (selectedSlot != null) {
-                          showBottomSheetModal(
-                            context,
-                            'Booking Details',
-                            'Location: $title\nDate: $formattedDate\nTime: $selectedSlot\nDuration: ${_formatDuration(durations[selectedIndex])}',
-                            true,
-                            buttonText: 'Book Now',
-                            isBooking: true,
-                            rooms: rooms,
-                            onTap: () {
-                              Popup(
-                                  title: 'Booking Successful!',
-                                  content: Icon(
-                                    Icons.check_circle_rounded,
-                                    size: GlobalVariables.responsiveIconSize(
-                                        context, 50),
-                                    color: Colors.green,
-                                  ),
-                                  buttons: [
-                                    ButtonConfig(
-                                        text: 'OK',
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        })
-                                  ]).show(context);
-                            },
-                          );
-                        } else {
-                          Popup(
-                              title: 'Incomplete Selection',
-                              content:
-                                  const Text('Please select a date or a time'),
-                              buttons: [
-                                ButtonConfig(
-                                  text: 'OK',
-                                  onPressed: () {
-                                    Navigator.of(context).pop;
                                   },
                                 ),
-                              ]).show(context);
-                        }
-                      },
-                    ),
-                  ],
+                              ],
+                            ),
+                    ],
+                  ),
                 ),
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -542,3 +571,49 @@ class _BookingScreenState extends State<BookingScreen> {
   //   }
   // }
 }
+
+// CupertinoTheme(
+                      //   data: const CupertinoThemeData(
+                      //     textTheme: CupertinoTextThemeData(
+                      //       dateTimePickerTextStyle: TextStyle(
+                      //         color: GlobalVariables.primaryColor,
+                      //         fontSize: 18.0,
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     ),
+                      //   ),
+                      //   child: Center(
+                      //     child: Container(
+                      //       height: 100,
+                      //       width: 200,
+                      //       decoration: BoxDecoration(
+                      //         color: GlobalVariables.white,
+                      //         borderRadius: BorderRadius.circular(20.0),
+                      //         // boxShadow: [
+                      //         //   BoxShadow(
+                      //         //     color: Colors.grey.withOpacity(0.5),
+                      //         //     spreadRadius: 2,
+                      //         //     blurRadius: 8,
+                      //         //     offset: Offset(4, 6),
+                      //         //   ),
+                      //         // ],
+                      //       ),
+                      //       child: Padding(
+                      //         padding: const EdgeInsets.symmetric(
+                      //             vertical: 20.0, horizontal: 20.0),
+                      //         child: CupertinoDatePicker(
+                      //           mode: CupertinoDatePickerMode.time,
+                      //           minuteInterval: 30,
+                      //           initialDateTime: _getAdjustedInitialTime(),
+                      //           onDateTimeChanged: (DateTime value) {
+                      //             setState(() {
+                      //               selectedTime = TimeOfDay.fromDateTime(value);
+                      //             });
+                      //             print('Selected time: $selectedTime');
+                      //           },
+                      //           use24hFormat: false,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),

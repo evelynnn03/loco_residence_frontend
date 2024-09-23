@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loco_frontend/src/provider/booking_provider.dart';
 import 'package:loco_frontend/src/screens/resident_home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,6 +51,9 @@ void main() async {
           ),
           ChangeNotifierProvider(
             create: (context) => FinanceProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => BookingProvider(),
           ),
         ],
         child: MyApp(
