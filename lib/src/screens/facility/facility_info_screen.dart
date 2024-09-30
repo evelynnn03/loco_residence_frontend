@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:loco_frontend/src/provider/facility_provider.dart';
+import 'package:provider/provider.dart';
 
 class FacilityInfoScreen extends StatefulWidget {
   const FacilityInfoScreen({super.key});
@@ -30,9 +32,19 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
   final String hours = '8 AM - 10 PM';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FacilityProvider>(context, listen: false).fetchFacilities();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final facilityList = Provider.of<FacilityProvider>(context, listen: false).facilities;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final isLoading = Provider.of<FacilityProvider>(context).isLoading;
     double containerHeight = screenHeight * 0.15;
 
     double buttonHeight(double height) {
@@ -72,10 +84,17 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
         ),
         leading: GlobalVariables.backButton(context),
       ),
-      body: ListView.builder(
-        itemCount: facility.length,
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: GlobalVariables.primaryColor,
+              ),
+            )
+          :
+      ListView.builder(
+        itemCount: facilityList.length,
         itemBuilder: (BuildContext context, int index) {
-          bool isBookingRequired = facility[index]['requiresBooking'];
+          bool isBookingRequired = facilityList[index].bookingRequired;
           return Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
@@ -90,7 +109,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 2,
                     blurRadius: 8,
-                    offset: Offset(4, 6),
+                    offset: const Offset(4, 6),
                   ),
                 ],
               ),
@@ -102,7 +121,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: Image.asset(
-                        image[index],
+                        'assets/images/pickleballcourt.jpg',
                         width: 115,
                         height: containerHeight * 0.8,
                         fit: BoxFit.cover,
@@ -116,7 +135,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                           : MainAxisAlignment.center,
                       children: [
                         Text(
-                          facility[index]['name'],
+                          facilityList[index].name,
                           style: TextStyle(
                             fontSize: GlobalVariables.responsiveFontSize(
                                 context, 15.0),
@@ -124,7 +143,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                           ),
                         ),
                         Text(
-                          '8 AM - 10 PM',
+                          facilityList[index].description,
                           style: TextStyle(
                             fontSize: GlobalVariables.responsiveFontSize(
                                 context, 15.0),
@@ -135,7 +154,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                           onTap: () {
                             if (isBookingRequired) {
                               Navigator.pushNamed(context, '/booking_screen',
-                                  arguments: facility[index]['name']);
+                                  arguments: facilityList[index].name);
                             }
                           },
                           child: Visibility(

@@ -7,15 +7,6 @@ class Card {
   final DateTime cardExpiry;
   final String cardCvv;
   final String cardName;
-  final String cardAddress;
-  final String cardCity;
-  final String cardState;
-  final String cardZip;
-  final String cardCountry;
-  final String cardPhone;
-  final String cardEmail;
-  final DateTime cardDob;
-  final String cardSsn;
   final String cardStatus;
 
 
@@ -27,15 +18,6 @@ class Card {
     required this.cardExpiry,
     required this.cardCvv,
     required this.cardName,
-    required this.cardAddress,
-    required this.cardCity,
-    required this.cardState,
-    required this.cardZip,
-    required this.cardCountry,
-    required this.cardPhone,
-    required this.cardEmail,
-    required this.cardDob,
-    required this.cardSsn,
     required this.cardStatus,
 
   });
@@ -49,15 +31,6 @@ class Card {
       cardExpiry: DateTime.parse(json['card_expiry']),
       cardCvv: json['card_cvv'],
       cardName: json['card_name'],
-      cardAddress: json['card_address'],
-      cardCity: json['card_city'],
-      cardState: json['card_state'],
-      cardZip: json['card_zip'],
-      cardCountry: json['card_country'],
-      cardPhone: json['card_phone'],
-      cardEmail: json['card_email'],
-      cardDob: DateTime.parse(json['card_dob']),
-      cardSsn: json['card_ssn'],
       cardStatus: json['card_status'],
     );
   }
@@ -71,15 +44,6 @@ class Card {
       'card_expiry': cardExpiry.toIso8601String(),
       'card_cvv': cardCvv,
       'card_name': cardName,
-      'card_address': cardAddress,
-      'card_city': cardCity,
-      'card_state': cardState,
-      'card_zip': cardZip,
-      'card_country': cardCountry,
-      'card_phone': cardPhone,
-      'card_email': cardEmail,
-      'card_dob': cardDob.toIso8601String(),
-      'card_ssn': cardSsn,
       'card_status': cardStatus,
     };
   }
@@ -97,15 +61,6 @@ class Card {
     DateTime? cardExpiry,
     String? cardCvv,
     String? cardName,
-    String? cardAddress,
-    String? cardCity,
-    String? cardState,
-    String? cardZip,
-    String? cardCountry,
-    String? cardPhone,
-    String? cardEmail,
-    DateTime? cardDob,
-    String? cardSsn,
     String? cardStatus,
     DateTime? cardCreatedAt,
     DateTime? cardUpdatedAt,
@@ -119,15 +74,6 @@ class Card {
       cardExpiry: cardExpiry ?? this.cardExpiry,
       cardCvv: cardCvv ?? this.cardCvv,
       cardName: cardName ?? this.cardName,
-      cardAddress: cardAddress ?? this.cardAddress,
-      cardCity: cardCity ?? this.cardCity,
-      cardState: cardState ?? this.cardState,
-      cardZip: cardZip ?? this.cardZip,
-      cardCountry: cardCountry ?? this.cardCountry,
-      cardPhone: cardPhone ?? this.cardPhone,
-      cardEmail: cardEmail ?? this.cardEmail,
-      cardDob: cardDob ?? this.cardDob,
-      cardSsn: cardSsn ?? this.cardSsn,
       cardStatus: cardStatus ?? this.cardStatus,
     );
   }
