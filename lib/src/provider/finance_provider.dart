@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/services/finance_service.dart';
-import 'package:intl/intl.dart';
-
 import '../models/invoice.dart';
 
 class FinanceProvider with ChangeNotifier {

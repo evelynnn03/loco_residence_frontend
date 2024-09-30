@@ -41,10 +41,11 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final facilityList = Provider.of<FacilityProvider>(context, listen: false).facilities;
+    final facilityList =
+        Provider.of<FacilityProvider>(context, listen: false).facilities;
+    final isLoading = Provider.of<FacilityProvider>(context).isLoading;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    final isLoading = Provider.of<FacilityProvider>(context).isLoading;
     double containerHeight = screenHeight * 0.15;
 
     double buttonHeight(double height) {
@@ -85,109 +86,109 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
         leading: GlobalVariables.backButton(context),
       ),
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(
                 color: GlobalVariables.primaryColor,
               ),
             )
-          :
-      ListView.builder(
-        itemCount: facilityList.length,
-        itemBuilder: (BuildContext context, int index) {
-          bool isBookingRequired = facilityList[index].bookingRequired;
-          return Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
-            child: Container(
-              width: double.infinity,
-              height: containerHeight,
-              decoration: BoxDecoration(
-                color: Colors.white70,
-                borderRadius: BorderRadius.circular(25.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(4, 6),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 15.0, vertical: 12.0),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: Image.asset(
-                        'assets/images/pickleballcourt.jpg',
-                        width: 115,
-                        height: containerHeight * 0.8,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    SizedBox(width: sizedBoxWidth(screenWidth)),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: isBookingRequired
-                          ? MainAxisAlignment.start
-                          : MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          facilityList[index].name,
-                          style: TextStyle(
-                            fontSize: GlobalVariables.responsiveFontSize(
-                                context, 15.0),
-                            fontWeight: FontWeight.bold,
-                          ),
+          : ListView.builder(
+              itemCount: facilityList.length,
+              itemBuilder: (BuildContext context, int index) {
+                bool isBookingRequired = facilityList[index].bookingRequired;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 25.0, vertical: 8.0),
+                  child: Container(
+                    width: double.infinity,
+                    height: containerHeight,
+                    decoration: BoxDecoration(
+                      color: Colors.white70,
+                      borderRadius: BorderRadius.circular(25.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 8,
+                          offset: const Offset(4, 6),
                         ),
-                        Text(
-                          facilityList[index].description,
-                          style: TextStyle(
-                            fontSize: GlobalVariables.responsiveFontSize(
-                                context, 15.0),
-                          ),
-                        ),
-                        SizedBox(height: containerHeight * 0.1),
-                        GestureDetector(
-                          onTap: () {
-                            if (isBookingRequired) {
-                              Navigator.pushNamed(context, '/booking_screen',
-                                  arguments: facilityList[index].name);
-                            }
-                          },
-                          child: Visibility(
-                            visible: isBookingRequired,
-                            child: Container(
-                              height: buttonHeight(containerHeight),
-                              width: buttonWidth(screenWidth),
-                              decoration: BoxDecoration(
-                                color: GlobalVariables.primaryColor,
-                                borderRadius: BorderRadius.circular(25.0),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Book Now',
-                                  style: TextStyle(
-                                      fontSize:
-                                          GlobalVariables.responsiveFontSize(
-                                              context, 15.0),
-                                      color: GlobalVariables.white),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
                       ],
                     ),
-                  ],
-                ),
-              ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15.0, vertical: 12.0),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(15.0),
+                            child: Image.asset(
+                              'assets/images/pickleballcourt.jpg',
+                              width: 115,
+                              height: containerHeight * 0.8,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          SizedBox(width: sizedBoxWidth(screenWidth)),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: isBookingRequired
+                                ? MainAxisAlignment.start
+                                : MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                facilityList[index].name,
+                                style: TextStyle(
+                                  fontSize: GlobalVariables.responsiveFontSize(
+                                      context, 15.0),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                facilityList[index].description,
+                                style: TextStyle(
+                                  fontSize: GlobalVariables.responsiveFontSize(
+                                      context, 15.0),
+                                ),
+                              ),
+                              SizedBox(height: containerHeight * 0.1),
+                              GestureDetector(
+                                onTap: () {
+                                  if (isBookingRequired) {
+                                    Navigator.pushNamed(
+                                        context, '/booking_screen',
+                                        arguments: facilityList[index].name);
+                                  }
+                                },
+                                child: Visibility(
+                                  visible: isBookingRequired,
+                                  child: Container(
+                                    height: buttonHeight(containerHeight),
+                                    width: buttonWidth(screenWidth),
+                                    decoration: BoxDecoration(
+                                      color: GlobalVariables.primaryColor,
+                                      borderRadius: BorderRadius.circular(25.0),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'Book Now',
+                                        style: TextStyle(
+                                            fontSize: GlobalVariables
+                                                .responsiveFontSize(
+                                                    context, 15.0),
+                                            color: GlobalVariables.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }

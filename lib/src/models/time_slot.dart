@@ -1,12 +1,10 @@
-import 'dart:convert';
-
 class TimeSlot {
-  final int id;
+  final int? id;
   final String startTime;
   final String endTime;
 
   TimeSlot({
-    required this.id,
+    this.id,
     required this.startTime,
     required this.endTime,
   });
@@ -22,20 +20,27 @@ class TimeSlot {
 
   // Method to convert Booking to JSON map
   Map<String, dynamic> toJson() {
-    return {'id': id, 'start_time': startTime, 'end_time': endTime};
+    return {
+      'id': id,
+      'start_time': startTime,
+      'end_time': endTime,
+    };
   }
 
-  // Static method to parse a list of bookings from JSON
-  static List<TimeSlot> listFromJson(String str) {
-    final jsonData = json.decode(str) as List<dynamic>;
-    return jsonData
-        .map((json) => TimeSlot.fromJson(json as Map<String, dynamic>))
-        .toList();
+  @override
+  String toString() {
+    return 'Time Slot $id';
   }
 
-  // Method to convert a list of bookings to JSON
-  static String listToJson(List<TimeSlot> bookings) {
-    final jsonData = bookings.map((booking) => booking.toJson()).toList();
-    return json.encode(jsonData);
+  TimeSlot copyWith({
+    int? id,
+    String? startTime,
+    String? endTime,
+  }) {
+    return TimeSlot(
+      id: id ?? this.id,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+    );
   }
 }
