@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loco_frontend/src/provider/facility_provider.dart';
-import 'package:loco_frontend/src/provider/timeSlot_provider.dart';
+import 'package:loco_frontend/src/provider/booking_provider.dart';
 import 'package:loco_frontend/src/screens/resident_home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,7 +57,7 @@ void main() async {
             create: (context) => FacilityProvider(),
           ),
           ChangeNotifierProvider(
-            create: (context) => TimeSlotProvider(),
+            create: (context) => BookingProvider(),
           ),
         ],
         child: MyApp(

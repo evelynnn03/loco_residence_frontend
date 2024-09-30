@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
-import 'package:loco_frontend/src/provider/timeSlot_provider.dart';
+import 'package:loco_frontend/src/provider/booking_provider.dart';
 import 'package:loco_frontend/src/widgets/bottom_sheet.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/calendar.dart';
@@ -22,7 +22,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   DateTime selectedDate = DateTime.now();
-  String selectedSlot = "";
+  String? selectedSlot;
   int isSlotSelected = -1;
   String endTime = ""; // Stores calculated end time
 
@@ -115,14 +115,14 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // Asynchronous method to fetch available time slots
   Future<void> _fetchAvailableTimeSlots(DateTime date) async {
-    await Provider.of<TimeSlotProvider>(context, listen: false)
+    await Provider.of<BookingProvider>(context, listen: false)
         .fetchAvailableTimeSlots("1", DateFormat('yyyy-MM-dd').format(date));
   }
 
   // List the available slots of the day
   List<String> _getAvailableSlots() {
     List<TimeSlot> timeSlotList =
-        Provider.of<TimeSlotProvider>(context, listen: false).timeSlots;
+        Provider.of<BookingProvider>(context, listen: false).timeSlots;
 
     DateTime now = DateTime.now();
     DateTime selectedDateTime = selectedDate;
@@ -163,29 +163,34 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   // Method to calculate end time
-  String calculateEndTime(String startTime, int selectedDuration) {
-    final timeParts = startTime.split(':');
+  String calculateEndTime(String? startTime, int selectedDuration) {
+    // Parse start time
+    final timeParts = (startTime ?? '00:00:00').split(':');
     final int startHours = int.parse(timeParts[0]);
     final int startMinutes = int.parse(timeParts[1]);
 
+    // Calculate total start and end time in minutes
     final int totalStartMinutes = startHours * 60 + startMinutes;
     final int totalEndMinutes = totalStartMinutes + selectedDuration;
 
+    // Calculate end hours and minutes
     final int endHours = (totalEndMinutes ~/ 60) % 24;
     final int endMinutes = totalEndMinutes % 60;
-
-    return '${endHours.toString().padLeft(2, '0')}:${endMinutes.toString().padLeft(2, '0')}';
+    final DateTime endTime = DateTime(0, 1, 1, endHours, endMinutes);
+    return DateFormat('h:mm a').format(endTime);
   }
 
   @override
   void initState() {
     super.initState();
-    _fetchAvailableTimeSlots(selectedDate); // Await fetching slots
+    _fetchAvailableTimeSlots(selectedDate);
+    Provider.of<BookingProvider>(context, listen: false)
+        .fetchFacilitySections("2", "2024-09-26", ["18:00:00"]);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = Provider.of<TimeSlotProvider>(context).isLoading;
+    final isLoading = Provider.of<BookingProvider>(context).isLoading;
     // Facility Name fetched from the prev screen (Facility info screen)
     final String title = ModalRoute.of(context)?.settings.arguments as String;
     String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
@@ -308,75 +313,95 @@ class _BookingScreenState extends State<BookingScreen> {
                                       height: screenHeight * 0.15,
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
-                                        itemCount:
-                                            (_getAvailableSlots().length / 2)
-                                                .ceil(),
+                                        itemCount: (availableSlots.length / 2)
+                                            .ceil(), // Use ceil() to handle odd-length arrays
                                         itemBuilder: (context, index) {
+                                          // Ensure the index * 2 and (index * 2 + 1) don't go out of bounds
+                                          String? slotTime1;
+                                          String? slotTime2;
+
+                                          // Check for slotTime1
+                                          if (index * 2 <
+                                              availableSlots.length) {
+                                            slotTime1 = DateFormat('h:mm a')
+                                                .format(DateFormat('HH:mm:ss')
+                                                    .parse(availableSlots[
+                                                        index * 2]));
+                                          }
+
+                                          // Check for slotTime2
+                                          if (index * 2 + 1 <
+                                              availableSlots.length) {
+                                            slotTime2 = DateFormat('h:mm a')
+                                                .format(DateFormat('HH:mm:ss')
+                                                    .parse(availableSlots[
+                                                        index * 2 + 1]));
+                                          }
+
                                           return Column(
                                             children: [
-                                              // First row (odd indices)
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    // Store the selected string
-                                                    selectedSlot =
-                                                        _getAvailableSlots()[
-                                                            index * 2];
-                                                    isSlotSelected = index * 2;
-                                                  });
-                                                  print('$selectedSlot');
-                                                },
-                                                child: Container(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.22,
-                                                  height: screenHeight * 0.05,
-                                                  margin: EdgeInsets.symmetric(
-                                                    horizontal:
-                                                        marginSize(screenWidth),
-                                                    vertical:
-                                                        marginSize(screenWidth),
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: isSlotSelected ==
-                                                            index * 2
-                                                        ? GlobalVariables
-                                                            .primaryColor
-                                                        : GlobalVariables
-                                                            .secondaryColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      // Ensure each row gets a different slot
-                                                      _getAvailableSlots()[
-                                                          index * 2],
-                                                      style: GlobalVariables
-                                                          .bookingTimeStyle(
-                                                        context,
-                                                        color: isSlotSelected ==
-                                                                index * 2
-                                                            ? GlobalVariables
-                                                                .secondaryColor
-                                                            : GlobalVariables
-                                                                .primaryColor,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              // Second row (even indices)
-                                              // Check to avoid index overflow
-                                              if (index * 2 + 1 <
-                                                  _getAvailableSlots().length)
+                                              if (slotTime1 !=
+                                                  null) // Only display if slotTime1 exists
                                                 GestureDetector(
                                                   onTap: () {
                                                     setState(() {
                                                       selectedSlot =
-                                                          _getAvailableSlots()[
+                                                          availableSlots[
+                                                              index * 2];
+                                                      isSlotSelected =
+                                                          index * 2;
+                                                    });
+                                                    print('$selectedSlot');
+                                                  },
+                                                  child: Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.22,
+                                                    height: screenHeight * 0.05,
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal: marginSize(
+                                                          screenWidth),
+                                                      vertical: marginSize(
+                                                          screenWidth),
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: isSlotSelected ==
+                                                              index * 2
+                                                          ? GlobalVariables
+                                                              .primaryColor
+                                                          : GlobalVariables
+                                                              .secondaryColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        slotTime1,
+                                                        style: GlobalVariables
+                                                            .bookingTimeStyle(
+                                                          context,
+                                                          color: isSlotSelected ==
+                                                                  index * 2
+                                                              ? GlobalVariables
+                                                                  .secondaryColor
+                                                              : GlobalVariables
+                                                                  .primaryColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              if (slotTime2 !=
+                                                  null) // Only display if slotTime2 exists
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      selectedSlot =
+                                                          availableSlots[
                                                               index * 2 + 1];
                                                       isSlotSelected =
                                                           index * 2 + 1;
@@ -390,11 +415,13 @@ class _BookingScreenState extends State<BookingScreen> {
                                                                 .width *
                                                             0.22,
                                                     height: screenHeight * 0.05,
-                                                    margin: EdgeInsets.symmetric(
-                                                        horizontal: marginSize(
-                                                            screenWidth),
-                                                        vertical: marginSize(
-                                                            screenWidth)),
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal: marginSize(
+                                                          screenWidth),
+                                                      vertical: marginSize(
+                                                          screenWidth),
+                                                    ),
                                                     decoration: BoxDecoration(
                                                       color: isSlotSelected ==
                                                               index * 2 + 1
@@ -408,9 +435,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                     ),
                                                     child: Center(
                                                       child: Text(
-                                                        // Display the next slot for the second row
-                                                        _getAvailableSlots()[
-                                                            index * 2 + 1],
+                                                        slotTime2,
                                                         style: GlobalVariables
                                                             .bookingTimeStyle(
                                                           context,
@@ -525,6 +550,28 @@ class _BookingScreenState extends State<BookingScreen> {
                                       textColor: GlobalVariables.primaryColor,
                                       text: 'Next',
                                       onTap: () {
+                                        // Check if availableDurations is not empty and selectedIndex is valid
+                                        if (availableDurations.isEmpty ||
+                                            selectedIndex < 0 ||
+                                            selectedIndex >=
+                                                availableDurations.length) {
+                                          // Handle the case where no valid duration is available
+                                          Popup(
+                                            title: 'Incomplete Selection',
+                                            content: const Text(
+                                                'Please select a time slot'),
+                                            buttons: [
+                                              ButtonConfig(
+                                                text: 'OK',
+                                                onPressed: () {
+                                                  Navigator.of(context).pop;
+                                                },
+                                              ),
+                                            ],
+                                          ).show(context);
+                                          return; // Early return to prevent further execution
+                                        }
+
                                         // Get the selected duration using selectedIndex (from availableDurations list)
                                         int selectedDuration =
                                             availableDurations[selectedIndex];
@@ -533,48 +580,52 @@ class _BookingScreenState extends State<BookingScreen> {
                                         endTime = calculateEndTime(
                                             selectedSlot, selectedDuration);
 
+                                        // Convert selectedSlot to 12-hour format with AM/PM, handling null cases
+                                        String formatSelectedSlot(
+                                            String? selectedSlot) {
+                                          if (selectedSlot == null ||
+                                              selectedSlot.isEmpty) {
+                                            return ''; // Return an empty string or any default value when selectedSlot is null
+                                          }
+                                          DateTime selectedSlotTime =
+                                              DateFormat('HH:mm:ss').parse(
+                                                  selectedSlot); // Assuming selectedSlot is in HH:mm:ss format
+                                          return DateFormat('h:mm a').format(
+                                              selectedSlotTime); // Convert to h:mm a format
+                                        }
+
                                         if (selectedSlot != null) {
+                                          print('Slot selected: $selectedSlot');
+
                                           showBottomSheetModal(
                                             context,
                                             'Booking Details',
-                                            'Location: $title\nDate: $formattedDate\nStart Time: $selectedSlot\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
+                                            'Location: $title\nDate: $formattedDate\nStart Time: ${formatSelectedSlot(selectedSlot)}\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
                                             true,
                                             buttonText: 'Book Now',
                                             isBooking: true,
                                             rooms: rooms,
                                             onTap: () {
                                               Popup(
-                                                  title: 'Booking Successful!',
-                                                  content: Icon(
-                                                    Icons.check_circle_rounded,
-                                                    size: GlobalVariables
-                                                        .responsiveIconSize(
-                                                            context, 50),
-                                                    color: Colors.green,
+                                                title: 'Booking Successful!',
+                                                content: Icon(
+                                                  Icons.check_circle_rounded,
+                                                  size: GlobalVariables
+                                                      .responsiveIconSize(
+                                                          context, 50),
+                                                  color: Colors.green,
+                                                ),
+                                                buttons: [
+                                                  ButtonConfig(
+                                                    text: 'OK',
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
                                                   ),
-                                                  buttons: [
-                                                    ButtonConfig(
-                                                        text: 'OK',
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        })
-                                                  ]).show(context);
+                                                ],
+                                              ).show(context);
                                             },
                                           );
-                                        } else {
-                                          Popup(
-                                              title: 'Incomplete Selection',
-                                              content: const Text(
-                                                  'Please select a date or a time'),
-                                              buttons: [
-                                                ButtonConfig(
-                                                  text: 'OK',
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop;
-                                                  },
-                                                ),
-                                              ]).show(context);
                                         }
                                       },
                                     ),
