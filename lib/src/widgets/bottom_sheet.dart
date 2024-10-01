@@ -1,7 +1,22 @@
+import 'dart:ffi';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import for DateFormat
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/booking_provider.dart';
+
+// Fetch available sections based on available slots
+// void _fetchAvailableSections(BuildContext context, String facilityId,
+//     DateTime selectedDate, List<String> availableSlots) {
+//   Provider.of<BookingProvider>(context, listen: false).fetchFacilitySections(
+//     facilityId,
+//     DateFormat('yyyy-MM-dd').format(selectedDate),
+//     availableSlots,
+//   );
+// }
 
 Future<void> showBottomSheetModal(
   BuildContext context,
@@ -10,10 +25,13 @@ Future<void> showBottomSheetModal(
   bool button, {
   String? buttonText,
   bool isBooking = false,
-  List<List<String>>? rooms,
   VoidCallback? onTap,
+  List<int>? facilitySectionId, // Your available slots
+  List<String>? facilitySection, // Pass facility ID
+  DateTime? selectedDate, // Pass selected date
 }) async {
-  List<bool> isSelectedList = List<bool>.filled(rooms?.length ?? 0, false);
+  List<bool> isSelectedList = List<bool>.filled(facilitySectionId?.length ?? 0, false);
+
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -27,7 +45,7 @@ Future<void> showBottomSheetModal(
             builder: (BuildContext context, StateSetter setState) {
               return Stack(
                 children: [
-                  // to make sure the blur doesnt go beyond the bottom sheet
+                  // Ensure the blur doesn't go beyond the bottom sheet
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(20.0),
@@ -44,7 +62,7 @@ Future<void> showBottomSheetModal(
                         ),
                         child: Column(
                           children: [
-                            // time slot containers
+                            // Handle time slot containers and other UI components here...
                             Container(
                               margin: const EdgeInsets.only(top: 10),
                               height: 5,
@@ -80,7 +98,7 @@ Future<void> showBottomSheetModal(
                                     SizedBox(height: 20),
 
                                     // Display lists of available rooms
-                                    if (isBooking && rooms != null)
+                                    if (isBooking && facilitySectionId != null)
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -103,11 +121,10 @@ Future<void> showBottomSheetModal(
                                               child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
-                                                itemCount: rooms.length,
+                                                itemCount: facilitySectionId.length,
                                                 itemBuilder: (context, index) {
-                                                  final room = rooms[index];
-                                                  final roomNumber = room[0];
-                                                  final facility = room[1];
+                                                  final slot = facilitySectionId[index];
+                                                  final section = facilitySection![index];
                                                   return Column(
                                                     children: [
                                                       GestureDetector(
@@ -155,7 +172,7 @@ Future<void> showBottomSheetModal(
                                                                       .start,
                                                               children: [
                                                                 Text(
-                                                                  roomNumber,
+                                                                 '$slot',
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:
@@ -178,7 +195,7 @@ Future<void> showBottomSheetModal(
                                                                           top:
                                                                               8.0),
                                                                   child: Text(
-                                                                    facility,
+                                                                    '$section',
                                                                     style:
                                                                         TextStyle(
                                                                       fontSize:

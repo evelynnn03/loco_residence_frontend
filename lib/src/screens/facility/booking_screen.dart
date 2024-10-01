@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
@@ -9,7 +8,6 @@ import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/pop_up_window.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/time_slot.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -24,13 +22,9 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime selectedDate = DateTime.now();
   String? selectedSlot;
   int isSlotSelected = -1;
-  String endTime = ""; // Stores calculated end time
-
-  final List<List<String>> rooms = [
-    ['A1', 'Conference Room'],
-    ['B2', 'Meeting Room'],
-    ['C3', 'Private Office'],
-  ];
+  String endTime = "";
+  String facilityId = '';
+  String facilityName = '';
 
   final List<int> durations = [
     30,
@@ -113,11 +107,7 @@ class _BookingScreenState extends State<BookingScreen> {
     });
   }
 
-  // Asynchronous method to fetch available time slots
-  Future<void> _fetchAvailableTimeSlots(DateTime date) async {
-    await Provider.of<BookingProvider>(context, listen: false)
-        .fetchAvailableTimeSlots("1", DateFormat('yyyy-MM-dd').format(date));
-  }
+  List<String> availableSlots = [];
 
   // List the available slots of the day
   List<String> _getAvailableSlots() {
@@ -135,19 +125,19 @@ class _BookingScreenState extends State<BookingScreen> {
       DateFormat slotFormat = DateFormat('HH:mm:ss');
       DateTime currentTime =
           DateTime(now.year, now.month, now.day, now.hour, now.minute);
-      List<String> availableSlots = [];
 
       for (TimeSlot slot in timeSlotList) {
         // Iterate over TimeSlot objects
         try {
           DateTime slotStartTime = DateFormat('yyyy-MM-dd')
-              .parse('${DateFormat('yyyy-MM-dd').format(selectedDateTime)}')
+              .parse(DateFormat('yyyy-MM-dd').format(selectedDateTime))
               .add(Duration(
                   hours: slotFormat.parse(slot.startTime).hour,
                   minutes: slotFormat.parse(slot.startTime).minute));
+
+          // Add the string representation of startTime
           if (slotStartTime.isAfter(currentTime)) {
-            availableSlots.add(
-                slot.startTime); // Add the string representation of startTime
+            availableSlots.add(slot.startTime);
           }
         } catch (e) {
           print("Error parsing slot start time: $e");
@@ -156,10 +146,53 @@ class _BookingScreenState extends State<BookingScreen> {
       return availableSlots;
     } else {
       // Show all slots for tomorrow
-      return timeSlotList
-          .map((slot) => slot.startTime)
-          .toList(); // Return all available slots
+      return timeSlotList.map((slot) => slot.startTime).toList();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Schedule the argument retrieval after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Retrieve the arguments
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+      facilityId = args['facilityId']?.toString() ?? '';
+      facilityName = args['facilityName']?.toString() ?? '';
+
+      if (facilityId.isEmpty || facilityName.isEmpty) {
+        // Handle the case where the facilityId or facilityName is not provided
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Invalid facility information provided.')),
+        );
+        Navigator.pop(context); // Navigate back if necessary
+      } else {
+        // Fetch available time slots first, then fetch sections once slots are available
+        _fetchAvailableTimeSlots(selectedDate).catchError((error) {
+          print('Error fetching available slots or sections: $error');
+        });
+      }
+    });
+  }
+
+  // Fetch available time slots based on selected date
+  Future<void> _fetchAvailableTimeSlots(DateTime date) async {
+    await Provider.of<BookingProvider>(context, listen: false)
+        .fetchAvailableTimeSlots(
+            facilityId, DateFormat('yyyy-MM-dd').format(date));
+  }
+
+  // Fetch available sections based on available slots
+  void _fetchAvailableSections(List<String> availableSlots) {
+    Provider.of<BookingProvider>(context, listen: false).fetchFacilitySections(
+      facilityId,
+      DateFormat('yyyy-MM-dd').format(selectedDate),
+      availableSlots,
+    );
   }
 
   // Method to calculate end time
@@ -181,22 +214,13 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _fetchAvailableTimeSlots(selectedDate);
-    Provider.of<BookingProvider>(context, listen: false)
-        .fetchFacilitySections("2", "2024-09-26", ["18:00:00"]);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final isLoading = Provider.of<BookingProvider>(context).isLoading;
-    // Facility Name fetched from the prev screen (Facility info screen)
-    final String title = ModalRoute.of(context)?.settings.arguments as String;
     String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
 
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+
     // Update available durations when a slot is selected
     if (isSlotSelected != -1) {
       _updateAvailableDurations();
@@ -204,6 +228,14 @@ class _BookingScreenState extends State<BookingScreen> {
 
     // List of Available Slots
     List<String> availableSlots = _getAvailableSlots();
+
+    final bookingProvider =
+        Provider.of<BookingProvider>(context).facilitySections;
+    // Map to get the section names & section IDs
+    List<String> sectionNames =
+        bookingProvider.map((section) => section.sectionName).toList();
+    List<int> facilitySectionIds =
+        bookingProvider.map((section) => section.id ?? 0).toList();
 
     DateTime minDate = DateTime.now();
     DateTime maxDate;
@@ -234,7 +266,7 @@ class _BookingScreenState extends State<BookingScreen> {
       appBar: AppBar(
         backgroundColor: GlobalVariables.primaryColor,
         title: Text(
-          title,
+          facilityName,
           style: GlobalVariables.appbarStyle(context,
               color: GlobalVariables.secondaryColor),
         ),
@@ -254,8 +286,6 @@ class _BookingScreenState extends State<BookingScreen> {
                   selectedDate = date;
                   _fetchAvailableTimeSlots(selectedDate);
                 });
-
-                print('Selected date: $formattedDate');
               },
               showNavigationArrow: false,
               isDialog: false,
@@ -351,7 +381,10 @@ class _BookingScreenState extends State<BookingScreen> {
                                                       isSlotSelected =
                                                           index * 2;
                                                     });
-                                                    print('$selectedSlot');
+                                                    print(
+                                                        'selected slot: $selectedSlot');
+                                                    _fetchAvailableSections(
+                                                        [selectedSlot!]);
                                                   },
                                                   child: Container(
                                                     width:
@@ -406,7 +439,10 @@ class _BookingScreenState extends State<BookingScreen> {
                                                       isSlotSelected =
                                                           index * 2 + 1;
                                                     });
-                                                    print('$selectedSlot');
+                                                    print(
+                                                        'selected slot: $selectedSlot');
+                                                    _fetchAvailableSections(
+                                                        [selectedSlot!]);
                                                   },
                                                   child: Container(
                                                     width:
@@ -583,28 +619,34 @@ class _BookingScreenState extends State<BookingScreen> {
                                         // Convert selectedSlot to 12-hour format with AM/PM, handling null cases
                                         String formatSelectedSlot(
                                             String? selectedSlot) {
+                                          // Return an empty string or any default value when selectedSlot is null
                                           if (selectedSlot == null ||
                                               selectedSlot.isEmpty) {
-                                            return ''; // Return an empty string or any default value when selectedSlot is null
+                                            return '';
                                           }
+
+                                          // Assuming selectedSlot is in HH:mm:ss format
                                           DateTime selectedSlotTime =
-                                              DateFormat('HH:mm:ss').parse(
-                                                  selectedSlot); // Assuming selectedSlot is in HH:mm:ss format
-                                          return DateFormat('h:mm a').format(
-                                              selectedSlotTime); // Convert to h:mm a format
+                                              DateFormat('HH:mm:ss')
+                                                  .parse(selectedSlot);
+
+                                          // Convert to h:mm a format
+                                          return DateFormat('h:mm a')
+                                              .format(selectedSlotTime);
                                         }
 
                                         if (selectedSlot != null) {
-                                          print('Slot selected: $selectedSlot');
-
                                           showBottomSheetModal(
                                             context,
                                             'Booking Details',
-                                            'Location: $title\nDate: $formattedDate\nStart Time: ${formatSelectedSlot(selectedSlot)}\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
+                                            'Location: $facilityName\nDate: $formattedDate\nStart Time: ${formatSelectedSlot(selectedSlot)}\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
                                             true,
                                             buttonText: 'Book Now',
                                             isBooking: true,
-                                            rooms: rooms,
+                                            facilitySectionId:
+                                                facilitySectionIds,
+                                            facilitySection: sectionNames,
+                                            selectedDate: selectedDate,
                                             onTap: () {
                                               Popup(
                                                 title: 'Booking Successful!',
@@ -644,47 +686,47 @@ class _BookingScreenState extends State<BookingScreen> {
 }
 
 // CupertinoTheme(
-                      //   data: const CupertinoThemeData(
-                      //     textTheme: CupertinoTextThemeData(
-                      //       dateTimePickerTextStyle: TextStyle(
-                      //         color: GlobalVariables.primaryColor,
-                      //         fontSize: 18.0,
-                      //         fontWeight: FontWeight.bold,
-                      //       ),
-                      //     ),
-                      //   ),
-                      //   child: Center(
-                      //     child: Container(
-                      //       height: 100,
-                      //       width: 200,
-                      //       decoration: BoxDecoration(
-                      //         color: GlobalVariables.white,
-                      //         borderRadius: BorderRadius.circular(20.0),
-                      //         // boxShadow: [
-                      //         //   BoxShadow(
-                      //         //     color: Colors.grey.withOpacity(0.5),
-                      //         //     spreadRadius: 2,
-                      //         //     blurRadius: 8,
-                      //         //     offset: Offset(4, 6),
-                      //         //   ),
-                      //         // ],
-                      //       ),
-                      //       child: Padding(
-                      //         padding: const EdgeInsets.symmetric(
-                      //             vertical: 20.0, horizontal: 20.0),
-                      //         child: CupertinoDatePicker(
-                      //           mode: CupertinoDatePickerMode.time,
-                      //           minuteInterval: 30,
-                      //           initialDateTime: _getAdjustedInitialTime(),
-                      //           onDateTimeChanged: (DateTime value) {
-                      //             setState(() {
-                      //               selectedTime = TimeOfDay.fromDateTime(value);
-                      //             });
-                      //             print('Selected time: $selectedTime');
-                      //           },
-                      //           use24hFormat: false,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+//   data: const CupertinoThemeData(
+//     textTheme: CupertinoTextThemeData(
+//       dateTimePickerTextStyle: TextStyle(
+//         color: GlobalVariables.primaryColor,
+//         fontSize: 18.0,
+//         fontWeight: FontWeight.bold,
+//       ),
+//     ),
+//   ),
+//   child: Center(
+//     child: Container(
+//       height: 100,
+//       width: 200,
+//       decoration: BoxDecoration(
+//         color: GlobalVariables.white,
+//         borderRadius: BorderRadius.circular(20.0),
+//         // boxShadow: [
+//         //   BoxShadow(
+//         //     color: Colors.grey.withOpacity(0.5),
+//         //     spreadRadius: 2,
+//         //     blurRadius: 8,
+//         //     offset: Offset(4, 6),
+//         //   ),
+//         // ],
+//       ),
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(
+//             vertical: 20.0, horizontal: 20.0),
+//         child: CupertinoDatePicker(
+//           mode: CupertinoDatePickerMode.time,
+//           minuteInterval: 30,
+//           initialDateTime: _getAdjustedInitialTime(),
+//           onDateTimeChanged: (DateTime value) {
+//             setState(() {
+//               selectedTime = TimeOfDay.fromDateTime(value);
+//             });
+//             print('Selected time: $selectedTime');
+//           },
+//           use24hFormat: false,
+//         ),
+//       ),
+//     ),
+//   ),
+// ),

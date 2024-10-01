@@ -154,8 +154,14 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                                 onTap: () {
                                   if (isBookingRequired) {
                                     Navigator.pushNamed(
-                                        context, '/booking_screen',
-                                        arguments: facilityList[index].name);
+                                      context,
+                                      '/booking_screen',
+                                      arguments: {
+                                        'facilityId': facilityList[index].id,
+                                        'facilityName':
+                                            facilityList[index].name,
+                                      },
+                                    );
                                   }
                                 },
                                 child: Visibility(

@@ -74,7 +74,8 @@ class BookingService {
         'facility_id': facilityId,
         'date': date,
         // Repeat 'time_slots' for each entry
-        ...{ for (var v in timeSlots) 'time_slots' : v },
+        ...Map.fromIterable(timeSlots,
+            key: (v) => 'time_slots', value: (v) => v),
       };
 
       final response = await http.get(

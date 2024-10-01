@@ -14,7 +14,7 @@ class BookingProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  fetchAvailableTimeSlots(String facilityId, String date) async {
+  Future<void> fetchAvailableTimeSlots(String facilityId, String date) async {
     _isLoading = true;
     notifyListeners();
 
@@ -30,7 +30,7 @@ class BookingProvider with ChangeNotifier {
     }
   }
 
-  fetchFacilitySections(String facilityId, String date, List<String> timeSlots) async {
+  Future<void> fetchFacilitySections(String facilityId, String date, List<String> timeSlots) async {
     _isLoading = true;
     notifyListeners();
      try {
