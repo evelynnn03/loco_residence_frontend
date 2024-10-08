@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/provider/booking_provider.dart';
@@ -113,6 +114,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // List the available slots of the day
   List<String> _getAvailableSlots() {
+    availableSlots.clear();
+
     List<TimeSlot> timeSlotList =
         Provider.of<BookingProvider>(context, listen: false).timeSlots;
 
@@ -268,6 +271,9 @@ class _BookingScreenState extends State<BookingScreen> {
     )
         .then((_) {
       _fetchAvailableSections(availableSlots);
+      setState(() {
+        _fetchAvailableTimeSlots(selectedDate);
+      });
       Popup(
         title: 'Booking Successful!',
         content: Icon(
