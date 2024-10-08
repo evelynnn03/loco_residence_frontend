@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/models/time_slot.dart';
 import 'package:loco_frontend/src/services/booking_service.dart';
 
+import '../models/booking.dart';
 import '../models/facility_sections.dart';
 
 class BookingProvider with ChangeNotifier {
@@ -30,15 +31,32 @@ class BookingProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchFacilitySections(String facilityId, String date, List<String> timeSlots) async {
+  Future<void> fetchFacilitySections(
+      String facilityId, String date, List<String> timeSlots) async {
     _isLoading = true;
     notifyListeners();
-     try {
-      _facilitySections =
-          await BookingService().getFacilitiesSections(facilityId, date, timeSlots);
+    try {
+      _facilitySections = await BookingService()
+          .getFacilitiesSections(facilityId, date, timeSlots);
       print('Facility Sections: $_facilitySections');
     } catch (e) {
       print('Error fetching facility sections: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> bookFacilitySections(String facilityId, String date,
+      List<String> timeSlots, String sectionId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      List<Booking> bookingDetails = await BookingService()
+          .bookFacilitySection(facilityId, date, timeSlots, sectionId);
+      print('Booking Details: $bookingDetails');
+    } catch (e) {
+      print('Error booking facility section: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -1,22 +1,8 @@
-import 'dart:ffi';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for DateFormat
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
-import 'package:provider/provider.dart';
 
-import '../provider/booking_provider.dart';
-
-// Fetch available sections based on available slots
-// void _fetchAvailableSections(BuildContext context, String facilityId,
-//     DateTime selectedDate, List<String> availableSlots) {
-//   Provider.of<BookingProvider>(context, listen: false).fetchFacilitySections(
-//     facilityId,
-//     DateFormat('yyyy-MM-dd').format(selectedDate),
-//     availableSlots,
-//   );
-// }
 
 Future<void> showBottomSheetModal(
   BuildContext context,
@@ -29,8 +15,12 @@ Future<void> showBottomSheetModal(
   List<int>? facilitySectionId, // Your available slots
   List<String>? facilitySection, // Pass facility ID
   DateTime? selectedDate, // Pass selected date
+  Function(String?)? onSectionSelected,
 }) async {
-  List<bool> isSelectedList = List<bool>.filled(facilitySectionId?.length ?? 0, false);
+  List<bool> isSelectedList =
+      List<bool>.filled(facilitySectionId?.length ?? 0, false);
+
+  String? selectedSection;
 
   await showModalBottomSheet(
     context: context,
@@ -121,15 +111,19 @@ Future<void> showBottomSheetModal(
                                               child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
-                                                itemCount: facilitySectionId.length,
+                                                itemCount:
+                                                    facilitySectionId.length,
                                                 itemBuilder: (context, index) {
-                                                  final slot = facilitySectionId[index];
-                                                  final section = facilitySection![index];
+                                                  final slot =
+                                                      facilitySectionId[index];
+                                                  final section =
+                                                      facilitySection![index];
                                                   return Column(
                                                     children: [
                                                       GestureDetector(
                                                         onTap: () {
                                                           setState(() {
+                                                            // Update selection state
                                                             for (int i = 0;
                                                                 i <
                                                                     isSelectedList
@@ -139,6 +133,12 @@ Future<void> showBottomSheetModal(
                                                                       i] =
                                                                   i == index;
                                                             }
+
+                                                            // Store the selected section
+                                                            selectedSection =
+                                                                facilitySectionId[
+                                                                        index]
+                                                                    .toString();
                                                           });
                                                         },
                                                         child: Padding(
@@ -172,7 +172,7 @@ Future<void> showBottomSheetModal(
                                                                       .start,
                                                               children: [
                                                                 Text(
-                                                                 '$slot',
+                                                                  '$slot',
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:
@@ -241,7 +241,12 @@ Future<void> showBottomSheetModal(
                                 padding: const EdgeInsets.all(16.0),
                                 child: MyButton(
                                   text: buttonText,
-                                  onTap: onTap ?? () => Navigator.pop(context),
+                                  onTap: () {
+                                    if (selectedSection != null) {
+                                      onSectionSelected?.call(selectedSection!);
+                                    }
+                                    Navigator.of(context).pop();
+                                  },
                                 ),
                               ),
                           ],

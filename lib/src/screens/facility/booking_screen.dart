@@ -20,9 +20,10 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   DateTime selectedDate = DateTime.now();
-  String? selectedSlot;
+  List<String> selectedSlot = [];
+  String? selectedSection;
   int isSlotSelected = -1;
-  String endTime = "";
+  String? endTime;
   String facilityId = '';
   String facilityName = '';
 
@@ -77,10 +78,12 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // Get the available hours
   List<int> _getAvailableDurations() {
-    if (selectedSlot == null) return [];
+    if (selectedSlot.isEmpty) return [];
 
     DateFormat format = DateFormat("HH:mm:ss");
-    DateTime startTime = format.parse(selectedSlot!);
+
+    // Assuming you want to use the first slot from the list
+    DateTime startTime = format.parse(selectedSlot.first);
     DateTime endTime = format.parse("22:00:00");
 
     int remainingMinutes = endTime.difference(startTime).inMinutes;
@@ -195,22 +198,96 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  // Method to calculate end time
-  String calculateEndTime(String? startTime, int selectedDuration) {
-    // Parse start time
-    final timeParts = (startTime ?? '00:00:00').split(':');
+  // Method to generate time slots between startTime and the calculated end time
+  List<String> generateTimeSlots(String startTime, int durationInMinutes) {
+    final timeParts = startTime.split(':');
     final int startHours = int.parse(timeParts[0]);
     final int startMinutes = int.parse(timeParts[1]);
 
-    // Calculate total start and end time in minutes
     final int totalStartMinutes = startHours * 60 + startMinutes;
-    final int totalEndMinutes = totalStartMinutes + selectedDuration;
+    final int totalEndMinutes = totalStartMinutes + durationInMinutes;
 
-    // Calculate end hours and minutes
-    final int endHours = (totalEndMinutes ~/ 60) % 24;
-    final int endMinutes = totalEndMinutes % 60;
-    final DateTime endTime = DateTime(0, 1, 1, endHours, endMinutes);
-    return DateFormat('h:mm a').format(endTime);
+    List<String> slots = [];
+    for (int currentMinutes = totalStartMinutes;
+        currentMinutes <= totalEndMinutes;
+        currentMinutes += 30) {
+      final int hours = (currentMinutes ~/ 60) % 24;
+      final int minutes = currentMinutes % 60;
+      final DateTime slotTime = DateTime(0, 1, 1, hours, minutes);
+      slots.add(
+          DateFormat('h:mm a').format(slotTime)); // Add time in HH:mm:ss format
+    }
+
+    return slots;
+  }
+
+  // Book facility section
+  void _onBookNowTap(
+      List<String?> selectedSlots, int selectedDuration, String sectionId) {
+    if (selectedSlots.isEmpty || selectedSlots.contains(null)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No time slots selected.')),
+      );
+      return;
+    }
+
+    final bookingProvider =
+        Provider.of<BookingProvider>(context, listen: false);
+
+    // Filter out any null slots
+    final availableSlots =
+        selectedSlots.where((slot) => slot != null).cast<String>().toList();
+
+    if (availableSlots.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No valid time slot IDs found.')),
+      );
+      return;
+    }
+
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+    final startTime = availableSlots.first;
+
+    // Calculate end time and intermediate slots
+    final List<String> generatedSlots =
+        generateTimeSlots(startTime, selectedDuration);
+
+    // Get only intermediate slots (excluding the end time)
+    final List<String> intermediateSlots =
+        generatedSlots.sublist(1, generatedSlots.length - 1);
+
+    // Create a list that includes the start time and the intermediate slots
+    final List<String> slotsToBook = [startTime] + intermediateSlots;
+
+    // Call the booking method with the start time and intermediate time slots
+    bookingProvider
+        .bookFacilitySections(
+      facilityId,
+      formattedDate,
+      slotsToBook, // Pass both the start time and intermediate time slots
+      sectionId,
+    )
+        .then((_) {
+      Popup(
+        title: 'Booking Successful!',
+        content: Icon(
+          Icons.check_circle_rounded,
+          size: GlobalVariables.responsiveIconSize(context, 50),
+          color: Colors.green,
+        ),
+        buttons: [
+          ButtonConfig(
+            text: 'OK',
+          ),
+        ],
+      ).show(context);
+    }).catchError((error) {
+      print('Error during booking: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to book facility: $error')),
+      );
+    });
   }
 
   @override
@@ -375,16 +452,17 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 GestureDetector(
                                                   onTap: () {
                                                     setState(() {
-                                                      selectedSlot =
-                                                          availableSlots[
-                                                              index * 2];
+                                                      selectedSlot = [
+                                                        availableSlots[
+                                                            index * 2]
+                                                      ];
                                                       isSlotSelected =
                                                           index * 2;
                                                     });
                                                     print(
                                                         'selected slot: $selectedSlot');
                                                     _fetchAvailableSections(
-                                                        [selectedSlot!]);
+                                                        selectedSlot);
                                                   },
                                                   child: Container(
                                                     width:
@@ -433,16 +511,17 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 GestureDetector(
                                                   onTap: () {
                                                     setState(() {
-                                                      selectedSlot =
-                                                          availableSlots[
-                                                              index * 2 + 1];
+                                                      selectedSlot = [
+                                                        availableSlots[
+                                                            index * 2 + 1]
+                                                      ];
                                                       isSlotSelected =
                                                           index * 2 + 1;
                                                     });
                                                     print(
                                                         'selected slot: $selectedSlot');
                                                     _fetchAvailableSections(
-                                                        [selectedSlot!]);
+                                                        selectedSlot);
                                                   },
                                                   child: Container(
                                                     width:
@@ -613,8 +692,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                             availableDurations[selectedIndex];
 
                                         // Calculate end time based on selected slot and the selected duration
-                                        endTime = calculateEndTime(
-                                            selectedSlot, selectedDuration);
+                                        List<String> generatedSlots =
+                                            generateTimeSlots(
+                                                selectedSlot.first,
+                                                selectedDuration);
+                                        endTime = generatedSlots.last;
 
                                         // Convert selectedSlot to 12-hour format with AM/PM, handling null cases
                                         String formatSelectedSlot(
@@ -635,11 +717,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                               .format(selectedSlotTime);
                                         }
 
-                                        if (selectedSlot != null) {
+                                        if (selectedSlot.isNotEmpty) {
                                           showBottomSheetModal(
                                             context,
                                             'Booking Details',
-                                            'Location: $facilityName\nDate: $formattedDate\nStart Time: ${formatSelectedSlot(selectedSlot)}\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
+                                            'Location: $facilityName\nDate: $formattedDate\nStart Time: ${formatSelectedSlot(selectedSlot.first)}\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
                                             true,
                                             buttonText: 'Book Now',
                                             isBooking: true,
@@ -647,25 +729,16 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 facilitySectionIds,
                                             facilitySection: sectionNames,
                                             selectedDate: selectedDate,
-                                            onTap: () {
-                                              Popup(
-                                                title: 'Booking Successful!',
-                                                content: Icon(
-                                                  Icons.check_circle_rounded,
-                                                  size: GlobalVariables
-                                                      .responsiveIconSize(
-                                                          context, 50),
-                                                  color: Colors.green,
-                                                ),
-                                                buttons: [
-                                                  ButtonConfig(
-                                                    text: 'OK',
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ],
-                                              ).show(context);
+                                            onSectionSelected:
+                                                (selectedSection) {
+                                              // Handle the selected section here
+                                              print(
+                                                  'Selected Section: $selectedSection');
+                                              // You can now use this selectedSection for your booking logic
+                                              _onBookNowTap(
+                                                  selectedSlot,
+                                                  durations[selectedIndex],
+                                                  selectedSection!);
                                             },
                                           );
                                         }
