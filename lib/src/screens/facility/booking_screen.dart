@@ -465,9 +465,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                                     });
                                                     print(
                                                         'Selected slot: $selectedSlot');
-                                                    // Fetch available sections based on the newly selected slot
-                                                    _fetchAvailableSections(
-                                                        selectedSlot);
                                                   },
                                                   child: Container(
                                                     width:
@@ -526,8 +523,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                                     });
                                                     print(
                                                         'selected slot: $selectedSlot');
-                                                    _fetchAvailableSections(
-                                                        selectedSlot);
                                                   },
                                                   child: Container(
                                                     width:
@@ -727,6 +722,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         }
 
                                         if (selectedSlot.isNotEmpty) {
+                                          _fetchAvailableSections(selectedSlot);
                                           showBottomSheetModal(
                                             context,
                                             'Booking Details',

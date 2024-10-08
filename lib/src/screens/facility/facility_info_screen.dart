@@ -115,7 +115,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 15.0, vertical: 12.0),
+                          horizontal: 10.0, vertical: 12.0),
                       child: Row(
                         children: [
                           ClipRRect(
