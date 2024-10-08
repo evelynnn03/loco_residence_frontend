@@ -23,7 +23,6 @@ class _BookingScreenState extends State<BookingScreen> {
   List<String> selectedSlot = [];
   String? selectedSection;
   int isSlotSelected = -1;
-  String? endTime;
   String facilityId = '';
   String facilityName = '';
 
@@ -214,8 +213,8 @@ class _BookingScreenState extends State<BookingScreen> {
       final int hours = (currentMinutes ~/ 60) % 24;
       final int minutes = currentMinutes % 60;
       final DateTime slotTime = DateTime(0, 1, 1, hours, minutes);
-      slots.add(
-          DateFormat('h:mm a').format(slotTime)); // Add time in HH:mm:ss format
+      // Format in 24-hour time
+      slots.add(DateFormat('HH:mm:ss').format(slotTime)); // Use HH:mm:ss format
     }
 
     return slots;
@@ -246,7 +245,6 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-
     final startTime = availableSlots.first;
 
     // Calculate end time and intermediate slots
@@ -269,6 +267,7 @@ class _BookingScreenState extends State<BookingScreen> {
       sectionId,
     )
         .then((_) {
+      _fetchAvailableSections(availableSlots);
       Popup(
         title: 'Booking Successful!',
         content: Icon(
@@ -277,9 +276,7 @@ class _BookingScreenState extends State<BookingScreen> {
           color: Colors.green,
         ),
         buttons: [
-          ButtonConfig(
-            text: 'OK',
-          ),
+          ButtonConfig(text: 'OK', onPressed: () {}),
         ],
       ).show(context);
     }).catchError((error) {
@@ -371,6 +368,7 @@ class _BookingScreenState extends State<BookingScreen> {
           Flexible(
             child: Container(
               width: double.infinity,
+              height: double.infinity,
               decoration: const BoxDecoration(
                 color: GlobalVariables.white,
                 borderRadius: BorderRadius.only(
@@ -447,8 +445,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
                                           return Column(
                                             children: [
-                                              if (slotTime1 !=
-                                                  null) // Only display if slotTime1 exists
+                                              // Only display if slotTime1 exists
+                                              if (slotTime1 != null)
                                                 GestureDetector(
                                                   onTap: () {
                                                     setState(() {
@@ -460,7 +458,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                                           index * 2;
                                                     });
                                                     print(
-                                                        'selected slot: $selectedSlot');
+                                                        'Selected slot: $selectedSlot');
+                                                    // Fetch available sections based on the newly selected slot
                                                     _fetchAvailableSections(
                                                         selectedSlot);
                                                   },
@@ -506,8 +505,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                                     ),
                                                   ),
                                                 ),
-                                              if (slotTime2 !=
-                                                  null) // Only display if slotTime2 exists
+
+                                              // Only display if slotTime2 exists
+                                              if (slotTime2 != null)
                                                 GestureDetector(
                                                   onTap: () {
                                                     setState(() {
@@ -696,7 +696,10 @@ class _BookingScreenState extends State<BookingScreen> {
                                             generateTimeSlots(
                                                 selectedSlot.first,
                                                 selectedDuration);
-                                        endTime = generatedSlots.last;
+
+                                        final endTime = DateFormat('h:mm a')
+                                            .format(DateFormat('HH:mm:ss')
+                                                .parse(generatedSlots.last));
 
                                         // Convert selectedSlot to 12-hour format with AM/PM, handling null cases
                                         String formatSelectedSlot(
