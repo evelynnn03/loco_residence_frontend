@@ -160,6 +160,8 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                                         'facilityId': facilityList[index].id,
                                         'facilityName':
                                             facilityList[index].name,
+                                        'facilityDescription':
+                                            facilityList[index].description,
                                       },
                                     );
                                   }

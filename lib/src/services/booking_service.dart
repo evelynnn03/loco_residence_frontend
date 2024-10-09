@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:loco_frontend/src/constants/api_path.dart';
 import 'package:loco_frontend/src/models/booking.dart';
 import 'package:loco_frontend/src/models/facility_sections.dart';
+import 'package:provider/provider.dart';
 import '../models/time_slot.dart';
+import '../provider/booking_provider.dart';
 
 class BookingService {
   Future<List<TimeSlot>> getAvailableTimeSlots(
@@ -76,13 +79,12 @@ class BookingService {
 
   // book facility section
   Future<List<Booking>> bookFacilitySection(String facilityId, String date,
-      List<String> timeSlots, String sectionId) async {
+      List<String> timeSlots, String sectionId, BuildContext context) async {
     try {
-      // Create a proper map for the request body
       final queryParams = {
         'facility_id': facilityId,
         'date': date,
-        'time_slots': timeSlots, // Use the timeSlots list directly
+        'time_slots': timeSlots,
         'section_id': sectionId,
       };
 
@@ -91,20 +93,31 @@ class BookingService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(queryParams), // Send the complete JSON object
+        body: jsonEncode(queryParams),
       );
-
-      print(
-          'Facility ID: $facilityId, Date: $date, Time Slots: $timeSlots, Section ID: $sectionId');
 
       if (response.statusCode == 201) {
         final Map<String, dynamic> res = json.decode(response.body);
 
-        // Check if the response contains a success message
         if (res.containsKey('message') &&
             res['message'] == 'Booking successful') {
-          print('Booking was successful.');
-          return []; // Return an empty list if no booking details are provided
+          if (res.containsKey('bookings')) {
+            final List<Booking> bookings = [];
+            for (var bookingData in res['bookings']) {
+              final booking =
+                  Booking.fromJson(bookingData as Map<String, dynamic>);
+              bookings.add(booking);
+            }
+
+            // Update provider with the new bookings
+            Provider.of<BookingProvider>(context, listen: false)
+                .setBookings(bookings);
+
+            return bookings;
+          } else {
+            print('No booking details found in the response.');
+            return [];
+          }
         } else {
           print('Unexpected response: ${response.body}');
           return [];

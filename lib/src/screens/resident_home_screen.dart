@@ -5,8 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loco_frontend/src/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../../core/auth/login_screen.dart';
 import 'package:flutter/material.dart';
+import '../models/booking.dart';
+import '../provider/booking_provider.dart';
 import '../widgets/pop_up_window.dart';
 import '../constants/global_variables.dart';
 import '../widgets/resident_argument.dart';
@@ -365,7 +369,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                               context,
                               'Notification',
                               'This is the content of the notification.',
-                              false, 
+                              false,
                             ).then((_) {
                               setState(() {
                                 selectedIndex = -1;

@@ -1,11 +1,11 @@
 class FacilitySections {
-  final int? id;
+  final int id;
   final int facilityId;
   final String sectionName;
   final bool isAvailable;
 
   FacilitySections({
-    this.id,
+    required this.id,
     required this.facilityId,
     required this.sectionName,
     this.isAvailable = true,

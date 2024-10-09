@@ -20,7 +20,8 @@ class Booking {
       id: json['id'],
       residentId: json['resident'],
       sectionId: json['section'],
-      timeSlotId: json['time_slot'],
+      timeSlotId: json['time_slot']
+          ['id'], // Extract the id from the time_slot object
       bookingDate: json['booking_date'],
       bookingStatus: json['booking_status'],
     );
@@ -31,7 +32,7 @@ class Booking {
       'id': id,
       'resident': residentId,
       'section': sectionId,
-      'time_slot': timeSlotId,
+      'time_slot': {'id': timeSlotId}, 
       'booking_date': bookingDate,
       'booking_status': bookingStatus,
     };

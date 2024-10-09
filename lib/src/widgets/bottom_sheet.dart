@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 
-
 Future<void> showBottomSheetModal(
   BuildContext context,
   String title,
@@ -11,8 +10,9 @@ Future<void> showBottomSheetModal(
   bool button, {
   String? buttonText,
   bool isBooking = false,
+  String? desc,
   VoidCallback? onTap,
-  List<int>? facilitySectionId, // Your available slots
+  List<int>? facilitySectionId, // available sections
   List<String>? facilitySection, // Pass facility ID
   DateTime? selectedDate, // Pass selected date
   Function(String?)? onSectionSelected,
@@ -102,7 +102,7 @@ Future<void> showBottomSheetModal(
                                                   fontWeight: FontWeight.bold),
                                             ),
                                           ),
-                                          SizedBox(height: 15.0),
+                                          const SizedBox(height: 15.0),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 20.0),
@@ -118,6 +118,7 @@ Future<void> showBottomSheetModal(
                                                       facilitySectionId[index];
                                                   final section =
                                                       facilitySection![index];
+
                                                   return Column(
                                                     children: [
                                                       GestureDetector(
@@ -195,7 +196,7 @@ Future<void> showBottomSheetModal(
                                                                           top:
                                                                               8.0),
                                                                   child: Text(
-                                                                    '$section',
+                                                                    section,
                                                                     style:
                                                                         TextStyle(
                                                                       fontSize:
@@ -220,14 +221,23 @@ Future<void> showBottomSheetModal(
                                               ),
                                             ),
                                           ),
-                                          const Padding(
-                                            padding: EdgeInsets.symmetric(
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 20.0),
-                                            child: Text(
-                                              'Description',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Description',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  desc!,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],

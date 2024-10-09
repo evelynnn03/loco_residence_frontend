@@ -26,6 +26,7 @@ class _BookingScreenState extends State<BookingScreen> {
   int isSlotSelected = -1;
   String facilityId = '';
   String facilityName = '';
+  String facilityDesc = '';
 
   final List<int> durations = [
     30,
@@ -111,6 +112,7 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   List<String> availableSlots = [];
+  List<String> slotsToBook = [];
 
   // List the available slots of the day
   List<String> _getAvailableSlots() {
@@ -167,6 +169,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
       facilityId = args['facilityId']?.toString() ?? '';
       facilityName = args['facilityName']?.toString() ?? '';
+      facilityDesc = args['facilityDescription']?.toString() ?? '';
 
       if (facilityId.isEmpty || facilityName.isEmpty) {
         // Handle the case where the facilityId or facilityName is not provided
@@ -191,9 +194,12 @@ class _BookingScreenState extends State<BookingScreen> {
             facilityId, DateFormat('yyyy-MM-dd').format(date));
   }
 
-  // Fetch available sections based on available slots
-  void _fetchAvailableSections(List<String> availableSlots) {
-    Provider.of<BookingProvider>(context, listen: false).fetchFacilitySections(
+// Fetch available sections based on available slots
+// 1. Add print statements to track the flow of execution
+  Future<void> _fetchAvailableSections(List<String> availableSlots) async {
+    print("1. _fetchAvailableSections called with slots: $availableSlots");
+    await Provider.of<BookingProvider>(context, listen: false)
+        .fetchFacilitySections(
       facilityId,
       DateFormat('yyyy-MM-dd').format(selectedDate),
       availableSlots,
@@ -260,20 +266,22 @@ class _BookingScreenState extends State<BookingScreen> {
 
     // Create a list that includes the start time and the intermediate slots
     final List<String> slotsToBook = [startTime] + intermediateSlots;
+    print(slotsToBook);
 
     // Call the booking method with the start time and intermediate time slots
     bookingProvider
         .bookFacilitySections(
-      facilityId,
-      formattedDate,
-      slotsToBook, // Pass both the start time and intermediate time slots
-      sectionId,
-    )
+            facilityId,
+            formattedDate,
+            slotsToBook, // Pass both the start time and intermediate time slots
+            sectionId,
+            context)
         .then((_) {
       _fetchAvailableSections(availableSlots);
       setState(() {
         _fetchAvailableTimeSlots(selectedDate);
       });
+
       Popup(
         title: 'Booking Successful!',
         content: Icon(
@@ -309,13 +317,13 @@ class _BookingScreenState extends State<BookingScreen> {
     // List of Available Slots
     List<String> availableSlots = _getAvailableSlots();
 
-    final bookingProvider =
-        Provider.of<BookingProvider>(context).facilitySections;
+    final bookingProvider = Provider.of<BookingProvider>(context);
+
     // Map to get the section names & section IDs
-    List<String> sectionNames =
-        bookingProvider.map((section) => section.sectionName).toList();
-    List<int> facilitySectionIds =
-        bookingProvider.map((section) => section.id ?? 0).toList();
+    List<String> sectionNames = bookingProvider.facilitySections
+        .map((section) => section.sectionName)
+        .toList();
+    List<int> facilitySectionIds = bookingProvider.facilitySectionIds;
 
     DateTime minDate = DateTime.now();
     DateTime maxDate;
@@ -424,8 +432,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                       height: screenHeight * 0.15,
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
-                                        itemCount: (availableSlots.length / 2)
-                                            .ceil(), // Use ceil() to handle odd-length arrays
+                                        // Use ceil() to handle odd-length arrays
+                                        itemCount:
+                                            (availableSlots.length / 2).ceil(),
                                         itemBuilder: (context, index) {
                                           // Ensure the index * 2 and (index * 2 + 1) don't go out of bounds
                                           String? slotTime1;
@@ -661,17 +670,20 @@ class _BookingScreenState extends State<BookingScreen> {
                                     ),
                                     SizedBox(
                                         height: buttonSizedBox(screenHeight)),
+
+                                    // Next button to show bottom sheet modal
                                     MyButton(
                                       color: GlobalVariables.secondaryColor,
                                       textColor: GlobalVariables.primaryColor,
                                       text: 'Next',
-                                      onTap: () {
+                                      onTap: () async {
+                                        print(selectedSlot);
+
                                         // Check if availableDurations is not empty and selectedIndex is valid
                                         if (availableDurations.isEmpty ||
                                             selectedIndex < 0 ||
                                             selectedIndex >=
                                                 availableDurations.length) {
-                                          // Handle the case where no valid duration is available
                                           Popup(
                                             title: 'Incomplete Selection',
                                             content: const Text(
@@ -680,7 +692,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                               ButtonConfig(
                                                 text: 'OK',
                                                 onPressed: () {
-                                                  Navigator.of(context).pop;
+                                                  Navigator.of(context).pop();
                                                 },
                                               ),
                                             ],
@@ -691,6 +703,13 @@ class _BookingScreenState extends State<BookingScreen> {
                                         // Get the selected duration using selectedIndex (from availableDurations list)
                                         int selectedDuration =
                                             availableDurations[selectedIndex];
+
+                                        // List of time slots including start and inter slots
+                                        List<String> slotsToBook =
+                                            generateTimeSlots(
+                                                selectedSlot.first,
+                                                selectedDuration - 1);
+                                        print(slotsToBook);
 
                                         // Calculate end time based on selected slot and the selected duration
                                         List<String> generatedSlots =
@@ -722,30 +741,54 @@ class _BookingScreenState extends State<BookingScreen> {
                                         }
 
                                         if (selectedSlot.isNotEmpty) {
-                                          _fetchAvailableSections(selectedSlot);
-                                          showBottomSheetModal(
-                                            context,
-                                            'Booking Details',
-                                            'Location: $facilityName\nDate: $formattedDate\nStart Time: ${formatSelectedSlot(selectedSlot.first)}\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
-                                            true,
-                                            buttonText: 'Book Now',
-                                            isBooking: true,
-                                            facilitySectionId:
-                                                facilitySectionIds,
-                                            facilitySection: sectionNames,
-                                            selectedDate: selectedDate,
-                                            onSectionSelected:
-                                                (selectedSection) {
-                                              // Handle the selected section here
-                                              print(
-                                                  'Selected Section: $selectedSection');
-                                              // You can now use this selectedSection for your booking logic
-                                              _onBookNowTap(
-                                                  selectedSlot,
-                                                  durations[selectedIndex],
-                                                  selectedSection!);
-                                            },
-                                          );
+                                          await _fetchAvailableSections(
+                                              slotsToBook);
+
+                                          final updatedFacilitySectionIds =
+                                              Provider.of<BookingProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .facilitySectionIds;
+                                          final updatedSectionNames = Provider.of<BookingProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .facilitySectionNames;
+
+                                          print(updatedFacilitySectionIds);
+                                          print(updatedSectionNames);
+                                          if (updatedFacilitySectionIds
+                                              .isNotEmpty) {
+                                            showBottomSheetModal(
+                                              context,
+                                              'Booking Details',
+                                              'Location: $facilityName\nDate: $formattedDate\nStart Time: ${formatSelectedSlot(selectedSlot.first)}\nEnd Time: $endTime\nDuration: ${_formatDuration(durations[selectedIndex])}',
+                                              true,
+                                              buttonText: 'Book Now',
+                                              isBooking: true,
+                                              desc: facilityDesc,
+                                              facilitySectionId:
+                                                  updatedFacilitySectionIds,
+                                              facilitySection: updatedSectionNames,
+                                              selectedDate: selectedDate,
+                                              onSectionSelected:
+                                                  (selectedSection) {
+                                                // Handle the selected section here
+                                                print(
+                                                    'Selected Section: $selectedSection');
+                                                _onBookNowTap(
+                                                    selectedSlot,
+                                                    durations[selectedIndex],
+                                                    selectedSection!);
+                                              },
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'No more sections.')),
+                                            );
+                                          }
                                         }
                                       },
                                     ),
