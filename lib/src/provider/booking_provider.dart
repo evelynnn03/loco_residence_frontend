@@ -9,6 +9,7 @@ class BookingProvider with ChangeNotifier {
   List<TimeSlot> _timeSlots = [];
   List<FacilitySections> _facilitySections = [];
   List<Booking> _bookings = [];
+  List<Booking> _resientBookings = [];
 
 
   List<int> get facilitySectionIds => _facilitySections.map((section) => section.id).toList();
@@ -16,6 +17,7 @@ class BookingProvider with ChangeNotifier {
   List<TimeSlot> get timeSlots => _timeSlots;
   List<FacilitySections> get facilitySections => _facilitySections;
   List<Booking> get bookings => _bookings;
+  List<Booking> get residentBookings => _resientBookings;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -61,6 +63,22 @@ class BookingProvider with ChangeNotifier {
     }
   }
 
+  Future<void> fetchResidentBookings() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _resientBookings =
+          await BookingService().getAllBookings();
+      print('Resident Bookings: $_resientBookings');
+    } catch (e) {
+      print('Error fetching resident bookings: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> bookFacilitySections(String facilityId, String date,
       List<String> timeSlots, String sectionId, BuildContext context) async {
     _isLoading = true;
@@ -80,4 +98,22 @@ class BookingProvider with ChangeNotifier {
       notifyListeners(); // Notify listeners that loading state has changed
     }
   }
+
+
+  Future<String> cancelBooking(int bookingId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await BookingService().cancelBooking(bookingId);
+      _bookings.removeWhere((booking) => booking.id == bookingId);
+      _resientBookings.removeWhere((booking) => booking.id == bookingId);
+      notifyListeners();
+      return 'Booking canceled successfully';  // Return success message
+    } catch (e) {
+      print('Error canceling booking: $e');
+      return 'Error occurred while canceling booking'; // Return error message
+    }
+  }
+
 }
