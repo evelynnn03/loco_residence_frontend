@@ -5,18 +5,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loco_frontend/src/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../../core/auth/login_screen.dart';
 import 'package:flutter/material.dart';
-import '../models/booking.dart';
-import '../provider/booking_provider.dart';
 import '../widgets/pop_up_window.dart';
 import '../constants/global_variables.dart';
 import '../widgets/resident_argument.dart';
 import '../../config/themes/theme_provider.dart';
 import 'analytics_screen/analytics_screen.dart';
 import 'facility/facility_info_screen.dart';
+import 'facility/view_bookings_screen.dart';
 import 'feedback_screen.dart';
 import 'important_contact.dart';
 import 'service_contacts.dart';
@@ -64,6 +61,11 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
     {
       'title': 'Notifications',
       'icon': Icons.notifications_outlined,
+    },
+      {
+      'title': 'View\nBookings',
+      'icon': Icons.calendar_month_rounded,
+      'route': ViewBookingsScreen.routeName,
     },
   ];
 

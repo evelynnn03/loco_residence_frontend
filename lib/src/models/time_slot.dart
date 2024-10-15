@@ -29,7 +29,7 @@ class TimeSlot {
 
   @override
   String toString() {
-    return 'Time Slot $id';
+    return 'Time Slot $id: $startTime - $endTime';
   }
 
   TimeSlot copyWith({

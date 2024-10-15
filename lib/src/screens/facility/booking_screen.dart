@@ -21,12 +21,16 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   DateTime selectedDate = DateTime.now();
-  List<String> selectedSlot = [];
+  List<String> selectedSlot = []; // List of selected slots. eg 1,2,3
   String? selectedSection;
   int isSlotSelected = -1;
   String facilityId = '';
   String facilityName = '';
   String facilityDesc = '';
+
+  List<int> availableDurations = []; //to show to available durations to book. eg: 9:00, 9:30
+  List<String> slotsToBook = [];
+  int selectedIndex = 0; // Index of the selected duration in the list
 
   final List<int> durations = [
     30,
@@ -59,22 +63,39 @@ class _BookingScreenState extends State<BookingScreen> {
     840
   ];
 
-  List<int> availableDurations = [];
-  int selectedIndex = 0; // Index of the selected duration in the list
+  @override
+  void initState() {
+    super.initState();
+    // initialize required booking data
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeBookingData());
+  }
+
+  void _initializeBookingData() {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    facilityId = args['facilityId']?.toString() ?? '';
+    facilityName = args['facilityName']?.toString() ?? '';
+    facilityDesc = args['facilityDescription']?.toString() ?? '';
+
+    if (facilityId.isEmpty || facilityName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid facility information provided.')),
+      );
+      Navigator.pop(context);
+    } else {
+      _fetchAvailableTimeSlots(selectedDate).catchError((error) {
+        print('Error fetching available slots or sections: $error');
+      });
+    }
+  }
+  
 
   String _formatDuration(int minutes) {
     final int hours = minutes ~/ 60;
     final int mins = minutes % 60;
 
-    if (minutes == 30) {
-      return '30 minutes';
-    } else if (mins == 0) {
-      // 1 hour, 2 hours etc
-      return '$hours hour${hours > 1 ? 's' : ''}';
-    } else {
-      // 1.5 hours, 2.5 hours etc
-      return '$hours.${(mins / 60 * 10).round()} hours';
-    }
+    if (minutes == 30) return '30 minutes';
+    if (mins == 0) return '$hours hour${hours > 1 ? 's' : ''}';
+    return '$hours.${(mins / 60 * 10).round()} hours';
   }
 
   // Get the available hours based on available slots
@@ -127,27 +148,22 @@ class _BookingScreenState extends State<BookingScreen> {
 
   List<String> availableSlots = [];
 
+
   // List the available slots of the day
   List<String> _getAvailableSlots() {
-    availableSlots.clear();
-
-    List<TimeSlot> timeSlotList =
-        Provider.of<BookingProvider>(context, listen: false).timeSlots;
+    List<TimeSlot> timeSlotList = Provider.of<BookingProvider>(context, listen: false).timeSlots;
+    List<String> availableSlots = [];
 
     DateTime now = DateTime.now();
     DateTime selectedDateTime = selectedDate;
 
-    bool isToday = DateFormat('dd/MM/yyyy').format(selectedDateTime) ==
-        DateFormat('dd/MM/yyyy').format(now);
+    bool isToday = DateFormat('dd/MM/yyyy').format(selectedDateTime) == DateFormat('dd/MM/yyyy').format(now);
 
     if (isToday) {
-      // Show slots after current time for today
       DateFormat slotFormat = DateFormat('HH:mm:ss');
-      DateTime currentTime =
-          DateTime(now.year, now.month, now.day, now.hour, now.minute);
+      DateTime currentTime = DateTime(now.year, now.month, now.day, now.hour, now.minute);
 
       for (TimeSlot slot in timeSlotList) {
-        // Iterate over TimeSlot objects
         try {
           DateTime slotStartTime = DateFormat('yyyy-MM-dd')
               .parse(DateFormat('yyyy-MM-dd').format(selectedDateTime))
@@ -155,7 +171,6 @@ class _BookingScreenState extends State<BookingScreen> {
                   hours: slotFormat.parse(slot.startTime).hour,
                   minutes: slotFormat.parse(slot.startTime).minute));
 
-          // Add the string representation of startTime
           if (slotStartTime.isAfter(currentTime)) {
             availableSlots.add(slot.startTime);
           }
@@ -165,40 +180,11 @@ class _BookingScreenState extends State<BookingScreen> {
       }
       return availableSlots;
     } else {
-      // Show all slots for tomorrow
       return timeSlotList.map((slot) => slot.startTime).toList();
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
 
-    // Schedule the argument retrieval after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Retrieve the arguments
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-
-      facilityId = args['facilityId']?.toString() ?? '';
-      facilityName = args['facilityName']?.toString() ?? '';
-      facilityDesc = args['facilityDescription']?.toString() ?? '';
-
-      if (facilityId.isEmpty || facilityName.isEmpty) {
-        // Handle the case where the facilityId or facilityName is not provided
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Invalid facility information provided.')),
-        );
-        Navigator.pop(context); // Navigate back if necessary
-      } else {
-        // Fetch available time slots first, then fetch sections once slots are available
-        _fetchAvailableTimeSlots(selectedDate).catchError((error) {
-          print('Error fetching available slots or sections: $error');
-        });
-      }
-    });
-  }
 
   // Fetch available time slots based on selected date
   Future<void> _fetchAvailableTimeSlots(DateTime date) async {
@@ -254,8 +240,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
     final bookingProvider =
         Provider.of<BookingProvider>(context, listen: false);
-
-    // Filter out any null slots
+  // Filter out any null slots
     final availableSlots =
         selectedSlots.where((slot) => slot != null).cast<String>().toList();
 
@@ -316,7 +301,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = Provider.of<BookingProvider>(context).isLoading;
+    final bookingProvider = Provider.of<BookingProvider>(context);
+    final isLoading = bookingProvider.isLoading;
     String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
 
     final screenHeight = MediaQuery.of(context).size.height;

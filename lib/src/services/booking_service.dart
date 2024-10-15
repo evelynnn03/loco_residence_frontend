@@ -132,4 +132,74 @@ class BookingService {
       throw Exception('Failed to book facility section: $e');
     }
   }
+
+  //get all bookings
+  Future<List<Booking>> getAllBookings() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${apiPath}bookings/get_all_bookings/')
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> res = json.decode(response.body);
+        final List<Booking> bookingList = res
+            .map((booking) =>
+                Booking.fromJson(booking as Map<String, dynamic>))
+            .toList();
+        return bookingList;
+      } else {
+        print('Failed to load: ${response.statusCode}');
+        throw Exception('Failed to load available all bookings');
+      }
+    } catch (e) {
+      print('Error occurred: $e'); // Log the error
+      throw Exception('\nFailed to load available time slots: $e');
+    }
+  }
+
+  Future<void> cancelBooking(int bookingId) async {
+    try {
+      final queryParams = {
+        'booking_id': bookingId,
+      };
+
+      final response = await http.post(
+        Uri.parse('${apiPath}bookings/cancel_booking/'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(queryParams),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> res = json.decode(response.body);
+
+        // Handle the response from the Django backend
+        final String message = res['message'];
+        final canceledBooking = res['canceled_booking'];
+        final int bookingId = canceledBooking['id'];
+        final String section = canceledBooking['section'];
+        final String date = canceledBooking['date'];
+
+        // Print or use the data as needed
+        print('Booking #$bookingId in $section on $date cancelled successfully.');
+        print('Message from server: $message');
+
+        // You can also show this info in a dialog or snack bar in your UI
+        // Example:
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Booking #$bookingId cancelled successfully.')),
+        // );
+
+      } else {
+        print(
+            'Failed to cancel booking: ${response.statusCode}, Response: ${response.body}');
+        throw Exception('Failed to cancel booking');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      throw Exception('Failed to cancel booking: $e');
+    }
+  }
+
 }
