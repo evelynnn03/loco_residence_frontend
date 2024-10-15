@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/finance_provider.dart';
 
 class CardDetails extends StatefulWidget {
   const CardDetails({super.key});
@@ -22,6 +26,49 @@ class _CardDetailsState extends State<CardDetails> {
   final formKey = GlobalKey<FormState>();
 
   bool _isEditing = false;
+
+  String formatDate(String dateString) {
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('MM/yy').format(dateTime);
+    } catch (e) {
+      return '';
+    }
+  }
+
+  // Function to convert expiry date from MM/yy to yyyy-MM-25 format
+  String convertExpiryDate(String expiryDate) {
+    try {
+      // Parse the expiry date
+      DateTime now = DateTime.now();
+      List<String> parts = expiryDate.split('/');
+      if (parts.length == 2) {
+        String month = parts[0];
+        String year = parts[1];
+        // Use the current year for the conversion
+        String formattedDate =
+            '20$year-${month.padLeft(2, '0')}-25'; // Format to yyyy-MM-25
+        return formattedDate;
+      }
+    } catch (e) {
+      print('Error converting expiry date: $e');
+    }
+    return ''; // Return an empty string in case of an error
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Load existing card details if available
+    final cardDetails =
+        Provider.of<FinanceProvider>(context, listen: false).cardDetails;
+
+    // Initialize controllers with card details when not editing
+    fullNameTextController.text = cardDetails['cardName'] ?? '';
+    cardNumberTextController.text = cardDetails['cardNo'] ?? '';
+    expDateTextController.text = formatDate(cardDetails['cardExpiry'] ?? '');
+    cvvTextController.text = cardDetails['cardCvv'] ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,17 +145,38 @@ class _CardDetailsState extends State<CardDetails> {
                   inputFormatters: [CreditCardCvcInputFormatter()],
                 ),
                 const SizedBox(height: 100),
+
                 MyButton(
-                  onTap: () {
+                  onTap: () async {
                     if (_isEditing) {
                       if (formKey.currentState!.validate()) {
-                        // Save data logic
+                        final updatedDetails = {
+                          'resident': '1',
+                          'card_no': cardNumberTextController.text,
+                          'card_type':
+                              'visa', // Replace with your logic to determine card type
+                          'card_expiry': convertExpiryDate(expDateTextController
+                              .text), // Convert expiry date
+                          'card_cvv': cvvTextController.text,
+                          'card_name': fullNameTextController.text,
+                          'card_status': 'active',
+                        };
+
+                        final financeProvider = Provider.of<FinanceProvider>(
+                            context,
+                            listen: false);
+
+                        // Pass the resident ID along with other details
+                        await financeProvider.updateCardDetails(
+                            1, 1, updatedDetails);
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Save successful'),
                             duration: Duration(seconds: 2),
                           ),
                         );
+
                         setState(() {
                           _isEditing =
                               false; // Switch to view mode after saving
@@ -120,9 +188,7 @@ class _CardDetailsState extends State<CardDetails> {
                       });
                     }
                   },
-                  text: _isEditing
-                      ? 'Save'
-                      : 'Modify', // Change button text based on mode
+                  text: _isEditing ? 'Save' : 'Modify',
                 ),
               ],
             ),

@@ -1,19 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:get/get.dart';
 import 'package:loco_frontend/src/widgets/card.dart';
 import 'package:loco_frontend/src/widgets/horizontal_tiles.dart';
-import 'package:pay/pay.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../provider/finance_provider.dart';
-import '../../utils/payment_configuration.dart';
-import '../../widgets/pop_up_window.dart';
 import '../../constants/global_variables.dart';
 import 'package:provider/provider.dart';
-import '../../widgets/apple_pay_button_mimic.dart';
 import '../../../config/themes/theme_provider.dart';
-import 'package:flutter_credit_card/flutter_credit_card.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -98,13 +89,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Payment',
-          style: TextStyle(
-            color: GlobalVariables.primaryColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 25,
-          ),
+          style: GlobalVariables.appbarStyle(context),
         ),
       ),
       body: const SingleChildScrollView(

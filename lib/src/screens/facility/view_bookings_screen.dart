@@ -3,6 +3,8 @@ import 'package:loco_frontend/src/provider/booking_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../../constants/global_variables.dart';
+
 class _AppointmentDataSource extends CalendarDataSource {
   _AppointmentDataSource(List<Appointment> source) {
     appointments = source;
@@ -113,6 +115,16 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: GlobalVariables.primaryColor,
+        title: Text(
+          'Bookings',
+          style: GlobalVariables.appbarStyle(context,
+              color: GlobalVariables.secondaryColor),
+        ),
+        leading: GlobalVariables.backButton(context,
+            color: GlobalVariables.secondaryColor),
+      ),
       body: Container(
         child: SfCalendar(
           onTap: (calendarTapDetails) {

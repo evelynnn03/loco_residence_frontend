@@ -9,28 +9,46 @@ class FinanceProvider with ChangeNotifier {
     'cardExpiry': '',
     'cardCvv': '',
     'cardName': '',
+    'residentId': '',
   };
 
   double _totalOutstandingAmount = 0.0;
 
   List<Invoice> _invoices = [];
 
-
   Map<String, String> get cardDetails => cardDetailsToShow;
   List<Invoice> get invoices => _invoices;
   double get totalOutstandingAmount => _totalOutstandingAmount;
 
   void setCardDetails(Map<String, String> details) {
-    cardDetailsToShow['cardNo'] = details['cardNo']!;
-    cardDetailsToShow['cardType'] = details['cardType']!;
-    cardDetailsToShow['cardExpiry'] = details['cardExpiry']!;
-    cardDetailsToShow['cardCvv'] = details['cardCvv']!;
-    cardDetailsToShow['cardName'] = details['cardName']!;
+    cardDetailsToShow['cardNo'] = details['cardNo'] ?? '';
+    cardDetailsToShow['cardType'] = details['cardType'] ?? '';
+    cardDetailsToShow['cardExpiry'] = details['cardExpiry'] ?? '';
+    cardDetailsToShow['cardCvv'] = details['cardCvv'] ?? '';
+    cardDetailsToShow['cardName'] = details['cardName'] ?? '';
+    cardDetailsToShow['resident'] = details['residentId'].toString();
     notifyListeners();
   }
 
+  Future<void> updateCardDetails(
+      int residentId, int cardId, Map<String, String> updatedDetails) async {
+    try {
+      // Call the service to update the card details
+      await FinanceService()
+          .updateCardDetails(residentId, cardId, updatedDetails);
+
+      // If successful, update the card details in the provider
+      setCardDetails(updatedDetails);
+
+      notifyListeners();
+    } catch (e) {
+      print('Error updating card details: $e');
+    }
+  }
+
   fetchCardDetails(int residentId) async {
-    final cardList = await FinanceService().getCardDetails(residentId); //return list of cards
+    final cardList = await FinanceService()
+        .getCardDetails(residentId); //return list of cards
     final card = cardList.first; //get the first card -> Card object
     final cardDetails = {
       'cardNo': card.cardNo,
@@ -46,17 +64,16 @@ class FinanceProvider with ChangeNotifier {
     try {
       _invoices = await FinanceService().getInvoiceDetails(residentId);
       // Calculate total outstanding amount
-    for (var invoice in _invoices) {
-      if (invoice.status.toLowerCase() == 'unpaid') {
-        // Convert amount to double and add to total outstanding amount
-        _totalOutstandingAmount += double.parse(invoice.amount);
+      for (var invoice in _invoices) {
+        if (invoice.status.toLowerCase() == 'unpaid') {
+          // Convert amount to double and add to total outstanding amount
+          _totalOutstandingAmount += double.parse(invoice.amount);
+        }
       }
-    }
       notifyListeners();
     } catch (e) {
       // Handle error
       print('Error fetching invoices: $e');
     }
   }
-
 }
