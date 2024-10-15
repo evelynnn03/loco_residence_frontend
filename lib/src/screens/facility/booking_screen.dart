@@ -98,33 +98,47 @@ class _BookingScreenState extends State<BookingScreen> {
     return '$hours.${(mins / 60 * 10).round()} hours';
   }
 
-  // Get the available hours
+  // Get the available hours based on available slots
   List<int> _getAvailableDurations() {
-    if (selectedSlot.isEmpty) return [];
+    if (selectedSlot.isEmpty || availableSlots.isEmpty) return [];
 
     DateFormat format = DateFormat("HH:mm:ss");
-
-    // Assuming you want to use the first slot from the list
     DateTime startTime = format.parse(selectedSlot.first);
-    DateTime endTime = format.parse("22:00:00");
-
-    int remainingMinutes = endTime.difference(startTime).inMinutes;
-    remainingMinutes = max(remainingMinutes, 30);
 
     List<int> newAvailableDurations = [];
+
+    // Check if slots are available for each duration
     for (int duration in durations) {
-      if (duration <= remainingMinutes) {
+      bool canBook = true;
+      int slotsRequired =
+          duration ~/ 30; // Calculate how many 30-min slots needed
+
+      // Check if we have consecutive available slots for this duration
+      for (int i = 0; i < slotsRequired; i++) {
+        DateTime currentSlot = startTime.add(Duration(minutes: i * 30));
+        String formattedSlot = format.format(currentSlot);
+
+        // If the required slot is not available, break
+        if (!availableSlots.contains(formattedSlot)) {
+          canBook = false;
+          break;
+        }
+      }
+
+      if (canBook) {
         newAvailableDurations.add(duration);
       } else {
-        break;
+        break; // Stop adding durations once we find an unavailable slot
       }
     }
+
     return newAvailableDurations;
   }
 
   void _updateAvailableDurations() {
     setState(() {
       availableDurations = _getAvailableDurations();
+
       if (selectedIndex >= availableDurations.length) {
         selectedIndex =
             availableDurations.isNotEmpty ? availableDurations.length - 1 : 0;
@@ -132,6 +146,7 @@ class _BookingScreenState extends State<BookingScreen> {
     });
   }
 
+  List<String> availableSlots = [];
 
 
   // List the available slots of the day
@@ -300,14 +315,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
     // List of Available Slots
     List<String> availableSlots = _getAvailableSlots();
-
-    
-
-    // Map to get the section names & section IDs
-    // List<String> sectionNames = bookingProvider.facilitySections
-    //     .map((section) => section.sectionName)
-    //     .toList();
-    // List<int> facilitySectionIds = bookingProvider.facilitySectionIds;
 
     DateTime minDate = DateTime.now();
     DateTime maxDate;
@@ -733,7 +740,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                                       context,
                                                       listen: false)
                                                   .facilitySectionIds;
-                                          final updatedSectionNames = Provider.of<BookingProvider>(
+                                          final updatedSectionNames =
+                                              Provider.of<BookingProvider>(
                                                       context,
                                                       listen: false)
                                                   .facilitySectionNames;
@@ -752,7 +760,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                               desc: facilityDesc,
                                               facilitySectionId:
                                                   updatedFacilitySectionIds,
-                                              facilitySection: updatedSectionNames,
+                                              facilitySection:
+                                                  updatedSectionNames,
                                               selectedDate: selectedDate,
                                               onSectionSelected:
                                                   (selectedSection) {
