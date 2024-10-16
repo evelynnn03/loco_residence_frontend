@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/guard/widget/pop_up_window.dart';
 import 'package:loco_frontend/src/widgets/card.dart';
 import 'package:loco_frontend/src/widgets/horizontal_tiles.dart';
 import '../../provider/finance_provider.dart';
@@ -15,9 +16,6 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  int outstandingAmount = 0;
-  late String residentId = '';
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
@@ -30,59 +28,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
         .fetchInvoices(residentId);
   }
 
-  // Future<void> _retrieveUserDetails() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     residentId = prefs.getString('residentId') ?? '';
-  //     outstandingAmount = prefs.getInt('outstandingAmount') ?? 0;
-  //   });
-  // }
-
-  // Ensure that `residentId` is not null or empty before using it
-  // Stream<int> getOutstandingAmountStream(String? residentId) {
-  //   if (residentId != null && residentId.isNotEmpty) {
-  //     CollectionReference residents =
-  //         FirebaseFirestore.instance.collection('Resident');
-
-  //     return residents.doc(residentId).snapshots().map((snapshot) {
-  //       if (snapshot.exists) {
-  //         return snapshot['Outstanding Amount (RM)'] ?? 0;
-  //       } else {
-  //         // Document does not exist
-  //         print('Resident with ID $residentId not found');
-  //         return 0; // Or handle accordingly
-  //       }
-  //     });
-  //   } else {
-  //     // Handle the case where residentId is null or empty
-  //     print('Loading data');
-  //     return Stream<int>.empty();
-  //   }
-  // }
-
-  // Detect whether it's a Visa or Mastercard
-  // void _detectCardType(String input) {
-  //   if (input.startsWith('4')) {
-  //     setState(() {
-  //       cardType = 'visa';
-  //     });
-  //   } else if (input.startsWith('5')) {
-  //     setState(() {
-  //       cardType = 'mastercard';
-  //     });
-  //   } else {
-  //     setState(() {
-  //       cardType = 'error';
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context);
-    Color boxShadowColor = Color.fromRGBO(130, 101, 234, 0.769);
+    final cardDetails = Provider.of<FinanceProvider>(context).cardDetails;
+    final screenHeight = MediaQuery.of(context).size.height;
+    double sizedBoxHeight(double height) => height < 600 ? 20 : 25;
 
-    int outstandingAmount = 0;
+    // Get the last 4 digits of the card number, if available
+    String? cardNumberEnding;
+    if (cardDetails.isNotEmpty && cardDetails.containsKey('cardNo')) {
+      String cardNumber = cardDetails['cardNo']!;
+      cardNumberEnding = cardNumber.length >= 4
+          ? cardNumber.substring(cardNumber.length - 4)
+          : null; // Ensure card number has at least 4 digits
+    }
+
+    print('Card Number Ending: $cardNumberEnding');
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -94,65 +57,71 @@ class _PaymentScreenState extends State<PaymentScreen> {
           style: GlobalVariables.appbarStyle(context),
         ),
       ),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            CardContainer(),
-            // CreditCardWidget(
-            //   cardNumber: cardNumber,
-            //   expiryDate: expiryDate,
-            //   cardHolderName: cardHolderName,
-            //   cvvCode: cvvCode,
-            //   showBackView: true,
-            //   onCreditCardWidgetChange: (CreditCardBrand cardBrand) {},
-            //   cardBgColor: GlobalVariables.primaryColor,
-            //   obscureCardCvv: true,
-            //   cardType: _buildCardLogo(),
-            // ),
+            const CardContainer(),
             Padding(
-              padding: EdgeInsets.only(top: 25.0),
+              padding: const EdgeInsets.only(top: 25.0),
               child: Column(
                 children: [
-                  // TextFormField(
-                  //   decoration: InputDecoration(
-                  //     labelText: 'Card Number',
-                  //   ),
-                  //   keyboardType: TextInputType.number,
-                  //   onChanged: (value) {
-                  //     setState(() {
-                  //       cardNumber = value;
-                  //     });
-                  //     // _detectCardType(value);
-                  //   },
-                  // ),
-                  HorizontalTiles(
+                  const HorizontalTiles(
                     title: 'Payment Details',
                     icon: Icons.arrow_circle_right_outlined,
                     routeName: '/payment_details',
                   ),
-                  SizedBox(height: 25),
+                  SizedBox(height: sizedBoxHeight(screenHeight)),
                   HorizontalTiles(
                     title: 'Card Settings',
                     icon: Icons.expand_more_rounded,
                     isDropdown: true,
-                    dropdownHeight: 400,
+                    dropdownHeight: screenHeight < 600 ? 350 : 400,
                     children: [
-                      SizedBox(height: 25),
-                      HorizontalTiles(
-                        title: 'Remove Card',
-                        icon: Icons.expand_more_rounded,
-                        tileColor: GlobalVariables.primaryColor,
-                        textColor: GlobalVariables.white,
-                        isDropdown: true,
-                        children: [],
-                      ),
-                      SizedBox(height: 25),
+                      SizedBox(height: sizedBoxHeight(screenHeight)),
+                      if (cardDetails.isNotEmpty) ...[
+                        HorizontalTiles(
+                          title: '•••• $cardNumberEnding',
+                          icon: IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: GlobalVariables.white,
+                              size: GlobalVariables.responsiveIconSize(
+                                  context, 32),
+                            ),
+                            onPressed: () {
+                              Popup(
+                                title: 'Delete Card?',
+                                content: const Text(
+                                  'Are you sure you want to\ndelete this card?',
+                                  style: TextStyle(color: Colors.black),
+                                  textAlign: TextAlign.center,
+                                ),
+                                buttons: [
+                                  ButtonConfig(text: 'Yes', onPressed: () {}),
+                                  ButtonConfig(
+                                      text: 'Cancel',
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      })
+                                ],
+                              ).show(context);
+                            },
+                          ),
+                          tileColor: GlobalVariables.primaryColor,
+                          textColor: GlobalVariables.white,
+                          iconSize:
+                              GlobalVariables.responsiveIconSize(context, 35),
+                        ),
+                      ],
+                      SizedBox(height: sizedBoxHeight(screenHeight)),
                       HorizontalTiles(
                         title: 'Card Details',
                         icon: Icons.credit_card,
                         routeName: '/card_details',
                         tileColor: GlobalVariables.primaryColor,
                         textColor: GlobalVariables.white,
+                        iconSize:
+                            GlobalVariables.responsiveIconSize(context, 35),
                       )
                     ],
                   ),
@@ -165,23 +134,3 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 }
-  
-
-// if (outstandingAmount != 0) {
-//                                 showPaymentDialog(context);
-//                               } else {
-//                                 ScaffoldMessenger.of(context)
-//                                     .showSnackBar(SnackBar(
-//                                   content: Text('No outstanding payment'),
-//                                   duration: Duration(seconds: 3),
-//                                 ));
-//                               }
-
-// Text(
-//   'RM ${outstandingAmount.toDouble().toString()}',
-//   style: const TextStyle(
-//     fontSize: 20,
-//     color: GlobalVariables.primaryColor,
-//     fontWeight: FontWeight.w500,
-//   ),
-// ),

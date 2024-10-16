@@ -75,6 +75,14 @@ class _CardContainerState extends State<CardContainer> {
     double amountSizedBoxHeight(double height) => height < 210 ? 8 : 10;
     double cardNoSizedBoxHeight(double height) => height < 210 ? 35 : 40;
 
+    String? cardNumberEnding;
+    if (cardDetails.isNotEmpty && cardDetails.containsKey('cardNo')) {
+      String cardNumber = cardDetails['cardNo']!;
+      cardNumberEnding = cardNumber.length >= 4
+          ? cardNumber.substring(cardNumber.length - 4)
+          : null; // Ensure card number has at least 4 digits
+    }
+
     return Padding(
       padding: const EdgeInsets.all(25.0),
       child: isLoading
@@ -145,7 +153,7 @@ class _CardContainerState extends State<CardContainer> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              cardDetails['cardNo'] ?? '',
+                              '**** $cardNumberEnding',
                               style: GlobalVariables.bold16(
                                 context,
                                 color: Colors.black54,

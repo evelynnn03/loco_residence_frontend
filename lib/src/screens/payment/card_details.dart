@@ -72,12 +72,16 @@ class _CardDetailsState extends State<CardDetails> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    double sizedBoxHeight20(double height) => height < 600 ? 15 : 20;
+    double sizedBoxHeight30(double height) => height < 600 ? 25 : 30;
+
     return Scaffold(
       backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
         backgroundColor: GlobalVariables.secondaryColor,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios,
             color: GlobalVariables.primaryColor,
           ),
@@ -94,7 +98,7 @@ class _CardDetailsState extends State<CardDetails> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Card Details',
                   style: TextStyle(
                     fontSize: 30,
@@ -102,15 +106,15 @@ class _CardDetailsState extends State<CardDetails> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 20),
-                Text(
+                SizedBox(height: sizedBoxHeight20(screenHeight)),
+                const Text(
                   'Fill in your card details\n(Visa / Mastercard)',
                   style: TextStyle(
                     fontSize: 20,
                     color: GlobalVariables.primaryColor,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: sizedBoxHeight20(screenHeight)),
                 MyTextField(
                     controller: fullNameTextController,
                     labelText: 'Full Name',
@@ -119,7 +123,7 @@ class _CardDetailsState extends State<CardDetails> {
                     onChanged: (text) {
                       fullNameTextController.text = text.capitalize!;
                     }),
-                const SizedBox(height: 30),
+                SizedBox(height: sizedBoxHeight30(screenHeight)),
                 MyTextField(
                   controller: cardNumberTextController,
                   labelText: 'Card No.',
@@ -128,7 +132,7 @@ class _CardDetailsState extends State<CardDetails> {
                   inputFormatters: [CardNumberFormatter()],
                   maxLength: 19,
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: sizedBoxHeight30(screenHeight)),
                 MyTextField(
                   controller: expDateTextController,
                   labelText: 'Expiry Date',
@@ -136,7 +140,7 @@ class _CardDetailsState extends State<CardDetails> {
                   enabled: _isEditing,
                   inputFormatters: [CreditCardExpirationDateFormatter()],
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: sizedBoxHeight30(screenHeight)),
                 MyTextField(
                   controller: cvvTextController,
                   labelText: 'CVV / CVC',
@@ -144,8 +148,7 @@ class _CardDetailsState extends State<CardDetails> {
                   enabled: _isEditing,
                   inputFormatters: [CreditCardCvcInputFormatter()],
                 ),
-                const SizedBox(height: 100),
-
+                SizedBox(height: screenHeight < 600 ? 90 : 100),
                 MyButton(
                   onTap: () async {
                     if (_isEditing) {

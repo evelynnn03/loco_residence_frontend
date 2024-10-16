@@ -10,7 +10,7 @@ class HorizontalTiles extends StatefulWidget {
   const HorizontalTiles({
     super.key,
     required this.title,
-    required this.icon,
+    required this.icon, // Can be IconData or IconButton
     this.routeName,
     this.isDropdown = false,
     this.children = const [],
@@ -21,7 +21,7 @@ class HorizontalTiles extends StatefulWidget {
   });
 
   final String title;
-  final IconData icon;
+  final dynamic icon; // Accepts both IconData and IconButton
   final String? routeName;
   final bool isDropdown;
   final List<Widget> children;
@@ -45,10 +45,25 @@ class _HorizontalTilesState extends State<HorizontalTiles> {
     }
   }
 
+  Widget _buildIcon() {
+    // Check if icon is IconData or IconButton and return accordingly
+    if (widget.icon is IconData) {
+      return Icon(
+        widget.icon as IconData,
+        color: widget.textColor,
+        size: GlobalVariables.responsiveIconSize(context, widget.iconSize),
+      );
+    } else if (widget.icon is IconButton) {
+      return widget.icon as IconButton;
+    } else {
+      return Container(); // Empty container if neither IconData nor IconButton
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mode = Provider.of<ThemeProvider>(context);
-    Color boxShadowColor = Color.fromRGBO(30, 24, 49, 0.769);
+    Color boxShadowColor = const Color.fromRGBO(30, 24, 49, 0.769);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,16 +106,7 @@ class _HorizontalTilesState extends State<HorizontalTiles> {
                       widget.title,
                       style: GlobalVariables.bold20(context, widget.textColor),
                     ),
-                    Icon(
-                      widget.isDropdown
-                          ? (_isExpanded
-                              ? Icons.expand_less
-                              : Icons.expand_more)
-                          : widget.icon,
-                      color: widget.textColor,
-                      size: GlobalVariables.responsiveIconSize(
-                          context, widget.iconSize),
-                    ),
+                    _buildIcon(), // Use the helper method to render the icon
                   ],
                 ),
               ),
