@@ -28,7 +28,7 @@ class _BookingScreenState extends State<BookingScreen> {
   String facilityName = '';
   String facilityDesc = '';
 
-  List<int> availableDurations = []; //to show to available durations to book. eg: 9:00, 9:30
+  List<int> availableDurations = [];
   List<String> slotsToBook = [];
   int selectedIndex = 0; // Index of the selected duration in the list
 
@@ -67,11 +67,13 @@ class _BookingScreenState extends State<BookingScreen> {
   void initState() {
     super.initState();
     // initialize required booking data
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeBookingData());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _initializeBookingData());
   }
 
   void _initializeBookingData() {
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     facilityId = args['facilityId']?.toString() ?? '';
     facilityName = args['facilityName']?.toString() ?? '';
     facilityDesc = args['facilityDescription']?.toString() ?? '';
@@ -87,7 +89,6 @@ class _BookingScreenState extends State<BookingScreen> {
       });
     }
   }
-  
 
   String _formatDuration(int minutes) {
     final int hours = minutes ~/ 60;
@@ -148,20 +149,21 @@ class _BookingScreenState extends State<BookingScreen> {
 
   List<String> availableSlots = [];
 
-
   // List the available slots of the day
   List<String> _getAvailableSlots() {
-    List<TimeSlot> timeSlotList = Provider.of<BookingProvider>(context, listen: false).timeSlots;
-    List<String> availableSlots = [];
+    List<TimeSlot> timeSlotList =
+        Provider.of<BookingProvider>(context, listen: false).timeSlots;
+    List<String> slots = [];
 
     DateTime now = DateTime.now();
     DateTime selectedDateTime = selectedDate;
-
-    bool isToday = DateFormat('dd/MM/yyyy').format(selectedDateTime) == DateFormat('dd/MM/yyyy').format(now);
+    bool isToday = DateFormat('dd/MM/yyyy').format(selectedDateTime) ==
+        DateFormat('dd/MM/yyyy').format(now);
 
     if (isToday) {
       DateFormat slotFormat = DateFormat('HH:mm:ss');
-      DateTime currentTime = DateTime(now.year, now.month, now.day, now.hour, now.minute);
+      DateTime currentTime =
+          DateTime(now.year, now.month, now.day, now.hour, now.minute);
 
       for (TimeSlot slot in timeSlotList) {
         try {
@@ -172,19 +174,23 @@ class _BookingScreenState extends State<BookingScreen> {
                   minutes: slotFormat.parse(slot.startTime).minute));
 
           if (slotStartTime.isAfter(currentTime)) {
-            availableSlots.add(slot.startTime);
+            slots.add(slot.startTime);
           }
         } catch (e) {
           print("Error parsing slot start time: $e");
         }
       }
-      return availableSlots;
     } else {
-      return timeSlotList.map((slot) => slot.startTime).toList();
+      slots = timeSlotList.map((slot) => slot.startTime).toList();
     }
+
+    // Make sure to update the availableSlots state
+    setState(() {
+      availableSlots = slots;
+    });
+
+    return slots;
   }
-
-
 
   // Fetch available time slots based on selected date
   Future<void> _fetchAvailableTimeSlots(DateTime date) async {
@@ -240,7 +246,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
     final bookingProvider =
         Provider.of<BookingProvider>(context, listen: false);
-  // Filter out any null slots
+    // Filter out any null slots
     final availableSlots =
         selectedSlots.where((slot) => slot != null).cast<String>().toList();
 
@@ -308,13 +314,15 @@ class _BookingScreenState extends State<BookingScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Update available durations when a slot is selected
-    if (isSlotSelected != -1) {
+    // Ensure availableSlots are set properly
+    setState(() {
+      availableSlots = _getAvailableSlots();
+    });
+
+    // Only update durations if a slot is selected
+    if (isSlotSelected != -1 && availableSlots.isNotEmpty) {
       _updateAvailableDurations();
     }
-
-    // List of Available Slots
-    List<String> availableSlots = _getAvailableSlots();
 
     DateTime minDate = DateTime.now();
     DateTime maxDate;
@@ -522,7 +530,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                           index * 2 + 1;
                                                     });
                                                     print(
-                                                        'selected slot: $selectedSlot');
+                                                        'Selected slot: $selectedSlot');
                                                   },
                                                   child: Container(
                                                     width:
