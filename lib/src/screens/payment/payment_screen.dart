@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:loco_frontend/guard/widget/pop_up_window.dart';
 import 'package:loco_frontend/src/widgets/card.dart';
 import 'package:loco_frontend/src/widgets/horizontal_tiles.dart';

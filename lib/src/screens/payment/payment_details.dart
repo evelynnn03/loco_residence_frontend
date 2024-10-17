@@ -1,6 +1,7 @@
-import 'dart:ui';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/guard/widget/pop_up_window.dart';
 import 'package:loco_frontend/src/models/invoice.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,6 @@ class PaymentDetails extends StatefulWidget {
 }
 
 class _PaymentDetailsState extends State<PaymentDetails> {
-
   @override
   void initState() {
     super.initState();
@@ -33,14 +33,12 @@ class _PaymentDetailsState extends State<PaymentDetails> {
           backgroundColor: GlobalVariables.secondaryColor,
           title: Text(
             'Payment Details',
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
-              color: GlobalVariables.primaryColor,
+            style: GlobalVariables.appbarStyle(
+              context,
             ),
           ),
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_ios,
               color: GlobalVariables.primaryColor,
             ),
@@ -48,19 +46,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               Navigator.of(context).pop();
             },
           ),
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorColor: GlobalVariables.primaryColor,
             labelColor: GlobalVariables.primaryColor,
-            labelStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            labelStyle: GlobalVariables.bold16(context),
             unselectedLabelColor: GlobalVariables.tabNotSelected,
-            unselectedLabelStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-            tabs: [
+            unselectedLabelStyle: GlobalVariables.bold16(context),
+            tabs: const [
               Tab(text: 'Invoice'),
               Tab(text: 'History'),
             ],
@@ -78,6 +70,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   // the header & the contents for each tab
   Widget buildTabContent(bool isHistory) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    double containerHeight(height) => height < 600 ? 60 : 70;
+
     return Stack(
       children: [
         Column(
@@ -86,7 +81,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             Container(
               color: GlobalVariables.primaryColor,
               width: double.infinity,
-              height: 70,
+              height: containerHeight(screenHeight),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: getHeaderTitles(isHistory),
@@ -103,7 +98,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       Colors.transparent, // No effect at the top
                       Colors.white.withOpacity(1.0), // Fades to white
                     ],
-                    stops: [0.5, 1.0],
+                    stops: const [0.5, 1.0],
                   ).createShader(bounds);
                 },
                 blendMode: BlendMode.dstOut,
@@ -125,9 +120,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               padding: const EdgeInsets.all(16.0),
               child: MyButton(
                 text: 'Make Payment',
-                onTap: () {
-                  // Handle button tap
-                },
+                onTap: () {},
               ),
             ),
           ),
@@ -141,24 +134,30 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       Expanded(
         child: Text(
           isHistory ? 'Date Paid' : 'Date Issued',
-          style: TextStyle(
-              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          style: GlobalVariables.bold16(
+            context,
+            color: GlobalVariables.white,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
       Expanded(
         child: Text(
           isHistory ? 'Amount Paid' : 'Total',
-          style: TextStyle(
-              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          style: GlobalVariables.bold16(
+            context,
+            color: GlobalVariables.white,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
       Expanded(
         child: Text(
           'Invoice No.',
-          style: TextStyle(
-              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          style: GlobalVariables.bold16(
+            context,
+            color: GlobalVariables.white,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
