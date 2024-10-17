@@ -153,11 +153,9 @@ class _CardDetailsState extends State<CardDetails> {
                   onTap: () async {
                     if (_isEditing) {
                       if (formKey.currentState!.validate()) {
-                        final updatedDetails = {
-                          'resident': '1',
+                        final newCardDetails = {
                           'card_no': cardNumberTextController.text,
-                          'card_type':
-                              'visa', // Replace with your logic to determine card type
+                          'card_type': 'visa', // Logic to determine card type
                           'card_expiry': convertExpiryDate(expDateTextController
                               .text), // Convert expiry date
                           'card_cvv': cvvTextController.text,
@@ -169,20 +167,22 @@ class _CardDetailsState extends State<CardDetails> {
                             context,
                             listen: false);
 
-                        // Pass the resident ID along with other details
+                        // Use the createCard method instead
                         await financeProvider.updateCardDetails(
-                            1, 1, updatedDetails);
+                            1, newCardDetails);
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Save successful'),
+                            content: Text('Card created successfully'),
                             duration: Duration(seconds: 2),
                           ),
                         );
 
                         setState(() {
-                          _isEditing =
-                              false; // Switch to view mode after saving
+                          financeProvider.fetchCardDetails(1);
+
+                          // Switch to view mode after saving
+                          _isEditing = false;
                         });
                       }
                     } else {

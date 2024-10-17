@@ -12,13 +12,16 @@ class FinanceProvider with ChangeNotifier {
     'residentId': '',
   };
 
+  int? _cardId;
   double _totalOutstandingAmount = 0.0;
-
   List<Invoice> _invoices = [];
+  bool _isLoading = false;
 
   Map<String, String> get cardDetails => cardDetailsToShow;
   List<Invoice> get invoices => _invoices;
+  int? get cardId => _cardId;
   double get totalOutstandingAmount => _totalOutstandingAmount;
+  bool get isLoading => _isLoading;
 
   void setCardDetails(Map<String, String> details) {
     cardDetailsToShow['cardNo'] = details['cardNo'] ?? '';
@@ -26,54 +29,93 @@ class FinanceProvider with ChangeNotifier {
     cardDetailsToShow['cardExpiry'] = details['cardExpiry'] ?? '';
     cardDetailsToShow['cardCvv'] = details['cardCvv'] ?? '';
     cardDetailsToShow['cardName'] = details['cardName'] ?? '';
-    cardDetailsToShow['resident'] = details['residentId'].toString();
+    cardDetailsToShow['residentId'] = details['residentId'] ?? '';
     notifyListeners();
   }
 
   Future<void> updateCardDetails(
-      int residentId, int cardId, Map<String, String> updatedDetails) async {
+      int residentId, Map<String, String> updatedDetails) async {
+    _isLoading = true;
+    notifyListeners();
+
     try {
-      // Call the service to update the card details
-      await FinanceService()
-          .updateCardDetails(residentId, cardId, updatedDetails);
-
-      // If successful, update the card details in the provider
+      await FinanceService().updateCardDetails(residentId, updatedDetails);
       setCardDetails(updatedDetails);
-
-      notifyListeners();
     } catch (e) {
       print('Error updating card details: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  fetchCardDetails(int residentId) async {
-    final cardList = await FinanceService()
-        .getCardDetails(residentId); //return list of cards
-    final card = cardList.first; //get the first card -> Card object
-    final cardDetails = {
-      'cardNo': card.cardNo,
-      'cardType': card.cardType,
-      'cardExpiry': card.cardExpiry.toString(),
-      'cardCvv': card.cardCvv,
-      'cardName': card.cardName,
-    };
-    setCardDetails(cardDetails);
+  Future<void> fetchCardDetails(int residentId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final cardList = await FinanceService().getCardDetails(residentId);
+      if (cardList.isNotEmpty) {
+        final card = cardList.first;
+        _cardId = card.id; // Assuming card has an 'id' property
+        final cardDetails = {
+          'cardNo': card.cardNo,
+          'cardType': card.cardType,
+          'cardExpiry': card.cardExpiry.toString(),
+          'cardCvv': card.cardCvv,
+          'cardName': card.cardName,
+          'residentId':
+              card.residentId.toString(), // Store residentId if needed
+        };
+        setCardDetails(cardDetails);
+      } else {
+        _cardId = null; // No card found
+      }
+    } catch (e) {
+      print('Error fetching card details: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  fetchInvoices(int residentId) async {
+  Future<void> fetchInvoices(int residentId) async {
+    _isLoading = true;
+    notifyListeners();
+
     try {
       _invoices = await FinanceService().getInvoiceDetails(residentId);
-      // Calculate total outstanding amount
+      _totalOutstandingAmount = 0.0;
       for (var invoice in _invoices) {
         if (invoice.status.toLowerCase() == 'unpaid') {
-          // Convert amount to double and add to total outstanding amount
           _totalOutstandingAmount += double.parse(invoice.amount);
         }
       }
+    } catch (e) {
+      print('Error fetching invoices: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteCard(int cardId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Call the service to delete the card
+      await FinanceService().deleteCard(cardId);
+
+      // Clear the card details in the provider once it's deleted
+      cardDetails.clear();
+
       notifyListeners();
     } catch (e) {
-      // Handle error
-      print('Error fetching invoices: $e');
+      print('Error deleting card: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

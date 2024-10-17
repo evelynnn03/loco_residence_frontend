@@ -12,10 +12,10 @@ class CardContainer extends StatefulWidget {
 }
 
 class _CardContainerState extends State<CardContainer> {
-  late String cardNumber = '';
-  late String expiryDate = '';
-  late String cardHolderName = '';
-  late String cvvCode = '';
+  String? cardNumber; // Changed to nullable
+  String? expiryDate; // Changed to nullable
+  String? cardHolderName; // Changed to nullable
+  String? cvvCode; // Changed to nullable
   String cardType = '';
   int residentId = 1; // Hardcoded for now
 
@@ -24,13 +24,16 @@ class _CardContainerState extends State<CardContainer> {
     final screenSize = MediaQuery.of(context).size; // Get the screen size
     final logoSize = screenSize.width * 0.15;
 
-    if (cardDetails['cardNo']!.startsWith('4')) {
+    // Safely access card number
+    final cardNumber = cardDetails['cardNo'] ?? '';
+
+    if (cardNumber.startsWith('4')) {
       return Image.asset(
         'assets/images/visa.png',
         height: logoSize,
         width: logoSize,
       );
-    } else if (cardDetails['cardNo']!.startsWith('5')) {
+    } else if (cardNumber.startsWith('5')) {
       return Image.asset(
         'assets/images/mastercard.png',
         height: logoSize,
@@ -45,29 +48,25 @@ class _CardContainerState extends State<CardContainer> {
     }
   }
 
-  String formatDate(String dateString) {
+  String formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) {
+      return ''; // Return empty if dateString is null or empty
+    }
     try {
       DateTime dateTime = DateTime.parse(dateString);
       return DateFormat('MM/yy').format(dateTime);
     } catch (e) {
-      return '';
+      return ''; // Return empty if parsing fails
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    // Fetch card details and invoice details
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final cardDetails = Provider.of<FinanceProvider>(context).cardDetails;
-    final totalOutstandingAmount =
-        Provider.of<FinanceProvider>(context).totalOutstandingAmount;
+    final financeProvider = Provider.of<FinanceProvider>(context);
+    final cardDetails = financeProvider.cardDetails;
+    final totalOutstandingAmount = financeProvider.totalOutstandingAmount;
     final formattedAmount = totalOutstandingAmount.toStringAsFixed(2);
-    //if cardDetails['cardNo'] is empty, it means the data is still loading
-    final isLoading = cardDetails['cardNo'] == '';
+    final isLoading = financeProvider.isLoading;
 
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -76,22 +75,24 @@ class _CardContainerState extends State<CardContainer> {
     double cardNoSizedBoxHeight(double height) => height < 210 ? 35 : 40;
 
     String? cardNumberEnding;
-    if (cardDetails.isNotEmpty && cardDetails.containsKey('cardNo')) {
+    if (cardDetails.isNotEmpty &&
+        cardDetails.containsKey('cardNo') &&
+        cardDetails['cardNo'] != null) {
       String cardNumber = cardDetails['cardNo']!;
       cardNumberEnding = cardNumber.length >= 4
           ? cardNumber.substring(cardNumber.length - 4)
           : null; // Ensure card number has at least 4 digits
+    } else {
+      cardNumberEnding = null; // Handle case when there's no card
     }
 
     return Padding(
       padding: const EdgeInsets.all(25.0),
-      child: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              children: [
-                Container(
+      child: Column(
+        children: [
+          isLoading
+              ? const CircularProgressIndicator()
+              : Container(
                   height: cardHeight(screenHeight),
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -152,15 +153,23 @@ class _CardContainerState extends State<CardContainer> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            cardNumberEnding == null
+                                ? Text(
+                                    'Add a card below',
+                                    style: GlobalVariables.bold16(
+                                      context,
+                                      color: Colors.black54,
+                                    ),
+                                  )
+                                : Text(
+                                    '**** $cardNumberEnding',
+                                    style: GlobalVariables.bold16(
+                                      context,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
                             Text(
-                              '**** $cardNumberEnding',
-                              style: GlobalVariables.bold16(
-                                context,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            Text(
-                              formatDate(cardDetails['cardExpiry'] ?? ''),
+                              formatDate(cardDetails['cardExpiry']),
                               style: GlobalVariables.bold16(
                                 context,
                                 color: Colors.black54,
@@ -172,8 +181,8 @@ class _CardContainerState extends State<CardContainer> {
                     ),
                   ),
                 ),
-              ],
-            ),
+        ],
+      ),
     );
   }
 }

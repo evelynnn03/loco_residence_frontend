@@ -22,10 +22,7 @@ class FinanceService {
             .toList();
         return cardList;
       } else {
-        print('Response status: ${response.statusCode}');
-        print('Response headers: ${response.headers}');
-        print('Response body: ${response.body}');
-        throw Exception('Failed to get card details');
+        throw Exception('No card found');
       }
     } catch (e) {
       throw Exception('Failed to get card details: $e');
@@ -59,11 +56,11 @@ class FinanceService {
   }
 
   Future<void> updateCardDetails(
-      int residentId, int cardId, Map<String, String> updatedDetails) async {
+      int residentId, Map<String, String> updatedDetails) async {
     try {
       // Use PUT for full update or PATCH for partial update
-      final response = await http.put(
-        Uri.parse('${apiPath}finances/cards/update/$residentId/$cardId/'),
+      final response = await http.post(
+        Uri.parse('${apiPath}finances/cards/create_update/$residentId/'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json', // Always expect a JSON response
@@ -74,17 +71,49 @@ class FinanceService {
 
       if (response.statusCode == 200) {
         print('Card details updated successfully');
+      } else if (response.statusCode == 201) {
+        print('Card created successfully');
       } else {
-        // Handle non-200 status codes more gracefully
         print(
-            'Failed to update card details. Status code: ${response.statusCode}');
+            'Failed to create/update card details. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
-        throw Exception('Failed to update card details');
+        throw Exception('Failed to create/update card details');
       }
     } catch (e) {
       // Catch and handle any errors that may occur
-      print('Error occurred while updating card details: $e');
-      throw Exception('Failed to update card details: $e');
+      print('Error occurred while creating/updating card details: $e');
+      throw Exception('Failed to create/update card details: $e');
+    }
+  }
+
+  Future<void> deleteCard(int cardId) async {
+    try {
+
+      final response = await http.delete(
+        Uri.parse('${apiPath}finances/delete_card/$cardId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> res = json.decode(response.body);
+
+        final String message = res['message'];
+        final deletedCard = res['deleted_card'];
+        final int cardId = deletedCard['id'];
+        final String cardNo = deletedCard['card_no'];
+
+        print('Card #$cardId - $cardNo, deleted successfully.');
+        print('Message from server: $message');
+      } else {
+        print(
+            'Failed to delete card: ${response.statusCode}, Response: ${response.body}');
+        throw Exception('Failed to delete card');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      throw Exception('Failed to delete card: $e');
     }
   }
 }

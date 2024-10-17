@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:loco_frontend/guard/widget/pop_up_window.dart';
 import 'package:loco_frontend/src/widgets/card.dart';
 import 'package:loco_frontend/src/widgets/horizontal_tiles.dart';
@@ -21,11 +22,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-    const residentId = 1;
-    Provider.of<FinanceProvider>(context, listen: false)
-        .fetchCardDetails(residentId);
-    Provider.of<FinanceProvider>(context, listen: false)
-        .fetchInvoices(residentId);
+    const int residentId = 1;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchCardDetails(residentId);
+      Provider.of<FinanceProvider>(context, listen: false)
+          .fetchInvoices(residentId);
+    });
+  }
+
+  // Define an async method to fetch the card details
+  Future<void> _fetchCardDetails(int residentId) async {
+    final financeProvider =
+        Provider.of<FinanceProvider>(context, listen: false);
+
+    // Await the fetchCardDetails method
+    await financeProvider.fetchCardDetails(residentId);
   }
 
   @override
@@ -36,15 +47,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     double sizedBoxHeight(double height) => height < 600 ? 20 : 25;
 
     // Get the last 4 digits of the card number, if available
-    String? cardNumberEnding;
-    if (cardDetails.isNotEmpty && cardDetails.containsKey('cardNo')) {
-      String cardNumber = cardDetails['cardNo']!;
-      cardNumberEnding = cardNumber.length >= 4
-          ? cardNumber.substring(cardNumber.length - 4)
-          : null; // Ensure card number has at least 4 digits
-    }
-
-    print('Card Number Ending: $cardNumberEnding');
+    String? cardNumberEnding = cardDetails['cardNo']?.isNotEmpty == true
+        ? cardDetails['cardNo']!.substring(cardDetails['cardNo']!.length - 4)
+        : null; // Use null if no card number is available
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -78,7 +83,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     dropdownHeight: screenHeight < 600 ? 350 : 400,
                     children: [
                       SizedBox(height: sizedBoxHeight(screenHeight)),
-                      if (cardDetails.isNotEmpty) ...[
+                      if (cardDetails.isNotEmpty &&
+                          cardNumberEnding != null) ...[
                         HorizontalTiles(
                           title: '•••• $cardNumberEnding',
                           icon: IconButton(
@@ -97,7 +103,51 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                                 buttons: [
-                                  ButtonConfig(text: 'Yes', onPressed: () {}),
+                                  ButtonConfig(
+                                    text: 'Yes',
+                                    onPressed: () async {
+                                      final financeProvider =
+                                          Provider.of<FinanceProvider>(context,
+                                              listen: false);
+                                      final cardId = financeProvider.cardId;
+                                      print('Card id: $cardId');
+
+                                      if (cardId != null) {
+                                        try {
+                                          await financeProvider
+                                              .deleteCard(cardId);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Card deleted successfully',
+                                              ),
+                                            ),
+                                          );
+                                          Navigator.of(context).pop();
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Error deleting card: $e',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        // Handle the case where cardId is null, e.g., show an error
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'No card ID found to delete',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
                                   ButtonConfig(
                                       text: 'Cancel',
                                       onPressed: () {
@@ -112,8 +162,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           iconSize:
                               GlobalVariables.responsiveIconSize(context, 35),
                         ),
+                        SizedBox(height: sizedBoxHeight(screenHeight)),
                       ],
-                      SizedBox(height: sizedBoxHeight(screenHeight)),
                       HorizontalTiles(
                         title: 'Card Details',
                         icon: Icons.credit_card,
