@@ -62,9 +62,9 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
       'title': 'Notifications',
       'icon': Icons.notifications_outlined,
     },
-      {
+    {
       'title': 'View\nBookings',
-      'icon': Icons.calendar_month_rounded,
+      'icon': Icons.event_available_rounded,
       'route': ViewBookingsScreen.routeName,
     },
   ];

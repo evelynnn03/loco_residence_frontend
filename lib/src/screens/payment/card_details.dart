@@ -148,7 +148,7 @@ class _CardDetailsState extends State<CardDetails> {
                   enabled: _isEditing,
                   inputFormatters: [CreditCardCvcInputFormatter()],
                 ),
-                SizedBox(height: screenHeight < 600 ? 90 : 100),
+                SizedBox(height: screenHeight < 600 ? 70 : 80),
                 MyButton(
                   onTap: () async {
                     if (_isEditing) {
@@ -173,7 +173,7 @@ class _CardDetailsState extends State<CardDetails> {
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Card created successfully'),
+                            content: Text('Card created/updated successfully'),
                             duration: Duration(seconds: 2),
                           ),
                         );
