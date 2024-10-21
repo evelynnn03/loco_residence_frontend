@@ -12,13 +12,13 @@ class BookingService {
   Future<List<TimeSlot>> getAvailableTimeSlots(
       String facilityId, String date) async {
     try {
-      final response = await http.get(
-        Uri.parse('${apiPath}bookings/available_time_slots').replace(
-          queryParameters: {
-            'facility_id': facilityId,
-            'date': date,
-          },
-        ),
+      final response = await http.post(
+        Uri.parse('${apiPath}bookings/available_time_slots'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'facility_id': facilityId,
+          'date': date,
+        }),
       );
       print('Facility ID: $facilityId, Date: $date');
 
@@ -42,19 +42,14 @@ class BookingService {
   Future<List<FacilitySections>> getFacilitiesSections(
       String facilityId, String date, List<String> timeSlots) async {
     try {
-      // Construct the query parameters, repeating the 'time_slots' key for each entry in the list
-      final queryParams = {
-        'facility_id': facilityId,
-        'date': date,
-        // Repeat 'time_slots' for each entry
-        ...Map.fromIterable(timeSlots,
-            key: (v) => 'time_slots', value: (v) => v),
-      };
-
-      final response = await http.get(
-        Uri.parse('${apiPath}bookings/available_facility_sections').replace(
-          queryParameters: queryParams,
-        ),
+      final response = await http.post(
+        Uri.parse('${apiPath}bookings/available_facility_sections'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'facility_id': facilityId,
+          'date': date,
+          'time_slots': timeSlots,
+        }),
       );
 
       print('Facility ID: $facilityId, Date: $date, Time Slots: $timeSlots');
@@ -81,19 +76,15 @@ class BookingService {
   Future<List<Booking>> bookFacilitySection(String facilityId, String date,
       List<String> timeSlots, String sectionId, BuildContext context) async {
     try {
-      final queryParams = {
-        'facility_id': facilityId,
-        'date': date,
-        'time_slots': timeSlots,
-        'section_id': sectionId,
-      };
-
       final response = await http.post(
         Uri.parse('${apiPath}bookings/book_facility_section/'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(queryParams),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'facility_id': facilityId,
+          'date': date,
+          'time_slots': timeSlots,
+          'section_id': sectionId,
+        }),
       );
 
       if (response.statusCode == 201) {
@@ -137,14 +128,14 @@ class BookingService {
   Future<List<Booking>> getAllBookings() async {
     try {
       final response = await http.get(
-        Uri.parse('${apiPath}bookings/get_all_bookings/')
+        Uri.parse('${apiPath}bookings/get_all_bookings/'),
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> res = json.decode(response.body);
         final List<Booking> bookingList = res
-            .map((booking) =>
-                Booking.fromJson(booking as Map<String, dynamic>))
+            .map((booking) => Booking.fromJson(booking as Map<String, dynamic>))
             .toList();
         return bookingList;
       } else {
@@ -159,16 +150,12 @@ class BookingService {
 
   Future<void> cancelBooking(int bookingId) async {
     try {
-      final queryParams = {
-        'booking_id': bookingId,
-      };
-
       final response = await http.post(
         Uri.parse('${apiPath}bookings/cancel_booking/'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(queryParams),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'booking_id': bookingId,
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -182,7 +169,8 @@ class BookingService {
         final String date = canceledBooking['date'];
 
         // Print or use the data as needed
-        print('Booking #$bookingId in $section on $date cancelled successfully.');
+        print(
+            'Booking #$bookingId in $section on $date cancelled successfully.');
         print('Message from server: $message');
 
         // You can also show this info in a dialog or snack bar in your UI
@@ -190,7 +178,6 @@ class BookingService {
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(content: Text('Booking #$bookingId cancelled successfully.')),
         // );
-
       } else {
         print(
             'Failed to cancel booking: ${response.statusCode}, Response: ${response.body}');
@@ -201,5 +188,4 @@ class BookingService {
       throw Exception('Failed to cancel booking: $e');
     }
   }
-
 }
