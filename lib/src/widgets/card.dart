@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:loco_frontend/src/utils/resident_utils.dart';
 import 'package:provider/provider.dart';
 import '../provider/finance_provider.dart';
 
@@ -17,7 +18,7 @@ class _CardContainerState extends State<CardContainer> {
   String? cardHolderName; // Changed to nullable
   String? cvvCode; // Changed to nullable
   String cardType = '';
-  int residentId = 1; // Hardcoded for now
+  int residentId = temporaryResidentId; // Hardcoded for now
 
   Widget _buildCardLogo() {
     final cardDetails = Provider.of<FinanceProvider>(context).cardDetails;

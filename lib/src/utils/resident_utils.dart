@@ -1,0 +1,1 @@
+const temporaryResidentId = 1;
