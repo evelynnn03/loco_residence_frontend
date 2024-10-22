@@ -46,4 +46,23 @@ class Invoice {
 
     // Getter for formatted date
   String get formattedDate => DateUtils.formatDate(createdAt);
+
+  Invoice copyWith({
+    int? id,
+    int? residentId,
+    String? invoiceNo,
+    String? amount,
+    DateTime? createdAt,
+    String? status,
+  }) {
+    return Invoice(
+      id: id ?? this.id,
+      residentId: residentId ?? this.residentId,
+      invoiceNo: invoiceNo ?? this.invoiceNo,
+      amount: amount ?? this.amount,
+      createdAt: createdAt ?? this.createdAt,
+      status: status ?? this.status,
+    );
+  }
+
 }

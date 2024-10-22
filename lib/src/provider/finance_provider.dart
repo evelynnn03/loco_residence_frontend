@@ -118,4 +118,14 @@ class FinanceProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // In finance_provider.dart
+  //to update invoice to 'paid'
+  void updateInvoiceStatus(int invoiceId, String status) {
+    final index = invoices.indexWhere((invoice) => invoice.id == invoiceId);
+    if (index != -1) {
+      invoices[index] = invoices[index].copyWith(status: status);
+      notifyListeners();
+    }
+  }
 }
