@@ -116,4 +116,30 @@ class FinanceService {
       throw Exception('Failed to delete card: $e');
     }
   }
+
+  Future<void> makePayment(int residentId) async{
+     try {
+      // Use PUT for full update or PATCH for partial update
+      final response = await http.post(
+        Uri.parse('${apiPath}finances/make_payment/$residentId/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json', // Always expect a JSON response
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Invoice paid succesfully');
+      } else {
+        print(
+            'Failed to Pay. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to make payment');
+      }
+    } catch (e) {
+      // Catch and handle any errors that may occur
+      print('Error occurred while making payment: $e');
+      throw Exception('Failed to make payment: $e');
+    }
+  }
 }

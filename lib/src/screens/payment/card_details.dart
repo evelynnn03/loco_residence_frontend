@@ -179,7 +179,7 @@ class _CardDetailsState extends State<CardDetails> {
                         );
 
                         setState(() {
-                          financeProvider.fetchCardDetails(1);
+                          financeProvider.fetchCardDetails();
 
                           // Switch to view mode after saving
                           _isEditing = false;

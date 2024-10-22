@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/services/finance_service.dart';
+import 'package:loco_frontend/src/utils/resident_utils.dart';
 import '../models/invoice.dart';
 
 class FinanceProvider with ChangeNotifier {
@@ -39,7 +40,7 @@ class FinanceProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      await FinanceService().updateCardDetails(residentId, updatedDetails);
+      await FinanceService().updateCardDetails(temporaryResidentId, updatedDetails);
       setCardDetails(updatedDetails);
     } catch (e) {
       print('Error updating card details: $e');
@@ -49,12 +50,12 @@ class FinanceProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchCardDetails(int residentId) async {
+  Future<void> fetchCardDetails() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final cardList = await FinanceService().getCardDetails(residentId);
+      final cardList = await FinanceService().getCardDetails(temporaryResidentId);
       if (cardList.isNotEmpty) {
         final card = cardList.first;
         _cardId = card.id; // Assuming card has an 'id' property
@@ -79,18 +80,19 @@ class FinanceProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchInvoices(int residentId) async {
+  Future<void> fetchInvoices() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _invoices = await FinanceService().getInvoiceDetails(residentId);
+      _invoices = await FinanceService().getInvoiceDetails(temporaryResidentId);
       _totalOutstandingAmount = 0.0;
       for (var invoice in _invoices) {
         if (invoice.status.toLowerCase() == 'unpaid') {
           _totalOutstandingAmount += double.parse(invoice.amount);
         }
       }
+      notifyListeners();
     } catch (e) {
       print('Error fetching invoices: $e');
     } finally {
@@ -117,6 +119,29 @@ class FinanceProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> makePayment() async{
+    _isLoading = true;
+    notifyListeners();
+    try {
+      // Call the service to make payment
+      await FinanceService().makePayment(temporaryResidentId);
+
+      // Update the invoice status to 'paid' => assume user pay all the invoice at once
+      for (var invoice in invoices) {
+        if (invoice.status.toLowerCase() == 'unpaid') {
+          updateInvoiceStatus(invoice.id, 'paid');
+        }
+      }
+      _totalOutstandingAmount = 0.0; // Reset the total outstanding amount
+      notifyListeners();
+    } catch (e) {
+      print('error making payment : $e');
+    } finally {
+      _isLoading = false;
+    }
+    
   }
 
   // In finance_provider.dart

@@ -25,7 +25,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchCardDetails(residentId);
       Provider.of<FinanceProvider>(context, listen: false)
-          .fetchInvoices(residentId);
+          .fetchInvoices();
     });
   }
 
@@ -35,7 +35,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         Provider.of<FinanceProvider>(context, listen: false);
 
     // Await the fetchCardDetails method
-    await financeProvider.fetchCardDetails(residentId);
+    await financeProvider.fetchCardDetails();
   }
 
   @override

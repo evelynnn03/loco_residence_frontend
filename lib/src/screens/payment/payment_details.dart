@@ -149,11 +149,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                 Provider.of<FinanceProvider>(context,
                                     listen: false);
 
-                            for (final invoice in items) {
-                              // Use items from Consumer
-                              financeProvider.updateInvoiceStatus(
-                                  invoice.id, 'paid');
-                            }
+                            financeProvider.makePayment();
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
