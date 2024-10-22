@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/models/time_slot.dart';
 import 'package:loco_frontend/src/services/booking_service.dart';
 import 'package:loco_frontend/src/utils/resident_utils.dart';
-
 import '../models/booking.dart';
 import '../models/facility_sections.dart';
 
@@ -11,8 +10,10 @@ class BookingProvider with ChangeNotifier {
   List<FacilitySections> _facilitySections = [];
   List<Booking> _bookings = [];
   List<Booking> _resientBookings = [];
-  List<int> get facilitySectionIds => _facilitySections.map((section) => section.id).toList();
-  List<String> get facilitySectionNames => _facilitySections.map((section) => section.sectionName).toList();
+  List<int> get facilitySectionIds =>
+      _facilitySections.map((section) => section.id).toList();
+  List<String> get facilitySectionNames =>
+      _facilitySections.map((section) => section.sectionName).toList();
   List<TimeSlot> get timeSlots => _timeSlots;
   List<FacilitySections> get facilitySections => _facilitySections;
   List<Booking> get bookings => _bookings;
@@ -42,20 +43,51 @@ class BookingProvider with ChangeNotifier {
     }
   }
 
-// In BookingProvider class
   Future<void> fetchFacilitySections(
       String facilityId, String date, List<String> timeSlots) async {
     print(
         "2. fetchFacilitySections called with facilityId: $facilityId, date: $date, timeSlots: $timeSlots");
     _isLoading = true;
     notifyListeners();
+
     try {
-      _facilitySections = await BookingService()
-          .getFacilitiesSections(facilityId, date, timeSlots);
-      print("3. Facility Sections fetched: $_facilitySections");
+      // Create a list to store sections for each time slot
+      List<List<FacilitySections>> sectionsPerSlot = [];
+
+      // Fetch sections for each time slot
+      for (String slot in timeSlots) {
+        List<FacilitySections> sectionsForSlot = await BookingService()
+            .getFacilitiesSections(facilityId, date, [slot]);
+        sectionsPerSlot.add(sectionsForSlot);
+      }
+
+      // Find sections that appear in all time slots
+      if (sectionsPerSlot.isNotEmpty) {
+        // Start with sections from the first time slot
+        Set<int> commonSectionIds =
+            sectionsPerSlot.first.map((section) => section.id).toSet();
+
+        // Intersect with sections from other time slots
+        for (int i = 1; i < sectionsPerSlot.length; i++) {
+          Set<int> currentSlotSectionIds =
+              sectionsPerSlot[i].map((section) => section.id).toSet();
+          commonSectionIds =
+              commonSectionIds.intersection(currentSlotSectionIds);
+        }
+
+        // Filter the sections to only include those in the intersection
+        _facilitySections = sectionsPerSlot.first
+            .where((section) => commonSectionIds.contains(section.id))
+            .toList();
+      } else {
+        _facilitySections = [];
+      }
+
+      print("3. Common Facility Sections found: $_facilitySections");
       notifyListeners();
     } catch (e) {
       print("4. Error fetching facility sections: $e");
+      _facilitySections = [];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -81,38 +113,34 @@ class BookingProvider with ChangeNotifier {
   Future<void> bookFacilitySections(String facilityId, String date,
       List<String> timeSlots, String sectionId, BuildContext context) async {
     _isLoading = true;
-    notifyListeners(); // Notify listeners that loading state has changed
+    notifyListeners();
 
     try {
-      // Call the BookingService and pass the context to update the provider
       _bookings = await BookingService().bookFacilitySection(
-          facilityId, date, timeSlots, sectionId, temporaryResidentId ,context); // Pass context here
-
+          facilityId, date, timeSlots, sectionId, temporaryResidentId, context);
       print('Booking Details: $_bookings');
-      notifyListeners(); // Notify listeners to update UI after the booking is fetched
+      notifyListeners();
     } catch (e) {
       print('Error booking facility section: $e');
     } finally {
       _isLoading = false;
-      notifyListeners(); // Notify listeners that loading state has changed
+      notifyListeners();
     }
   }
-
 
   Future<String> cancelBooking(int bookingId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await BookingService().cancelBooking(bookingId,temporaryResidentId);
+      await BookingService().cancelBooking(bookingId, temporaryResidentId);
       _bookings.removeWhere((booking) => booking.id == bookingId);
       _resientBookings.removeWhere((booking) => booking.id == bookingId);
       notifyListeners();
-      return 'Booking canceled successfully';  // Return success message
+      return 'Booking canceled successfully';
     } catch (e) {
       print('Error canceling booking: $e');
-      return 'Error occurred while canceling booking'; // Return error message
+      return 'Error occurred while canceling booking';
     }
   }
-
 }

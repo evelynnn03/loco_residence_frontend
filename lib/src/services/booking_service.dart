@@ -12,13 +12,14 @@ class BookingService {
   Future<List<TimeSlot>> getAvailableTimeSlots(
       String facilityId, String date) async {
     try {
-      final response = await http.post(
-        Uri.parse('${apiPath}bookings/available_time_slots'),
+      final response = await http.get(
+        Uri.parse('${apiPath}bookings/available_time_slots').replace(
+          queryParameters: {
+            'facility_id': facilityId,
+            'date': date,
+          },
+        ),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'facility_id': facilityId,
-          'date': date,
-        }),
       );
       print('Facility ID: $facilityId, Date: $date');
 
@@ -42,14 +43,19 @@ class BookingService {
   Future<List<FacilitySections>> getFacilitiesSections(
       String facilityId, String date, List<String> timeSlots) async {
     try {
-      final response = await http.post(
-        Uri.parse('${apiPath}bookings/available_facility_sections'),
+      final queryParams = {
+        'facility_id': facilityId,
+        'date': date,
+        // Repeat 'time_slots' for each entry
+        ...Map.fromIterable(timeSlots,
+            key: (v) => 'time_slots', value: (v) => v),
+      };
+
+      final response = await http.get(
+        Uri.parse('${apiPath}bookings/available_facility_sections').replace(
+          queryParameters: queryParams,
+        ),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'facility_id': facilityId,
-          'date': date,
-          'time_slots': timeSlots,
-        }),
       );
 
       print('Facility ID: $facilityId, Date: $date, Time Slots: $timeSlots');
@@ -73,18 +79,25 @@ class BookingService {
   }
 
   // book facility section
-  Future<List<Booking>> bookFacilitySection(String facilityId, String date,
-      List<String> timeSlots, String sectionId, int residentId,BuildContext context) async {
+  Future<List<Booking>> bookFacilitySection(
+      String facilityId,
+      String date,
+      List<String> timeSlots,
+      String sectionId,
+      int residentId,
+      BuildContext context) async {
     try {
+      final queryParams = {
+        'facility_id': facilityId,
+        'date': date,
+        'time_slots': timeSlots, // Use the timeSlots list directly
+        'section_id': sectionId,
+      };
+
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/book_facility_section/$residentId'),
+        Uri.parse('${apiPath}bookings/book_facility_section/$residentId/'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'facility_id': facilityId,
-          'date': date,
-          'time_slots': timeSlots,
-          'section_id': sectionId,
-        }),
+        body: jsonEncode(queryParams),
       );
 
       if (response.statusCode == 201) {

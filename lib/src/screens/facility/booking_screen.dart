@@ -211,6 +211,8 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
+  
+
   // Method to generate time slots between startTime and the calculated end time
   List<String> generateTimeSlots(String startTime, int durationInMinutes) {
     final timeParts = startTime.split(':');
@@ -691,7 +693,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                               ButtonConfig(
                                                 text: 'OK',
                                                 onPressed: () {
-                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context).pop;
                                                 },
                                               ),
                                             ],
@@ -715,7 +717,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                             generateTimeSlots(
                                                 selectedSlot.first,
                                                 selectedDuration);
-
                                         final endTime = DateFormat('h:mm a')
                                             .format(DateFormat('HH:mm:ss')
                                                 .parse(generatedSlots.last));
@@ -723,23 +724,19 @@ class _BookingScreenState extends State<BookingScreen> {
                                         // Convert selectedSlot to 12-hour format with AM/PM, handling null cases
                                         String formatSelectedSlot(
                                             String? selectedSlot) {
-                                          // Return an empty string or any default value when selectedSlot is null
                                           if (selectedSlot == null ||
                                               selectedSlot.isEmpty) {
                                             return '';
                                           }
-
-                                          // Assuming selectedSlot is in HH:mm:ss format
                                           DateTime selectedSlotTime =
                                               DateFormat('HH:mm:ss')
                                                   .parse(selectedSlot);
-
-                                          // Convert to h:mm a format
                                           return DateFormat('h:mm a')
                                               .format(selectedSlotTime);
                                         }
 
                                         if (selectedSlot.isNotEmpty) {
+                                          // Fetch available sections based on common sections in slotsToBook
                                           await _fetchAvailableSections(
                                               slotsToBook);
 
@@ -756,6 +753,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
                                           print(updatedFacilitySectionIds);
                                           print(updatedSectionNames);
+
                                           if (updatedFacilitySectionIds
                                               .isNotEmpty) {
                                             showBottomSheetModal(
