@@ -10,10 +10,10 @@ import '../provider/booking_provider.dart';
 
 class BookingService {
   Future<List<TimeSlot>> getAvailableTimeSlots(
-      String facilityId, String date) async {
+      String facilityId, String date, int residentId) async {
     try {
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/available_time_slots'),
+        Uri.parse('${apiPath}bookings/available_time_slots/$residentId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'facility_id': facilityId,
@@ -40,10 +40,10 @@ class BookingService {
   }
 
   Future<List<FacilitySections>> getFacilitiesSections(
-      String facilityId, String date, List<String> timeSlots) async {
+      String facilityId, String date, List<String> timeSlots,int residentId) async {
     try {
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/available_facility_sections'),
+        Uri.parse('${apiPath}bookings/available_facility_sections/$residentId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'facility_id': facilityId,
@@ -74,10 +74,10 @@ class BookingService {
 
   // book facility section
   Future<List<Booking>> bookFacilitySection(String facilityId, String date,
-      List<String> timeSlots, String sectionId, BuildContext context) async {
+      List<String> timeSlots, String sectionId, int residentId,BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/book_facility_section/'),
+        Uri.parse('${apiPath}bookings/book_facility_section/$residentId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'facility_id': facilityId,
@@ -128,7 +128,7 @@ class BookingService {
   Future<List<Booking>> getAllBookings() async {
     try {
       final response = await http.get(
-        Uri.parse('${apiPath}bookings/get_all_bookings/'),
+        Uri.parse('${apiPath}bookings/get_all_bookings/$residentId'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -148,10 +148,10 @@ class BookingService {
     }
   }
 
-  Future<void> cancelBooking(int bookingId) async {
+  Future<void> cancelBooking(int bookingId, int residentId) async {
     try {
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/cancel_booking/'),
+        Uri.parse('${apiPath}bookings/cancel_booking/$residentId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'booking_id': bookingId,
