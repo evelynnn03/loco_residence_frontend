@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/models/time_slot.dart';
 import 'package:loco_frontend/src/services/booking_service.dart';
+import 'package:loco_frontend/src/utils/resident_utils.dart';
 
 import '../models/booking.dart';
 import '../models/facility_sections.dart';
@@ -10,8 +11,6 @@ class BookingProvider with ChangeNotifier {
   List<FacilitySections> _facilitySections = [];
   List<Booking> _bookings = [];
   List<Booking> _resientBookings = [];
-
-
   List<int> get facilitySectionIds => _facilitySections.map((section) => section.id).toList();
   List<String> get facilitySectionNames => _facilitySections.map((section) => section.sectionName).toList();
   List<TimeSlot> get timeSlots => _timeSlots;
@@ -69,7 +68,7 @@ class BookingProvider with ChangeNotifier {
 
     try {
       _resientBookings =
-          await BookingService().getAllBookings();
+          await BookingService().getAllBookings(temporaryResidentId);
       print('Resident Bookings: $_resientBookings');
     } catch (e) {
       print('Error fetching resident bookings: $e');
@@ -87,7 +86,7 @@ class BookingProvider with ChangeNotifier {
     try {
       // Call the BookingService and pass the context to update the provider
       _bookings = await BookingService().bookFacilitySection(
-          facilityId, date, timeSlots, sectionId, context); // Pass context here
+          facilityId, date, timeSlots, sectionId, temporaryResidentId ,context); // Pass context here
 
       print('Booking Details: $_bookings');
       notifyListeners(); // Notify listeners to update UI after the booking is fetched
@@ -105,7 +104,7 @@ class BookingProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      await BookingService().cancelBooking(bookingId);
+      await BookingService().cancelBooking(bookingId,temporaryResidentId);
       _bookings.removeWhere((booking) => booking.id == bookingId);
       _resientBookings.removeWhere((booking) => booking.id == bookingId);
       notifyListeners();

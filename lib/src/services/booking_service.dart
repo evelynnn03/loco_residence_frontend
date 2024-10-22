@@ -10,10 +10,10 @@ import '../provider/booking_provider.dart';
 
 class BookingService {
   Future<List<TimeSlot>> getAvailableTimeSlots(
-      String facilityId, String date, int residentId) async {
+      String facilityId, String date) async {
     try {
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/available_time_slots/$residentId'),
+        Uri.parse('${apiPath}bookings/available_time_slots'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'facility_id': facilityId,
@@ -40,10 +40,10 @@ class BookingService {
   }
 
   Future<List<FacilitySections>> getFacilitiesSections(
-      String facilityId, String date, List<String> timeSlots,int residentId) async {
+      String facilityId, String date, List<String> timeSlots) async {
     try {
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/available_facility_sections/$residentId'),
+        Uri.parse('${apiPath}bookings/available_facility_sections'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'facility_id': facilityId,
@@ -125,7 +125,7 @@ class BookingService {
   }
 
   //get all bookings
-  Future<List<Booking>> getAllBookings() async {
+  Future<List<Booking>> getAllBookings(int residentId) async {
     try {
       final response = await http.get(
         Uri.parse('${apiPath}bookings/get_all_bookings/$residentId'),
