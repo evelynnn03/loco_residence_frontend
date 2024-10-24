@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../guard/screens/scan_qrcode_screen.dart';
 import '../src/screens/facility/booking_screen.dart';
 import '../src/screens/facility/view_bookings_screen.dart';
+import '../src/screens/visitor/generate_qrcode_screen.dart';
 import '../src/screens/visitor/visitor_screen.dart';
 import '../core/auth/login_screen.dart';
 import '../guard/screens/guard_home_screen.dart';
@@ -155,11 +156,13 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         builder: (_) => BookingScreen(),
       );
 
-      case ViewBookingsScreen.routeName:
+    case ViewBookingsScreen.routeName:
       return MaterialPageRoute(
         settings: routeSettings,
         builder: (_) => ViewBookingsScreen(),
       );
+
+   
 
     default:
       return MaterialPageRoute(

@@ -1,18 +1,22 @@
-import 'dart:typed_data';
-import 'package:get/get.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:screenshot/screenshot.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:loco_frontend/src/widgets/bottom_nav_bar.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
-import '../../widgets/buttons.dart';
+import 'package:screenshot/screenshot.dart';
 import '../../constants/global_variables.dart';
-import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/buttons.dart';
+import 'package:gal/gal.dart';
 
 class QRCodeGenerator extends StatefulWidget {
   final String Function() generateNewQrData;
-  const QRCodeGenerator({super.key, required this.generateNewQrData});
+  final Map<String, String> visitorData; // Accept visitor data in constructor
+
+  const QRCodeGenerator({
+    super.key,
+    required this.generateNewQrData,
+    required this.visitorData, // Accept visitor data in constructor
+  });
 
   @override
   State<QRCodeGenerator> createState() => _QRCodeGeneratorState();
@@ -20,10 +24,21 @@ class QRCodeGenerator extends StatefulWidget {
 
 class _QRCodeGeneratorState extends State<QRCodeGenerator> {
   final ScreenshotController screenshotController = ScreenshotController();
+  double bigSizedBoxHeight(double height) => height < 600 ? 60 : 70;
+  double smallSizedBoxHeight(double height) => height < 600 ? 40 : 50;
 
   @override
   Widget build(BuildContext context) {
-    // Color backgroundColor = Theme.of(context).primaryColor;
+    // Generate QR data using the visitor's info
+    String qrData = 'Full Name: ${widget.visitorData['fullName']}, '
+        'HP Number: ${widget.visitorData['hpNumber']}, '
+        'Car Plate: ${widget.visitorData['carPlateNo']}, '
+        'Check-In Date: ${widget.visitorData['checkInDate']}, '
+        'Purpose: ${widget.visitorData['purpose']}';
+
+    print('QR data: $qrData');
+
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: GlobalVariables.secondaryColor,
@@ -41,37 +56,40 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            Screenshot(
-              controller: screenshotController,
-              child: Column(
-                children: [
-                  QrImageView(
-                    data: widget.generateNewQrData(),
-                    version: QrVersions.auto,
-                    size: 200.0,
-                    backgroundColor: Colors.transparent,
-                  ),
-                ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+              Screenshot(
+                controller: screenshotController,
+                child: Column(
+                  children: [
+                    QrImageView(
+                      data: qrData, // Pass the dynamically generated data
+                      version: QrVersions.auto,
+                      size: screenHeight * 0.25,
+                      backgroundColor: Colors.transparent,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 70),
-            Text(
-              'Scan the QR code upon arrrival',
-              style:
-                  GlobalVariables.bold20(context, GlobalVariables.primaryColor),
-            ),
-            const SizedBox(height: 50),
-            MyButton(
+              SizedBox(height: bigSizedBoxHeight(screenHeight)),
+              Text(
+                'Scan the QR code upon arrival',
+                style: GlobalVariables.bold20(
+                    context, GlobalVariables.primaryColor),
+              ),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
+              MyButton(
                 onTap: () async {
                   await captureAndSaveQRCode();
                 },
-                text: 'Save QR Code'),
-          ],
+                text: 'Save QR Code',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -79,27 +97,30 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
 
   Future<void> captureAndSaveQRCode() async {
     try {
-      final Uint8List? uint8list = await screenshotController.capture();
+      final Uint8List? uint8list =
+          await screenshotController.capture(); // Capture QR Code as image
       if (uint8list != null) {
-        final PermissionStatus status = await Permission.storage.request();
-        print('Permission status: $status');
-        if (status.isGranted) {
-          final result = await ImageGallerySaver.saveImage(uint8list);
-          if (result['isSuccess']) {
-            Get.snackbar('Success', 'Image saved to gallery');
-            // Pop until you reach the home page (for now it is register page because havent do resident home page)
-            Navigator.pushNamed(context, MyBottomNavBar.routeName);
-          } else {
-            Get.snackbar('Failed', 'Image failed to save ${result['error']}');
+        // Check for gallery access
+        final bool hasAccess = await Gal.hasAccess();
+        if (!hasAccess) {
+          // Request permission if access is not available
+          final bool requestGranted = await Gal.requestAccess();
+          if (!requestGranted) {
+            print('Permission denied.');
+            return;
           }
-        } else if (status.isDenied) {
-          Get.snackbar('Permission Denied',
-              'Please grant storage permission to save the image.');
-        } else {
-          // Handle other permission statuses if needed
-          Get.snackbar('Permission Error',
-              'An error occurred while requesting permission.');
         }
+
+        // Save the image to the gallery
+        await Gal.putImageBytes(uint8list);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('QR code saved to gallery'),
+          ),
+        );
+
+        // Navigate to the next screen if needed
+        Navigator.pushNamed(context, MyBottomNavBar.routeName);
       }
     } catch (e) {
       print('Error capturing or saving QR code: $e');

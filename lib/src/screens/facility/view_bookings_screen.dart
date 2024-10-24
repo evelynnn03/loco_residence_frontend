@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/provider/booking_provider.dart';
 import 'package:loco_frontend/src/widgets/pop_up_window.dart';
@@ -78,11 +77,11 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
 
     Color appointmentColor;
     if (subject.contains('pickle ball')) {
-      appointmentColor = Color.fromARGB(255, 255, 218, 137);
+      appointmentColor = const Color.fromARGB(255, 255, 218, 137);
     } else if (subject.contains('meeting')) {
-      appointmentColor = Color.fromARGB(255, 159, 199, 255);
+      appointmentColor = const Color.fromARGB(255, 159, 199, 255);
     } else {
-      appointmentColor = Color.fromARGB(255, 222, 186, 255);
+      appointmentColor = const Color.fromARGB(255, 222, 186, 255);
     }
 
     return Container(
@@ -257,44 +256,46 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
         leading: GlobalVariables.backButton(context,
             color: GlobalVariables.primaryColor),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SfCalendar(
-          headerHeight: 0,
-          todayHighlightColor: const Color.fromARGB(255, 255, 162, 156),
-          onTap: (calendarTapDetails) {
-            if (calendarTapDetails.targetElement ==
-                CalendarElement.appointment) {
-              final appointment = calendarTapDetails.appointments![0];
-              showCancelDialog(appointment);
-            }
-          },
-          view: CalendarView.schedule,
-          scheduleViewSettings: ScheduleViewSettings(
-            appointmentItemHeight: 80,
-            hideEmptyScheduleWeek: true,
-            dayHeaderSettings: DayHeaderSettings(
-              width: 70,
-              dayTextStyle: TextStyle(
-                fontSize: GlobalVariables.responsiveFontSize(context, 13),
-                color: GlobalVariables.primaryColor,
-                fontWeight: FontWeight.bold,
+      body: isLoading
+          ? CircularProgressIndicator()
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SfCalendar(
+                headerHeight: 0,
+                todayHighlightColor: const Color.fromARGB(255, 255, 162, 156),
+                onTap: (calendarTapDetails) {
+                  if (calendarTapDetails.targetElement ==
+                      CalendarElement.appointment) {
+                    final appointment = calendarTapDetails.appointments![0];
+                    showCancelDialog(appointment);
+                  }
+                },
+                view: CalendarView.schedule,
+                scheduleViewSettings: ScheduleViewSettings(
+                  appointmentItemHeight: 80,
+                  hideEmptyScheduleWeek: true,
+                  dayHeaderSettings: DayHeaderSettings(
+                    width: 70,
+                    dayTextStyle: TextStyle(
+                      fontSize: GlobalVariables.responsiveFontSize(context, 13),
+                      color: GlobalVariables.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    dateTextStyle: GlobalVariables.bold20(
+                        context, GlobalVariables.primaryColor),
+                  ),
+                  weekHeaderSettings: const WeekHeaderSettings(height: 0),
+                  monthHeaderSettings: MonthHeaderSettings(
+                    height: MediaQuery.of(context).size.height * 0.15,
+                    textAlign: TextAlign.center,
+                    backgroundColor: Colors.transparent,
+                  ),
+                ),
+                dataSource: _getCalendarDataSource(),
+                appointmentBuilder: appointmentBuilder,
+                scheduleViewMonthHeaderBuilder: scheduleViewHeaderBuilder,
               ),
-              dateTextStyle:
-                  GlobalVariables.bold20(context, GlobalVariables.primaryColor),
             ),
-            weekHeaderSettings: const WeekHeaderSettings(height: 0),
-            monthHeaderSettings: MonthHeaderSettings(
-              height: MediaQuery.of(context).size.height * 0.15,
-              textAlign: TextAlign.center,
-              backgroundColor: Colors.transparent,
-            ),
-          ),
-          dataSource: _getCalendarDataSource(),
-          appointmentBuilder: appointmentBuilder,
-          scheduleViewMonthHeaderBuilder: scheduleViewHeaderBuilder,
-        ),
-      ),
     );
   }
 }

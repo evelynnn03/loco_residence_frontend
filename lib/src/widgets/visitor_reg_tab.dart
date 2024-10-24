@@ -1,19 +1,16 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loco_frontend/src/provider/visitor_provider.dart';
+import 'package:loco_frontend/src/utils/resident_utils.dart';
 import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/option_button.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/visitor/generate_qrcode_screen.dart';
 import '../widgets/buttons.dart';
 import '../widgets/text_field.dart';
 import '../constants/global_variables.dart';
-import '../../guard/provider/visitor_parking_provider.dart';
 
 class VisitorRegTab extends StatefulWidget {
   const VisitorRegTab({Key? key}) : super(key: key);
@@ -30,105 +27,61 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
   final dateTextController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
-  int qrCounter = 0;
-  late String residentId;
-  String unitNo = '';
-  int occupiedParking = 0;
-  int remaining = 0;
-  int isSelectedIndex = 0;
+  int isSelectedIndex = -1;
   String purpose = '';
   DateTime? _selectedDate;
 
   @override
-  void initState() {
-    super.initState();
-    _retrieveUserDetails();
+  void dispose() {
+    fullNameTextController.dispose();
+    phoneNoTextController.dispose();
+    carPlateTextController.dispose();
+    dateTextController.dispose();
+    super.dispose();
   }
 
-  Future<void> _retrieveUserDetails() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      residentId = prefs.getString('residentId') ?? '';
-      unitNo = prefs.getString('unitNo') ?? '';
+  void registerVisitor(BuildContext context) {
+    if (purpose.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a purpose of visit.'),
+        ),
+      );
+
+      return;
+    }
+    // Parse the date from the text controller
+    final date = DateTime.parse(dateTextController.text);
+    // Create a new DateTime with only the date component
+    final dateOnly = DateTime(date.year, date.month, date.day);
+
+    final visitorProvider =
+        Provider.of<VisitorProvider>(context, listen: false);
+
+    // Then use parsedDate in your registerVisitor call
+    visitorProvider
+        .registerVisitor(
+      fullNameTextController.text,
+      phoneNoTextController.text,
+      carPlateTextController.text,
+      dateOnly, // Use the parsed date
+      purpose,
+      temporaryResidentId,
+      context,
+    )
+        .then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Visior registered successfully.'),
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error registering visitor.'),
+        ),
+      );
     });
-  }
-
-  bool hasCarparkSpace() {
-    int remainingParkingLots =
-        Provider.of<VisitorDetailsProvider>(context, listen: false)
-            .returnRemainingParkingLot();
-    // int remainingParkingLots = 0;
-    if (remainingParkingLots == 0) {
-      return false;
-    }
-    return true;
-  }
-
-  Future registerVisitor(BuildContext context) async {
-    try {
-      //if carplate is empty AND (has carplate no AND carpark has place)
-      if (carPlateTextController.text.trim() == "" ||
-          (carPlateTextController.text.trim() != "" && hasCarparkSpace())) {
-        DocumentReference docRef =
-            await FirebaseFirestore.instance.collection('Visitor').add({
-          "Full Name": fullNameTextController.text.trim(),
-          "Check-in Date": dateTextController.text.trim(),
-          "Car Plate": carPlateTextController.text.trim(),
-          "Phone Number": phoneNoTextController.text.trim(),
-          "Unit No": unitNo,
-        });
-
-        setState(() {
-          qrCounter++; // Update with your new data
-        });
-
-        // Create a string representing visitor data
-        //_doc is the generated visitor id, that will be used later in guard screens
-        String visitorData = "_doc        : ${docRef.id}\n"
-            "Name            : ${fullNameTextController.text.trim()}\n"
-            "Car Plate No.   : ${carPlateTextController.text.trim()}\n"
-            "Unit No.        : $unitNo\n"
-            "Checked In Date : ${dateTextController.text.trim()}\n"
-            "H/P No.         : ${phoneNoTextController.text.trim()}";
-
-        print(visitorData);
-        // Navigate to QRCodeGenerator page
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return QRCodeGenerator(
-                generateNewQrData: () => visitorData,
-              );
-            },
-          ),
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-
-        fullNameTextController.clear();
-        carPlateTextController.clear();
-        dateTextController.clear();
-        phoneNoTextController.clear();
-      } else if (!hasCarparkSpace() &&
-          carPlateTextController.text.trim() != "") {
-        //no carpark space and has carplate input
-        throw Exception('Peak hour: No more visitor car park for now');
-      } else {
-        print('hasCarpark : ${hasCarparkSpace()}');
-        throw Exception('An unknown error occured for fetching parking data');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString()),
-        duration: Duration(seconds: 3),
-      ));
-    }
   }
 
   // Date format when display on the check-in date text field
@@ -138,7 +91,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
 
     setState(() {
       // set the check-in date text controller to this format
-      dateTextController.text = DateFormat('dd/MM/yyyy').format(_selectedDate!);
+      dateTextController.text = DateFormat('yyyy-MM-dd').format(_selectedDate!);
     });
   }
 
@@ -146,6 +99,13 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
   Widget build(BuildContext context) {
     Color buttonColor1 = GlobalVariables.lightGrey;
     Color buttonColor2 = GlobalVariables.primaryColor;
+
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    double extraLargeSizedBoxHeight(height) => height < 600 ? 40 : 50;
+    double largeSizedBoxHeight(height) => height < 600 ? 30 : 40;
+    double smallSizedBoxHeight(height) => height < 600 ? 20 : 30;
+    double sizedBoxWidth(width) => width < 380 ? 6 : (width < 450 ? 8 : 10);
 
     // Color backgroundColor = Theme.of(context).primaryColor;
     // int remainingParkingLots =
@@ -163,13 +123,13 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 50),
+                  SizedBox(height: extraLargeSizedBoxHeight(screenHeight)),
                   Text(
                     "Register Visitor\nDetails",
                     style: GlobalVariables.headingStyle(context),
                   ),
 
-                  const SizedBox(height: 40),
+                  SizedBox(height: largeSizedBoxHeight(screenHeight)),
                   MyTextField(
                       controller: fullNameTextController,
                       labelText: 'Full Name',
@@ -180,7 +140,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                       // prefixIcon: Icons.person,
                       ),
 
-                  const SizedBox(height: 30),
+                  SizedBox(height: smallSizedBoxHeight(screenHeight)),
                   MyTextField(
                     controller: dateTextController,
                     labelText: 'Check-in date',
@@ -189,9 +149,11 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
 
                     // SHOW THE CALENDER
                     onTap: () async {
-                      DateTime? pickedDate = await showCalendar(context,
-                          minDate: DateTime.now(),
-                          maxDate: DateTime.now().add(const Duration(days: 7)),);
+                      DateTime? pickedDate = await showCalendar(
+                        context,
+                        minDate: DateTime.now(),
+                        maxDate: DateTime.now().add(const Duration(days: 7)),
+                      );
 
                       if (pickedDate != null) {
                         // Format the date if necessary and set it to the controller
@@ -202,7 +164,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                     prefixIcon: Icons.date_range,
                   ),
 
-                  const SizedBox(height: 30),
+                  SizedBox(height: smallSizedBoxHeight(screenHeight)),
                   MyTextField(
                       controller: carPlateTextController,
                       labelText: 'Car Plate',
@@ -214,7 +176,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                       // prefixIcon: Icons.car_rental,
                       ),
 
-                  const SizedBox(height: 30),
+                  SizedBox(height: smallSizedBoxHeight(screenHeight)),
                   MyTextField(
                     controller: phoneNoTextController,
                     labelText: 'Phone no.',
@@ -223,7 +185,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                     // prefixIcon: Icons.phone,
                   ),
 
-                  const SizedBox(height: 30),
+                  SizedBox(height: smallSizedBoxHeight(screenHeight)),
                   Row(
                     children: [
                       Expanded(
@@ -241,7 +203,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 10),
+                       SizedBox(width: sizedBoxWidth(screenWidth)),
                       Expanded(
                         child: OptionButton(
                           text: 'Delivery',
@@ -257,7 +219,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 10),
+                       SizedBox(width: sizedBoxWidth(screenWidth)),
                       Expanded(
                         child: OptionButton(
                           text: 'Constructor',
@@ -277,17 +239,33 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                   ),
 
                   //generate qr code button
-                  const SizedBox(height: 40),
+                  SizedBox(height: largeSizedBoxHeight(screenHeight)),
                   MyButton(
-                      onTap: () {
-                        if (formKey.currentState!.validate()) {
-                          // Form is valid, perform the registration
-                          registerVisitor(context);
-                        }
-                      },
-                      text: 'Generate QR Code'),
+                    onTap: () {
+                      if (formKey.currentState!.validate()) {
+                        // Form is valid, perform the registration
+                        registerVisitor(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => QRCodeGenerator(
+                              generateNewQrData: () => 'custom qr data',
+                              visitorData: {
+                                "fullName": fullNameTextController.text,
+                                "hpNumber": phoneNoTextController.text,
+                                "carPlateNo": carPlateTextController.text,
+                                "checkInDate": dateTextController.text,
+                                "purpose": purpose,
+                              }, // Pass the visitor details
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    text: 'Generate QR Code',
+                  ),
 
-                  const SizedBox(height: 40),
+                  SizedBox(height: largeSizedBoxHeight(40)),
                 ],
               ),
             ),
@@ -296,29 +274,4 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
       ),
     );
   }
-
-  // Future<void> showCalendar(BuildContext context) async {
-  //   DateTime currentDate = DateTime.now();
-
-  //   DateTime? selectedDate = await showDatePicker(
-  //     context: context,
-  //     initialDate: currentDate,
-  //     firstDate: currentDate, // Restrict to dates from today onwards
-  //     lastDate: DateTime(2024, 12, 31), // Adjust the last date as needed
-  //   );
-
-  //   if (selectedDate != null && selectedDate != currentDate) {
-  //     // Handle the selected date
-  //     String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
-  //     print('$formattedDate');
-
-  //     dateTextController.text = formattedDate;
-  //     // Do something with the selected date
-  //   } else if (selectedDate == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //       content: Text('Please select a date.'),
-  //       duration: Duration(seconds: 3),
-  //     ));
-  //   }
-  // }
 }

@@ -39,7 +39,7 @@ class _GetVisitorDetailsState extends State<GetVisitorDetails> {
                     snapshot.data!.data() as Map<String, dynamic>?;
 
                 if (data != null) {
-                  Visitor visitor = Visitor.fromMap(data);
+                  Visitor visitor = Visitor.fromJson(data);
 
                   if (widget.tab == 1) {
                     return Column(
@@ -65,10 +65,10 @@ class _GetVisitorDetailsState extends State<GetVisitorDetails> {
                   } else if (widget.tab == 2) {
                     //Declaration
                     bool isCheckIn = true;
-                    String checkInDate = visitor.checkInDate;
-                    String checkInTime = visitor.checkInTime;
-                    String checkOutDate = visitor.checkOutDate;
-                    String checkOutTime = visitor.checkOutTime;
+                    DateTime checkInDate = visitor.checkInDate;
+                    DateTime? checkInTime = visitor.checkInTime;
+                    DateTime? checkOutDate = visitor.checkOutDate;
+                    DateTime? checkOutTime = visitor.checkOutTime;
                     String finalCheckIn = "";
                     String finalCheckOut = "";
 
@@ -130,7 +130,7 @@ class _GetVisitorDetailsState extends State<GetVisitorDetails> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Car Plate: ${visitor.carPlate}',
+                                  'Car Plate: ${visitor.carPlateNo}',
                                   style: const TextStyle(
                                     fontSize: 15,
                                     color: Colors.grey,
@@ -210,7 +210,7 @@ class _GetVisitorDetailsState extends State<GetVisitorDetails> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Car Plate: ${visitor.carPlate}',
+                                  'Car Plate: ${visitor.carPlateNo}',
                                   style: TextStyle(
                                       fontSize: 15, color: Colors.grey),
                                 ),

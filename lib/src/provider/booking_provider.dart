@@ -10,6 +10,7 @@ class BookingProvider with ChangeNotifier {
   List<FacilitySections> _facilitySections = [];
   List<Booking> _bookings = [];
   List<Booking> _resientBookings = [];
+  
   List<int> get facilitySectionIds =>
       _facilitySections.map((section) => section.id).toList();
   List<String> get facilitySectionNames =>

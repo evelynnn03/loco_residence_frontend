@@ -56,12 +56,12 @@ class _VisitorDetailsState extends State<VisitorDetails> {
 
       if (docSnapshot.exists) {
         Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
-        Visitor visitor = Visitor.fromMap(data);
+        Visitor visitor = Visitor.fromJson(data);
 
-        String checkInDate = visitor.checkInDate;
-        String checkInTime = visitor.checkInTime;
-        String checkOutDate = visitor.checkOutDate;
-        String checkOutTime = visitor.checkOutTime;
+        DateTime checkInDate = visitor.checkInDate;
+        DateTime? checkInTime = visitor.checkInTime;
+        DateTime? checkOutDate = visitor.checkOutDate;
+        DateTime? checkOutTime = visitor.checkOutTime;
 
         //Check if it is not null, then add
         if (checkInTime != '' && checkInDate != '') {

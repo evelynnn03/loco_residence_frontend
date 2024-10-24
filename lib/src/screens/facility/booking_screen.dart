@@ -211,8 +211,6 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  
-
   // Method to generate time slots between startTime and the calculated end time
   List<String> generateTimeSlots(String startTime, int durationInMinutes) {
     final timeParts = startTime.split(':');
@@ -785,7 +783,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 .showSnackBar(
                                               const SnackBar(
                                                   content: Text(
-                                                      'No more sections.')),
+                                                      'No common sections. Choose a shorter duration or another time slot.')),
                                             );
                                           }
                                         }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loco_frontend/src/provider/facility_provider.dart';
 import 'package:loco_frontend/src/provider/booking_provider.dart';
+import 'package:loco_frontend/src/provider/visitor_provider.dart';
 import 'package:loco_frontend/src/screens/resident_home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,9 +40,6 @@ void main() async {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(
-            create: (context) => VisitorDetailsProvider(),
-          ),
-          ChangeNotifierProvider(
             create: (context) => ThemeProvider(),
           ),
           ChangeNotifierProvider(
@@ -58,6 +56,9 @@ void main() async {
           ),
           ChangeNotifierProvider(
             create: (context) => BookingProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => VisitorProvider(),
           ),
         ],
         child: MyApp(

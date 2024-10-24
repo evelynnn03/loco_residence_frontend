@@ -64,6 +64,7 @@ dependencies:
   syncfusion_flutter_datepicker: 27.1.52
   syncfusion_flutter_calendar: ^27.1.52
   url_launcher: ^6.3.0
+  gal: ^2.3.0
   
 dev_dependencies:
   flutter_test:

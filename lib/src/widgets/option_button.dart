@@ -30,16 +30,16 @@ class _OptionButtonState extends State<OptionButton> {
       },
       splashColor: Colors.white.withOpacity(0.2),
       child: Ink(
+        height: containerHeight,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: widget.color,
+        ),
         child: Center(
           child: Text(
             widget.text,
             style: GlobalVariables.bold16(context),
           ),
-        ),
-        height: containerHeight,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: widget.color,
         ),
       ),
     );
