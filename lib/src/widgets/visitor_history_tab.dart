@@ -38,25 +38,26 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     });
   }
 
+  // filter according to user's search text
   void _filterVisitors(String query) {
     final visitorProvider =
         Provider.of<VisitorProvider>(context, listen: false);
     final allVisitors = visitorProvider.visitors;
     final searchQuery = query.toLowerCase();
 
-    DateTime? _stripTime(DateTime? dateTime) {
+    DateTime? stripTime(DateTime? dateTime) {
       return dateTime != null
           ? DateTime(dateTime.year, dateTime.month, dateTime.day)
           : null;
     }
 
-    bool _isDateQuery = false;
-    DateTime? _dateQuery;
+    bool isDateQuery = false;
+    DateTime? dateQuery;
     try {
-      _dateQuery = DateFormat('dd/MM/yyyy').parseStrict(query);
-      _isDateQuery = true;
+      dateQuery = DateFormat('dd/MM/yyyy').parseStrict(query);
+      isDateQuery = true;
     } catch (e) {
-      _isDateQuery = false;
+      isDateQuery = false;
     }
 
     setState(() {
@@ -70,8 +71,8 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
           final checkInDate = (visitor.checkInDate);
           final checkOutDate = (visitor.checkOutDate) ?? '';
 
-          if (_isDateQuery) {
-            final queryDate = _stripTime(_dateQuery!);
+          if (isDateQuery) {
+            final queryDate = stripTime(dateQuery!);
             return (checkInDate == queryDate) || (checkOutDate == queryDate);
           }
 
@@ -80,8 +81,8 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
               carplate.contains(searchQuery);
 
           final dateMatches = _selectedDate == null ||
-              checkInDate == _stripTime(_selectedDate) ||
-              (checkOutDate == _stripTime(_selectedDate));
+              checkInDate == stripTime(_selectedDate) ||
+              (checkOutDate == stripTime(_selectedDate));
 
           return matchesQuery && dateMatches;
         }).toList();
@@ -89,6 +90,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     });
   }
 
+  // method for the header text
   String _getHeaderText(DateTime date) {
     final today = DateTime.now();
     final thisWeekStart = today.subtract(Duration(days: today.weekday - 1));
@@ -101,9 +103,10 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     } else if (date.year == today.year && date.month == today.month) {
       return 'This Month';
     } else if (date.year == today.year) {
-      return DateFormat.MMMM().format(date);
+      return DateFormat.MMMM().format(date); // Display the month name
     } else {
-      return date.year.toString();
+      return date.year
+          .toString(); // Display the year if it's from last year or older
     }
   }
 
@@ -117,12 +120,28 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Get the filtered visitor list or the full visitor list
           final visitors =
               filteredVisitors.isEmpty && _searchTextController.text.isEmpty
                   ? visitorProvider.visitors
                   : filteredVisitors;
 
-          visitors.sort((a, b) {
+          // Filter visitors to show only those whose check-in or check-out dates are before today
+          final today = DateTime.now();
+          final pastVisitors = visitors.where((visitor) {
+            DateTime? checkInDate = visitor.checkInDate;
+            DateTime? checkOutDate = visitor.checkOutDate;
+
+            // If check-out exists, use that, otherwise use check-in
+            final displayDate = checkOutDate ?? checkInDate;
+
+            // Display only visitors whose check-in/check-out date is before today
+            return displayDate
+                .isBefore(DateTime(today.year, today.month, today.day));
+          }).toList();
+
+          // Sort the visitors by their check-in or check-out date in descending order
+          pastVisitors.sort((a, b) {
             DateTime aDate = a.checkOutDate ?? a.checkInDate;
             DateTime bDate = b.checkOutDate ?? b.checkInDate;
             return bDate.compareTo(aDate);
@@ -185,7 +204,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                   blendMode: BlendMode.dstOut,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: visitors.isEmpty
+                    child: pastVisitors.isEmpty
                         ? Column(
                             children: [
                               Center(
@@ -197,9 +216,9 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                             ],
                           )
                         : ListView.builder(
-                            itemCount: visitors.length,
+                            itemCount: pastVisitors.length,
                             itemBuilder: (BuildContext context, int index) {
-                              final visitor = visitors[index];
+                              final visitor = pastVisitors[index];
                               final checkinDate = visitor.checkInDate;
                               final checkoutDate = visitor.checkOutDate;
                               final date = checkoutDate ?? checkinDate;
@@ -209,9 +228,9 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (index == 0 ||
-                                      _getHeaderText(visitors[index - 1]
+                                      _getHeaderText(pastVisitors[index - 1]
                                                   .checkOutDate ??
-                                              visitors[index - 1]
+                                              pastVisitors[index - 1]
                                                   .checkInDate) !=
                                           headerText)
                                     Padding(
@@ -225,7 +244,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                     ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 15.0),
+                                        horizontal: 15.0, vertical: 15.0),
                                     child: GestureDetector(
                                       onTap: () {
                                         Popup(
@@ -243,7 +262,8 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                           ),
                                           buttons: [
                                             ButtonConfig(
-                                                text: 'Close', onPressed: () {})
+                                                text: 'Close',
+                                                onPressed: () {}),
                                           ],
                                         ).show(context);
                                       },
@@ -256,7 +276,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                               BorderRadius.circular(25.0),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.all(15.0),
+                                          padding: const EdgeInsets.all(20.0),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -293,7 +313,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                                   const SizedBox(width: 10),
                                                   Text(
                                                     DateFormat(
-                                                            'dd/MM/yyyy hh:mm a')
+                                                            'dd/MM/yyyy  hh:mm a')
                                                         .format(checkinDate),
                                                     style: GlobalVariables
                                                         .visitorHistoryDetail(
@@ -318,7 +338,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                                       ),
                                                       child: Center(
                                                         child: Text(
-                                                          'Checked-out',
+                                                          'Checked-out  hh:mm a',
                                                           style: GlobalVariables
                                                               .visitorHistoryDetail(
                                                                   context),
@@ -327,8 +347,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                                     ),
                                                     const SizedBox(width: 10),
                                                     Text(
-                                                      DateFormat(
-                                                              'dd/MM/yyyy hh:mm a')
+                                                      DateFormat('dd/MM/yyyy')
                                                           .format(checkoutDate),
                                                       style: GlobalVariables
                                                           .visitorHistoryDetail(
