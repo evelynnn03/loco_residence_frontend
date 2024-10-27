@@ -114,7 +114,7 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
       'route': VisitorTimestamp.routeName,
     },
     {
-      'title': 'Parking',
+      'title': 'Assign Parking',
       'icon': Icons.directions_car_filled_outlined,
       'route': ParkingMapTab.routeName,
     },
@@ -180,13 +180,18 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
                   ],
                 ),
                 SizedBox(height: 60),
-                Text('HOLA,', style: GlobalVariables.headingStyle(context)),
-                Text(
-                  'guardName',
-                  style: GlobalVariables.bold20(
-                    context,
-                    GlobalVariables.primaryGrey,
-                  ),
+                Row(
+                  children: [
+                    Text('HOLA,', style: GlobalVariables.headingStyle(context)),
+                    SizedBox(width: 15),
+                    Text(
+                      'guardName',
+                      style: GlobalVariables.bold20(
+                        context,
+                        GlobalVariables.primaryGrey,
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 20),
                 GridView.count(
