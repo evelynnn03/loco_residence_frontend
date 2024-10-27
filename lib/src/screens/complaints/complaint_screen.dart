@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:loco_frontend/src/screens/complaints/complaint_form.dart';
 import 'package:loco_frontend/src/screens/complaints/total_complaint_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/complaint_provider.dart';
+import 'complaint_list_screen.dart';
 
 class ComplaintScreen extends StatefulWidget {
   static const String routeName = '/complaint_screen';
@@ -10,7 +15,8 @@ class ComplaintScreen extends StatefulWidget {
   State<ComplaintScreen> createState() => _ComplaintScreenState();
 }
 
-class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProviderStateMixin {
+class _ComplaintScreenState extends State<ComplaintScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<int> _totalComplaintsAnimation;
   late Animation<int> _thisWeekAnimation;
@@ -20,32 +26,86 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
   void initState() {
     super.initState();
 
-    _controller = AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    // Initialize the animation controller and animations
+    _controller =
+        AnimationController(duration: const Duration(seconds: 1), vsync: this);
 
-    // Curved animation for a smooth, accelerating effect
-    final curvedAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    final curvedAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeOut);
 
-    // Setting up animations for each number
-    _totalComplaintsAnimation = IntTween(begin: 0, end: 10).animate(curvedAnimation)
-      ..addListener(() {
-        setState(() {});
-      });
+    _totalComplaintsAnimation =
+        IntTween(begin: 0, end: 0).animate(curvedAnimation)
+          ..addListener(() {
+            setState(() {});
+          });
 
-    _thisWeekAnimation = IntTween(begin: 0, end: 1).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
-    ));
+    _thisWeekAnimation = IntTween(begin: 0, end: 0).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.2, 1.0, curve: Curves.easeOut)),
+    );
 
-    _thisMonthAnimation = IntTween(begin: 0, end: 3).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
-    ));
+    _thisMonthAnimation = IntTween(begin: 0, end: 0).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.4, 1.0, curve: Curves.easeOut)),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ComplaintProvider>(context, listen: false).fetchComplaints();
+    });
 
     _controller.forward();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Fetch the complaint list from Provider and calculate counts
+    final complaintList = Provider.of<ComplaintProvider>(context).complaints;
+    final counts = {
+      'This Week': 0,
+      'This Month': 0,
+      'Total': complaintList.length,
+    };
+
+    for (final complaint in complaintList) {
+      final now = DateTime.now();
+      if (now.difference(complaint.date).inDays <= 7) {
+        counts['This Week'] = counts['This Week']! + 1;
+      }
+      if (now.difference(complaint.date).inDays <= 30) {
+        counts['This Month'] = counts['This Month']! + 1;
+      }
+    }
+
+    // Update animations with new counts because this cant be done in initState
+    // Provider.of<ComplaintProvider>(context) is being called in the initState method, which is too early in the widget lifecycle to depend on an inherited widget (like Provider
+    _totalComplaintsAnimation =
+        IntTween(begin: 0, end: counts['Total']).animate(_controller);
+    _thisWeekAnimation = IntTween(begin: 0, end: counts['This Week']).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.2, 1.0, curve: Curves.easeOut)),
+    );
+    _thisMonthAnimation = IntTween(begin: 0, end: counts['This Month']).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.4, 1.0, curve: Curves.easeOut)),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Count the number of complaints for each time filter
+
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -60,8 +120,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                   fontSize: 24.0,
                   fontWeight: FontWeight.w600,
                 ),
-                textAlign: MediaQuery.of(context).size.width > 600 
-                    ? TextAlign.left 
+                textAlign: MediaQuery.of(context).size.width > 600
+                    ? TextAlign.left
                     : TextAlign.center,
               ),
             ),
@@ -75,8 +135,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: MediaQuery.of(context).size.width > 600 
-                          ? 200 
+                      width: MediaQuery.of(context).size.width > 600
+                          ? 200
                           : double.infinity,
                       height: 56,
                       child: Material(
@@ -84,7 +144,10 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                         borderRadius: BorderRadius.circular(12),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(
+                                context, ComplaintForm.routeName);
+                          },
                           child: const Padding(
                             padding: EdgeInsets.all(16),
                             child: Row(
@@ -114,8 +177,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                     Text(
                       "Have an issue? We're here to help. Click above to start the process.",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                            color: Colors.grey[600],
+                          ),
                     ),
                   ],
                 ),
@@ -128,8 +191,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
               child: Text(
                 'Complaint Statistics',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ),
 
@@ -139,7 +202,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                 return GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 1,
+                  crossAxisCount:
+                      MediaQuery.of(context).size.width > 600 ? 3 : 1,
                   mainAxisSpacing: 16.0,
                   crossAxisSpacing: 16.0,
                   childAspectRatio: 1.5,
@@ -147,7 +211,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                     // Total Complaints Card
                     _buildStatCard(
                       onTap: () {
-                        Navigator.pushNamed(context, TotalComplaintScreen.routeName);
+                        Navigator.pushNamed(
+                            context, TotalComplaintScreen.routeName);
                       },
                       title: 'Total Complaints',
                       icon: Icons.description,
@@ -156,6 +221,15 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                     ),
                     // This Week Card
                     _buildStatCard(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ComplainListScreen(
+                                initialTimeFilter: 'This Week'),
+                          ),
+                        );
+                      },
                       title: 'This Week',
                       icon: Icons.info_outline,
                       value: _thisWeekAnimation.value,
@@ -163,6 +237,15 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                     ),
                     // This Month Card
                     _buildStatCard(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ComplainListScreen(
+                                initialTimeFilter: 'This Month'),
+                          ),
+                        );
+                      },
                       title: 'This Month',
                       icon: Icons.info_outline,
                       value: _thisMonthAnimation.value,
@@ -189,7 +272,6 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -201,8 +283,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                   Icon(icon, size: 16, color: Colors.grey[600]),
                 ],
@@ -219,19 +301,13 @@ class _ComplaintScreenState extends State<ComplaintScreen> with SingleTickerProv
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                      color: Colors.grey[600],
+                    ),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }

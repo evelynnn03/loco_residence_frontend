@@ -1,3 +1,4 @@
+import 'package:loco_frontend/src/screens/complaints/complaint_form.dart';
 import 'package:loco_frontend/src/screens/complaints/total_complaint_screen.dart';
 import 'package:loco_frontend/src/screens/payment/card_details.dart';
 import 'package:loco_frontend/src/screens/payment/payment_details.dart';
@@ -115,6 +116,11 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         builder: (_) => ComplaintScreen(),
       );
       
+    case ComplaintForm.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (_) => ComplaintForm(),
+      );
     case TotalComplaintScreen.routeName:
       return MaterialPageRoute(
         settings: routeSettings,
