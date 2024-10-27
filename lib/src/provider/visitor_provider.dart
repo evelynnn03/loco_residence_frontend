@@ -15,12 +15,19 @@ class VisitorProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchAllVisitors() async {
+  Future<void> fetchAllVisitors({
+    required String userType,
+    int? residentId,
+  }) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _visitors = await VisitorService().getAllVisitors(temporaryResidentId);
+      _visitors = await VisitorService().getAllVisitors(
+        userType: userType,
+        residentId:
+            userType.toLowerCase() == 'resident' ? temporaryResidentId : null,
+      );
       print('Visitors: $_visitors');
     } catch (e) {
       print('Error fetching visitors: $e');
@@ -42,7 +49,6 @@ class VisitorProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Register the visitor and get the list of visitors as a result
       final List<Visitor> newVisitors = await VisitorService().registerVisitor(
           fullName,
           hpNumber,
@@ -53,9 +59,7 @@ class VisitorProvider with ChangeNotifier {
           context);
 
       if (newVisitors.isNotEmpty) {
-        // Add the new visitors to the list of visitors
         _visitors.addAll(newVisitors);
-
         print('New visitor registered: $newVisitors');
       }
     } catch (e) {
@@ -73,12 +77,10 @@ class VisitorProvider with ChangeNotifier {
     try {
       await VisitorService().checkInVisitor(visitorId);
 
-      // Update the visitor's check-in status in the local list
       final index = _visitors.indexWhere((v) => v.id == visitorId);
       if (index != -1) {
-        // Create a copy of the visitor with updated check-in time
         final updatedVisitor = _visitors[index].copyWith(
-          checkInTime: DateTime.now(), // Using DateTime directly
+          checkInTime: DateTime.now(),
         );
         _visitors[index] = updatedVisitor;
         print('Visitor checked in at: ${updatedVisitor.checkInTime}');
@@ -99,15 +101,12 @@ class VisitorProvider with ChangeNotifier {
     try {
       await VisitorService().checkOutVisitor(visitorId);
 
-      // Update the visitor's check-out status in the local list
       final index = _visitors.indexWhere((v) => v.id == visitorId);
       if (index != -1) {
         final now = DateTime.now();
-
-        // Create a copy of the visitor with updated check-out time and date
         final updatedVisitor = _visitors[index].copyWith(
-          checkOutTime: now, // Using DateTime for time
-          checkOutDate: now, // Using DateTime for date
+          checkOutTime: now,
+          checkOutDate: now,
         );
         _visitors[index] = updatedVisitor;
         print('Visitor checked out at: ${updatedVisitor.checkOutTime}');
@@ -121,7 +120,6 @@ class VisitorProvider with ChangeNotifier {
     }
   }
 
-  // Helper method to get visitor by ID
   Visitor? getVisitorById(int id) {
     try {
       return _visitors.firstWhere((visitor) => visitor.id == id);

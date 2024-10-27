@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/widgets/home_tile.dart';
-import '../../src/widgets/bottom_sheet.dart';
 import '../../src/widgets/pop_up_window.dart';
 import '../../src/constants/global_variables.dart';
 import '../widget/guard_arguments.dart';
 import 'parking_map_tab.dart';
 import 'scan_qrcode_screen.dart';
-import 'visitor_timestamp.dart';
+import 'visitor_info.dart';
 
 class GuardHomeScreen extends StatefulWidget {
   const GuardHomeScreen({super.key});
@@ -14,71 +13,6 @@ class GuardHomeScreen extends StatefulWidget {
 
   @override
   State<GuardHomeScreen> createState() => _GuardHomeScreenState();
-}
-
-class HomepageTitle extends StatelessWidget {
-  final String tileName;
-
-  HomepageTitle({
-    super.key,
-    required this.tileName,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        child: Container(
-          height: 200,
-          width: 400,
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 22),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: GlobalVariables.primaryColor),
-          child: Flex(
-            direction: Axis.horizontal,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (tileName == 'Scan QR')
-                Icon(
-                  Icons.qr_code_scanner_rounded,
-                  color: Colors.white,
-                  size: 95,
-                ),
-              if (tileName == 'Visitor\nDetails')
-                Icon(
-                  Icons.recent_actors_rounded,
-                  color: Colors.white,
-                  size: 95,
-                ),
-              if (tileName == 'Parking')
-                Icon(
-                  Icons.minor_crash_rounded,
-                  color: Colors.white,
-                  size: 95,
-                ),
-              const Spacer(),
-              Text(
-                tileName,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 35,
-                ),
-              ),
-              const Spacer(),
-              Icon(
-                Icons.arrow_circle_right_outlined,
-                color: Colors.white,
-                size: 55,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _GuardHomeScreenState extends State<GuardHomeScreen> {
@@ -111,10 +45,10 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
     {
       'title': 'Visitor Details',
       'icon': Icons.info_outline_rounded,
-      'route': VisitorTimestamp.routeName,
+      'route': VisitorInfo.routeName,
     },
     {
-      'title': 'Assign Parking',
+      'title': 'Parking Map',
       'icon': Icons.directions_car_filled_outlined,
       'route': ParkingMapTab.routeName,
     },
@@ -154,14 +88,15 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
                       onTap: () {
                         Popup(
                           title: 'Warning',
-                          content: Text("Are you sure you want to log out"),
+                          content:
+                              const Text("Are you sure you want to log out"),
                           buttons: [
                             ButtonConfig(
                               text: 'Cancel',
                               onPressed: () async {},
                             ),
                             ButtonConfig(
-                              text: 'Yes',
+                              text: 'Log out',
                               onPressed: () async {
                                 Navigator.pop(
                                   context,

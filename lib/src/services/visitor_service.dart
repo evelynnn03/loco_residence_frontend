@@ -8,10 +8,24 @@ import 'package:provider/provider.dart';
 import '../models/visitor.dart';
 
 class VisitorService {
-  Future<List<Visitor>> getAllVisitors(int residentId) async {
+  Future<List<Visitor>> getAllVisitors({
+    required String userType,
+    int? residentId,
+  }) async {
     try {
+      // Construct the appropriate URL based on user type and resident ID
+      final String endpoint =
+          userType.toLowerCase() == 'resident' && residentId != null
+              ? '${apiPath}visitors/view_all_visitors/$residentId'
+              : '${apiPath}visitors/view_all_visitors';
+
+      // Validate resident ID is provided for resident users
+      if (userType.toLowerCase() == 'resident' && residentId == null) {
+        throw Exception('Resident ID is required for resident users');
+      }
+
       final response = await http.get(
-        Uri.parse('${apiPath}visitors/view_all_visitor/$residentId'),
+        Uri.parse(endpoint),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -121,7 +135,7 @@ class VisitorService {
     }
   }
 
-  // Update check-out visitor 
+  // Update check-out visitor
   Future<Visitor> checkOutVisitor(int visitorId) async {
     try {
       final response = await http.post(

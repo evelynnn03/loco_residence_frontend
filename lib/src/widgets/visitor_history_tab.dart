@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/provider/visitor_provider.dart';
@@ -10,7 +9,8 @@ import 'pop_up_window.dart';
 import '../models/visitor.dart';
 
 class VisitorHistoryTab extends StatefulWidget {
-  const VisitorHistoryTab({super.key});
+  final String userType;
+  const VisitorHistoryTab({super.key, required this.userType});
 
   @override
   State<VisitorHistoryTab> createState() => _VisitorHistoryTabState();
@@ -21,14 +21,6 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
   List<Visitor> filteredVisitors = [];
   DateTime? _selectedDate;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<VisitorProvider>(context, listen: false).fetchAllVisitors();
-    });
-  }
-
   void _onDateSelected(DateTime date) {
     setState(() {
       _selectedDate = DateTime(date.year, date.month, date.day);
@@ -38,11 +30,27 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     });
   }
 
-  // filter according to user's search text
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<VisitorProvider>(context, listen: false).fetchAllVisitors(
+        userType: widget.userType,
+      );
+    });
+  }
+
   void _filterVisitors(String query) {
     final visitorProvider =
         Provider.of<VisitorProvider>(context, listen: false);
     final allVisitors = visitorProvider.visitors;
+    print('All visitors: ${allVisitors.map((v) => {
+          'name': v.fullName,
+          'checkIn': v.checkInDate,
+          'checkOut': v.checkOutDate,
+          'carPlate': v.carPlateNo
+        })}');
+
     final searchQuery = query.toLowerCase();
 
     DateTime? stripTime(DateTime? dateTime) {
@@ -70,6 +78,10 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
           final carplate = visitor.carPlateNo.toLowerCase();
           final checkInDate = (visitor.checkInDate);
           final checkOutDate = (visitor.checkOutDate) ?? '';
+          // Add resident name/id to search if guard
+          final residentInfo = widget.userType == 'guard'
+              ? visitor.residentId.toString().toLowerCase()
+              : '';
 
           if (isDateQuery) {
             final queryDate = stripTime(dateQuery!);
@@ -78,7 +90,9 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
 
           final matchesQuery = name.contains(searchQuery) ||
               phone.contains(searchQuery) ||
-              carplate.contains(searchQuery);
+              carplate.contains(searchQuery) ||
+              (widget.userType == 'guard' &&
+                  residentInfo.contains(searchQuery));
 
           final dateMatches = _selectedDate == null ||
               checkInDate == stripTime(_selectedDate) ||
@@ -110,6 +124,120 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     }
   }
 
+  // Modify the visitor card content to include resident info for guards
+  Widget _buildVisitorCard(Visitor visitor, double containerHeight,
+      double boxHeight, double boxWidth) {
+    return GestureDetector(
+      onTap: () {
+        Popup(
+          title: visitor.fullName,
+          content: SizedBox(
+            height: 80,
+            child: Center(
+              child: Text(
+                'Car Plate : ${visitor.carPlateNo}\n'
+                'Phone       : ${visitor.hpNumber}\n'
+                'Purpose   : ${visitor.purpose}\n'
+                '${widget.userType == 'guard' ? 'Resident ID: ${visitor.residentId}\n' : ''}',
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ),
+          buttons: [
+            ButtonConfig(text: 'Close', onPressed: () {}),
+          ],
+        ).show(context);
+      },
+      child: Container(
+        height: containerHeight,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: GlobalVariables.primaryColor,
+          borderRadius: BorderRadius.circular(25.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    visitor.fullName,
+                    style:
+                        GlobalVariables.bold20(context, GlobalVariables.white),
+                  ),
+                  if (widget.userType == 'guard')
+                    Text(
+                      'Resident ID: ${visitor.residentId}',
+                      style: GlobalVariables.visitorHistoryDetail(context,
+                          isBold: true),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Container(
+                    height: boxHeight,
+                    width: boxWidth,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(25.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Checked-in',
+                        style: GlobalVariables.visitorHistoryDetail(context),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    DateFormat('dd/MM/yyyy  hh:mm a')
+                        .format(visitor.checkInDate),
+                    style: GlobalVariables.visitorHistoryDetail(context,
+                        isBold: false),
+                  )
+                ],
+              ),
+              if (visitor.checkOutDate != null) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Container(
+                      height: boxHeight,
+                      width: boxWidth,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(25.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Checked-out',
+                          style: GlobalVariables.visitorHistoryDetail(context),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      DateFormat('dd/MM/yyyy  hh:mm a')
+                          .format(visitor.checkOutDate!),
+                      style: GlobalVariables.visitorHistoryDetail(context,
+                          isBold: false),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,6 +253,8 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
               filteredVisitors.isEmpty && _searchTextController.text.isEmpty
                   ? visitorProvider.visitors
                   : filteredVisitors;
+
+          print('Current filtered visitors: ${visitors.length}');
 
           // Filter visitors to show only those whose check-in or check-out dates are before today
           final today = DateTime.now();
@@ -143,6 +273,13 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
             }
             return false;
           }).toList();
+
+          print('Past visitors: ${pastVisitors.map((v) => {
+                'name': v.fullName,
+                'checkIn': v.checkInDate,
+                'checkOut': v.checkOutDate,
+                'carPlate': v.carPlateNo
+              })}');
 
           // Sort the visitors by their check-in or check-out date in descending order
           pastVisitors.sort((a, b) {
@@ -249,124 +386,8 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 15.0, vertical: 15.0),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Popup(
-                                          title: visitor.fullName,
-                                          content: SizedBox(
-                                            height: 80,
-                                            child: Center(
-                                              child: Text(
-                                                'Car Plate : ${visitor.carPlateNo}\n'
-                                                'Phone       : ${visitor.hpNumber}\n'
-                                                'Purpose   : ${visitor.purpose}\n',
-                                                textAlign: TextAlign.left,
-                                              ),
-                                            ),
-                                          ),
-                                          buttons: [
-                                            ButtonConfig(
-                                                text: 'Close',
-                                                onPressed: () {}),
-                                          ],
-                                        ).show(context);
-                                      },
-                                      child: Container(
-                                        height: containerHeight,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: GlobalVariables.primaryColor,
-                                          borderRadius:
-                                              BorderRadius.circular(25.0),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(20.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                visitor.fullName,
-                                                style: GlobalVariables.bold20(
-                                                    context,
-                                                    GlobalVariables.white),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Row(
-                                                children: [
-                                                  Container(
-                                                    height: boxHeight,
-                                                    width: boxWidth,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.green,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              25.0),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        'Checked-in',
-                                                        style: GlobalVariables
-                                                            .visitorHistoryDetail(
-                                                                context),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Text(
-                                                    DateFormat(
-                                                            'dd/MM/yyyy  hh:mm a')
-                                                        .format(checkinDate),
-                                                    style: GlobalVariables
-                                                        .visitorHistoryDetail(
-                                                      context,
-                                                      isBold: false,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                              if (checkoutDate != null) ...[
-                                                const SizedBox(height: 10),
-                                                Row(
-                                                  children: [
-                                                    Container(
-                                                      height: boxHeight,
-                                                      width: boxWidth,
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.red,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(25.0),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          'Checked-out  hh:mm a',
-                                                          style: GlobalVariables
-                                                              .visitorHistoryDetail(
-                                                                  context),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Text(
-                                                      DateFormat('dd/MM/yyyy')
-                                                          .format(checkoutDate),
-                                                      style: GlobalVariables
-                                                          .visitorHistoryDetail(
-                                                        context,
-                                                        isBold: false,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    child: _buildVisitorCard(visitor,
+                                        containerHeight, boxHeight, boxWidth),
                                   ),
                                 ],
                               );

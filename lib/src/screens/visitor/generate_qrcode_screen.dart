@@ -30,7 +30,9 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
   @override
   Widget build(BuildContext context) {
     // Generate QR data using the visitor's info
-    String qrData = 'Full Name: ${widget.visitorData['fullName']}, '
+    // Get the visitor id from provider
+    String qrData = 'Visitor ID: ${widget.visitorData['id']}, '
+        'Full Name: ${widget.visitorData['fullName']}, '
         'HP Number: ${widget.visitorData['hpNumber']}, '
         'Car Plate: ${widget.visitorData['carPlateNo']}, '
         'Check-In Date: ${widget.visitorData['checkInDate']}, '

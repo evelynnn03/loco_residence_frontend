@@ -13,7 +13,7 @@ import '../src/screens/visitor/generate_qrcode_screen.dart';
 import '../src/screens/visitor/visitor_screen.dart';
 import '../core/auth/login_screen.dart';
 import '../guard/screens/guard_home_screen.dart';
-import '../guard/screens/visitor_timestamp.dart';
+import '../guard/screens/visitor_info.dart';
 import '../src/screens/analytics_screen/analytics_screen.dart';
 import '../src/screens/facility/facility_info_screen.dart';
 import '../src/screens/complaints/complaint_screen.dart';
@@ -38,10 +38,10 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         builder: (_) => const QRScanner(),
       );
 
-    case VisitorTimestamp.routeName:
+    case VisitorInfo.routeName:
       return MaterialPageRoute(
         settings: routeSettings,
-        builder: (_) => VisitorTimestamp(),
+        builder: (_) => VisitorInfo(),
       );
 
     case VisitorMap.routeName:
@@ -115,7 +115,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         settings: routeSettings,
         builder: (_) => ComplaintScreen(),
       );
-      
+
     case ComplaintForm.routeName:
       return MaterialPageRoute(
         settings: routeSettings,
@@ -174,8 +174,6 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         settings: routeSettings,
         builder: (_) => ViewBookingsScreen(),
       );
-
-   
 
     default:
       return MaterialPageRoute(

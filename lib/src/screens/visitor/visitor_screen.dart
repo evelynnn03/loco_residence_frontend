@@ -10,8 +10,12 @@ class VisitorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MyTabBar(
-        tabLabels: ['Visitor Registration', 'Visitor History'],
-        tabContents: [VisitorRegTab(), VisitorHistoryTab()]);
+    return const MyTabBar(tabLabels: [
+      'Visitor Registration',
+      'Visitor History'
+    ], tabContents: [
+      VisitorRegTab(),
+      VisitorHistoryTab(userType: 'resident')
+    ]);
   }
 }

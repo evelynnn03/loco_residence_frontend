@@ -72,7 +72,7 @@ class Visitor {
     return 'Visitor $id - $fullName\nPhone: $hpNumber\nCheck-in Date & Time: $checkInDate, ${checkInTime ?? 'N/A'}\n'
         'Check-out Date & Time: ${checkOutDate ?? 'N/A'}, ${checkOutTime ?? 'N/A'}\n'
         'Car Plate: $carPlateNo\nParking No.: ${parkingNumber ?? 'N/A'}\n'
-        'Purpose: $purpose';
+        'Purpose: $purpose\nResident ID: $residentId';
   }
 
   Visitor copyWith({

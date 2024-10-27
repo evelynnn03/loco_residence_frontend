@@ -70,11 +70,34 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
       context,
     )
         .then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Visior registered successfully.'),
-        ),
-      );
+      final visitorId = visitorProvider.visitors.isNotEmpty
+          ? visitorProvider.visitors.last.id
+          : null;
+
+      if (visitorId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Visior registered successfully.'),
+          ),
+        );
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QRCodeGenerator(
+              generateNewQrData: () => 'custom qr data',
+              visitorData: {
+                "id": visitorId.toString(),
+                "fullName": fullNameTextController.text,
+                "hpNumber": phoneNoTextController.text,
+                "carPlateNo": carPlateTextController.text,
+                "checkInDate": dateTextController.text,
+                "purpose": purpose,
+              }, // Pass the visitor details
+            ),
+          ),
+        );
+      }
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -99,6 +122,8 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
   Widget build(BuildContext context) {
     Color buttonColor1 = GlobalVariables.lightGrey;
     Color buttonColor2 = GlobalVariables.primaryColor;
+    final visitorProvider =
+        Provider.of<VisitorProvider>(context, listen: false);
 
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -245,21 +270,6 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                       if (formKey.currentState!.validate()) {
                         // Form is valid, perform the registration
                         registerVisitor(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => QRCodeGenerator(
-                              generateNewQrData: () => 'custom qr data',
-                              visitorData: {
-                                "fullName": fullNameTextController.text,
-                                "hpNumber": phoneNoTextController.text,
-                                "carPlateNo": carPlateTextController.text,
-                                "checkInDate": dateTextController.text,
-                                "purpose": purpose,
-                              }, // Pass the visitor details
-                            ),
-                          ),
-                        );
                       }
                     },
                     text: 'Generate QR Code',
