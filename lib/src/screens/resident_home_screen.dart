@@ -15,7 +15,7 @@ import '../../config/themes/theme_provider.dart';
 import 'analytics_screen/analytics_screen.dart';
 import 'facility/facility_info_screen.dart';
 import 'facility/view_bookings_screen.dart';
-import 'feedback_screen.dart';
+import 'complaints/complaint_screen.dart';
 import 'important_contact.dart';
 import 'service_contacts.dart';
 
@@ -40,9 +40,9 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
       'route': FacilityInfoScreen.routeName,
     },
     {
-      'title': 'Submit\nFeedback',
+      'title': 'Submit\nComplaints',
       'icon': Icons.feedback_outlined,
-      'route': FeedbackScreen.routeName,
+      'route': ComplaintScreen.routeName,
     },
     {
       'title': 'View Data\nCharts',
