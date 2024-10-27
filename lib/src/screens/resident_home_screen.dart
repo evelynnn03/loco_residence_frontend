@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loco_frontend/src/widgets/bottom_sheet.dart';
+import 'package:loco_frontend/src/widgets/home_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/auth/login_screen.dart';
@@ -389,7 +390,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                             });
                           }
                         },
-                        child: _homeTile(
+                        child: homeTile(
                           context,
                           index,
                           tile['title'],

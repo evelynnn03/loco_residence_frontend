@@ -203,7 +203,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                           },
                         ),
                       ),
-                       SizedBox(width: sizedBoxWidth(screenWidth)),
+                      SizedBox(width: sizedBoxWidth(screenWidth)),
                       Expanded(
                         child: OptionButton(
                           text: 'Delivery',
@@ -219,7 +219,7 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
                           },
                         ),
                       ),
-                       SizedBox(width: sizedBoxWidth(screenWidth)),
+                      SizedBox(width: sizedBoxWidth(screenWidth)),
                       Expanded(
                         child: OptionButton(
                           text: 'Constructor',

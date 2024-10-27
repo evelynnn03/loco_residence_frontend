@@ -131,13 +131,17 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
           final pastVisitors = visitors.where((visitor) {
             DateTime? checkInDate = visitor.checkInDate;
             DateTime? checkOutDate = visitor.checkOutDate;
+            DateTime? checkInTime = visitor.checkInTime;
 
-            // If check-out exists, use that, otherwise use check-in
-            final displayDate = checkOutDate ?? checkInDate;
+            // Ensure visitor has a check-in time, then determine the display date
+            if (checkInTime != null) {
+              final displayDate = checkOutDate ?? checkInDate;
 
-            // Display only visitors whose check-in/check-out date is before today
-            return displayDate
-                .isBefore(DateTime(today.year, today.month, today.day));
+              // Display only visitors with a check-in/check-out date before today
+              return displayDate
+                  .isBefore(DateTime(today.year, today.month, today.day));
+            }
+            return false;
           }).toList();
 
           // Sort the visitors by their check-in or check-out date in descending order

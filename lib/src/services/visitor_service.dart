@@ -91,31 +91,63 @@ class VisitorService {
     }
   }
 
+  // update check-in time
   Future<Visitor> checkInVisitor(int visitorId) async {
-    final response = await http.post(
-      Uri.parse('${apiPath}check_in_visitor/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'visitor_id': visitorId}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('${apiPath}visitors/check_in_visitor/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'visitor_id': visitorId}),
+      );
 
-    if (response.statusCode == 200) {
-      return Visitor.fromJson(json.decode(response.body)['visitor']);
-    } else {
-      throw Exception('Failed to check in visitor');
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        if (data['message'] == 'Visitor checked in successfully') {
+          return Visitor.fromJson(data['visitor']);
+        } else {
+          throw Exception(data['error'] ?? 'Unknown error occurred');
+        }
+      } else if (response.statusCode == 400) {
+        final Map<String, dynamic> error = json.decode(response.body);
+        throw Exception(error['error']);
+      } else if (response.statusCode == 404) {
+        throw Exception('Visitor not found');
+      } else {
+        throw Exception('Failed to check in visitor');
+      }
+    } catch (e) {
+      throw Exception('Failed to check in visitor: $e');
     }
   }
 
+  // Update check-out visitor 
   Future<Visitor> checkOutVisitor(int visitorId) async {
-    final response = await http.post(
-      Uri.parse('${apiPath}check_out_visitor/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'visitor_id': visitorId}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('${apiPath}visitors/check_out_visitor/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'visitor_id': visitorId}),
+      );
 
-    if (response.statusCode == 200) {
-      return Visitor.fromJson(json.decode(response.body)['visitor']);
-    } else {
-      throw Exception('Failed to check out visitor');
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        if (data['message'] == 'Visitor checked out successfully') {
+          return Visitor.fromJson(data['visitor']);
+        } else {
+          throw Exception(data['error'] ?? 'Unknown error occurred');
+        }
+      } else if (response.statusCode == 400) {
+        final Map<String, dynamic> error = json.decode(response.body);
+        throw Exception(error['error']);
+      } else if (response.statusCode == 404) {
+        throw Exception('Visitor not found');
+      } else {
+        throw Exception('Failed to check out visitor');
+      }
+    } catch (e) {
+      throw Exception('Failed to check out visitor: $e');
     }
   }
 }

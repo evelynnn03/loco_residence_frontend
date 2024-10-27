@@ -51,9 +51,9 @@ class GlobalVariables {
   }
 
   // Log in Title text style
-  static TextStyle logInTitleStyle(BuildContext context) => TextStyle(
+  static TextStyle logInTitleStyle(BuildContext context, {Color? color = secondaryColor}) => TextStyle(
         fontSize: responsiveFontSize(context, 32),
-        color: secondaryColor,
+        color: color,
         fontWeight: FontWeight.bold,
       );
 

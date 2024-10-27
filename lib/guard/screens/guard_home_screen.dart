@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/widgets/home_tile.dart';
+import '../../src/widgets/bottom_sheet.dart';
 import '../../src/widgets/pop_up_window.dart';
 import '../../src/constants/global_variables.dart';
 import '../widget/guard_arguments.dart';
@@ -82,10 +84,12 @@ class HomepageTitle extends StatelessWidget {
 class _GuardHomeScreenState extends State<GuardHomeScreen> {
   late String guardId;
   late String guardName;
+  int selectedIndex = -1;
 
   @override
   void initState() {
     super.initState();
+    selectedIndex = -1;
   }
 
   void guardArguments() {
@@ -98,9 +102,35 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
     }
   }
 
+  final List<Map<String, dynamic>> tiles = [
+    {
+      'title': 'Scan QR',
+      'icon': Icons.qr_code_scanner_rounded,
+      'route': QRScanner.routeName,
+    },
+    {
+      'title': 'Visitor Details',
+      'icon': Icons.info_outline_rounded,
+      'route': VisitorTimestamp.routeName,
+    },
+    {
+      'title': 'Parking',
+      'icon': Icons.directions_car_filled_outlined,
+      'route': ParkingMapTab.routeName,
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
-    guardArguments();
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Calculate the aspect ratio for grid containers
+    double gridAspectRatio(double width) {
+      if (width < 380) return 2.0; // Narrow screens
+      if (width < 450) return 2.5; // Medium screens
+      return 3.0; // Wide screens
+    }
+
+    // guardArguments();
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -115,82 +145,86 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
                   children: [
                     Text(
                       'Loco Residence',
-                      style: TextStyle(
-                        color: GlobalVariables.darkPurple,
-                        fontSize: 20,
-                        fontFamily: 'Anton',
+                      style: GlobalVariables.logInTitleStyle(
+                        context,
+                        color: GlobalVariables.primaryColor,
                       ),
                     ),
-                          GestureDetector(
-                    onTap: () {
-                      Popup(
-                        title: 'Warning',
-                        content: Text("Are you sure you want to log out"),
-                        buttons: [
-                          ButtonConfig(
-                            text: 'Cancel',
-                            onPressed: () async {},
-                          ),
-                          ButtonConfig(
-                            text: 'Yes',
-                            onPressed: () async {
-                             
-                              Navigator.pop(
-                                context,
-                              );
-                            },
-                          ),
-                        ],
-                      ).show(context);
-                    },
-                    child: Icon(
-                      Icons.logout_rounded,
-                      size: 25, color: Colors.black,
-
-                      //color: GlobalVariables.darkPurple
+                    GestureDetector(
+                      onTap: () {
+                        Popup(
+                          title: 'Warning',
+                          content: Text("Are you sure you want to log out"),
+                          buttons: [
+                            ButtonConfig(
+                              text: 'Cancel',
+                              onPressed: () async {},
+                            ),
+                            ButtonConfig(
+                              text: 'Yes',
+                              onPressed: () async {
+                                Navigator.pop(
+                                  context,
+                                );
+                              },
+                            ),
+                          ],
+                        ).show(context);
+                      },
+                      child: Icon(
+                        Icons.logout,
+                        size: GlobalVariables.responsiveIconSize(context, 30),
+                        color: GlobalVariables.primaryColor,
+                      ),
                     ),
-                  ),
                   ],
                 ),
                 SizedBox(height: 60),
+                Text('HOLA,', style: GlobalVariables.headingStyle(context)),
                 Text(
-                  'HOLA,',
-                  style: TextStyle(
-                    color: GlobalVariables.primaryGrey,
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
+                  'guardName',
+                  style: GlobalVariables.bold20(
+                    context,
+                    GlobalVariables.primaryGrey,
                   ),
                 ),
-                Text(
-                  '$guardName',
-                  style: TextStyle(
-                    color: GlobalVariables.primaryGrey,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, QRScanner.routeName);
-                  },
-                  child: HomepageTitle(
-                    tileName: 'Scan QR',
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, VisitorTimestamp.routeName);
-                  },
-                  child: HomepageTitle(
-                    tileName: 'Visitor\nDetails',
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, ParkingMapTab.routeName);
-                  },
-                  child: HomepageTitle(
-                    tileName: 'Parking',
+                SizedBox(height: 20),
+                GridView.count(
+                  crossAxisCount: 1,
+                  mainAxisSpacing: 15,
+                  crossAxisSpacing: 15,
+                  childAspectRatio: gridAspectRatio(screenWidth),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: List.generate(
+                    tiles.length,
+                    (index) {
+                      final tile = tiles[index];
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedIndex = index;
+                          });
+
+                          Navigator.pushNamed(
+                            context,
+                            tile['route'],
+                            arguments: index == 2,
+                          ).then((_) {
+                            setState(() {
+                              selectedIndex = -1;
+                            });
+                          });
+                        },
+                        child: homeTile(
+                          context,
+                          index,
+                          tile['title'],
+                          tile['icon'],
+                          index == selectedIndex,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],

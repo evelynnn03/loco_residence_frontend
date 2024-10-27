@@ -71,14 +71,21 @@ class VisitorProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final updatedVisitor = await VisitorService().checkInVisitor(visitorId);
+      await VisitorService().checkInVisitor(visitorId);
+
+      // Update the visitor's check-in status in the local list
       final index = _visitors.indexWhere((v) => v.id == visitorId);
       if (index != -1) {
+        // Create a copy of the visitor with updated check-in time
+        final updatedVisitor = _visitors[index].copyWith(
+          checkInTime: DateTime.now(), // Using DateTime directly
+        );
         _visitors[index] = updatedVisitor;
+        print('Visitor checked in at: ${updatedVisitor.checkInTime}');
       }
-      print('Visitor checked in: $updatedVisitor');
     } catch (e) {
       print('Error checking in visitor: $e');
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -90,14 +97,24 @@ class VisitorProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final updatedVisitor = await VisitorService().checkOutVisitor(visitorId);
+      await VisitorService().checkOutVisitor(visitorId);
+
+      // Update the visitor's check-out status in the local list
       final index = _visitors.indexWhere((v) => v.id == visitorId);
       if (index != -1) {
+        final now = DateTime.now();
+
+        // Create a copy of the visitor with updated check-out time and date
+        final updatedVisitor = _visitors[index].copyWith(
+          checkOutTime: now, // Using DateTime for time
+          checkOutDate: now, // Using DateTime for date
+        );
         _visitors[index] = updatedVisitor;
+        print('Visitor checked out at: ${updatedVisitor.checkOutTime}');
       }
-      print('Visitor checked out: $updatedVisitor');
     } catch (e) {
       print('Error checking out visitor: $e');
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
