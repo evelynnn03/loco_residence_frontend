@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:loco_frontend/src/constants/api_path.dart';
 import '../models/complaint.dart';
@@ -34,14 +35,14 @@ class ComplaintService {
     String title,
     String description,
     DateTime date,
-    String? imageBase64,
+    File? image,
   ) async {
     try {
       final body = jsonEncode({
         'title': title,
         'description': description,
         'date': date.toIso8601String(), // ISO format for consistency
-        'image': imageBase64,
+        'image': image,
       });
       // Use PUT for full update or PATCH for partial update
       final response = await http.post(
