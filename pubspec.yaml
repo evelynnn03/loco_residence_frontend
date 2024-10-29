@@ -87,7 +87,18 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
+    - assets/images/cleaning_service.jpg
+    - assets/images/repair_service.jpeg
+    - assets/images/pest_control.jpg
+    - assets/images/police1.jpg
+    - assets/images/police2.jpg
+    - assets/images/police3.jpeg
+    - assets/images/hospital1.jpg
+    - assets/images/hospital2.jpg
+    - assets/images/hospital3.jpg
+    - assets/images/fire1.jpg
+    - assets/images/fire2.jpg
+    - assets/images/fire3.jpg
     - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see

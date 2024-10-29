@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loco_frontend/core/auth/login_screen.dart';
 import 'package:loco_frontend/guard/screens/guard_home_screen.dart';
-import 'package:loco_frontend/src/models/guard.dart';
 import 'package:loco_frontend/src/provider/complaint_provider.dart';
 import 'package:loco_frontend/src/provider/facility_provider.dart';
 import 'package:loco_frontend/src/provider/booking_provider.dart';
@@ -115,7 +114,7 @@ class MyApp extends StatelessWidget {
         ),
         themeMode: ThemeMode.system,
         onGenerateRoute: (settings) => generateRoute(settings),
-        home: const GuardHomeScreen(),
+        home: const MyBottomNavBar(),
         // email == null ? const WelcomeScreen() : MyBottomNavBar()
       ),
     );
