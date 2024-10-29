@@ -7,6 +7,7 @@ import 'package:loco_frontend/src/widgets/text_field.dart';
 import 'package:provider/provider.dart';
 import 'pop_up_window.dart';
 import '../models/visitor.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class VisitorHistoryTab extends StatefulWidget {
   final String userType;
@@ -78,6 +79,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
           final carplate = visitor.carPlateNo.toLowerCase();
           final checkInDate = (visitor.checkInDate);
           final checkOutDate = (visitor.checkOutDate) ?? '';
+
           // Add resident name/id to search if guard
           final residentInfo = widget.userType == 'guard'
               ? visitor.residentId.toString().toLowerCase()
@@ -127,56 +129,66 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
   // Modify the visitor card content to include resident info for guards
   Widget _buildVisitorCard(Visitor visitor, double containerHeight,
       double boxHeight, double boxWidth) {
-    return GestureDetector(
-      onTap: () {
-        Popup(
-          title: visitor.fullName,
-          content: SizedBox(
-            height: 80,
-            child: Center(
-              child: Text(
-                'Car Plate : ${visitor.carPlateNo}\n'
-                'Phone       : ${visitor.hpNumber}\n'
-                'Purpose   : ${visitor.purpose}\n'
-                '${widget.userType == 'guard' ? 'Resident ID: ${visitor.residentId}\n' : ''}',
-                textAlign: TextAlign.left,
-              ),
-            ),
-          ),
-          buttons: [
-            ButtonConfig(text: 'Close', onPressed: () {}),
-          ],
-        ).show(context);
-      },
-      child: Container(
-        height: containerHeight,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: GlobalVariables.primaryColor,
-          borderRadius: BorderRadius.circular(25.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+    Widget card = Container(
+      height: containerHeight,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: GlobalVariables.primaryColor,
+        borderRadius: BorderRadius.circular(25.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  visitor.fullName,
+                  style: GlobalVariables.bold20(context, GlobalVariables.white),
+                ),
+                if (widget.userType == 'guard')
                   Text(
-                    visitor.fullName,
-                    style:
-                        GlobalVariables.bold20(context, GlobalVariables.white),
+                    'Resident ID: ${visitor.residentId}',
+                    style: GlobalVariables.visitorHistoryDetail(context,
+                        isBold: true),
                   ),
-                  if (widget.userType == 'guard')
-                    Text(
-                      'Resident ID: ${visitor.residentId}',
-                      style: GlobalVariables.visitorHistoryDetail(context,
-                          isBold: true),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Container(
+                  height: boxHeight,
+                  width: boxWidth,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Checked-in',
+                      style: GlobalVariables.visitorHistoryDetail(context),
                     ),
-                ],
-              ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  DateFormat('dd/MM/yyyy').format(visitor.checkInDate),
+                  style: GlobalVariables.visitorHistoryDetail(context,
+                      isBold: false),
+                ),
+                SizedBox(width: 15),
+                Text(
+                  DateFormat('hh:mm a').format(visitor.checkInTime!),
+                  style: GlobalVariables.visitorHistoryDetail(context,
+                      isBold: false),
+                )
+              ],
+            ),
+            if (visitor.checkOutDate != null) ...[
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -184,58 +196,112 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                     height: boxHeight,
                     width: boxWidth,
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: Colors.red,
                       borderRadius: BorderRadius.circular(25.0),
                     ),
                     child: Center(
                       child: Text(
-                        'Checked-in',
+                        'Checked-out',
                         style: GlobalVariables.visitorHistoryDetail(context),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    DateFormat('dd/MM/yyyy  hh:mm a')
-                        .format(visitor.checkInDate),
+                    DateFormat('dd/MM/yyyy').format(visitor.checkOutDate!),
+                    style: GlobalVariables.visitorHistoryDetail(context,
+                        isBold: false),
+                  ),
+                  SizedBox(width: 15),
+                  Text(
+                    DateFormat('hh:mm a').format(visitor.checkOutTime!),
                     style: GlobalVariables.visitorHistoryDetail(context,
                         isBold: false),
                   )
                 ],
               ),
-              if (visitor.checkOutDate != null) ...[
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Container(
-                      height: boxHeight,
-                      width: boxWidth,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(25.0),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Checked-out',
-                          style: GlobalVariables.visitorHistoryDetail(context),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      DateFormat('dd/MM/yyyy  hh:mm a')
-                          .format(visitor.checkOutDate!),
-                      style: GlobalVariables.visitorHistoryDetail(context,
-                          isBold: false),
-                    ),
-                  ],
-                ),
-              ],
             ],
-          ),
+          ],
         ),
       ),
     );
+
+    // Wrap with GestureDetector for residents
+    if (widget.userType != 'guard') {
+      return GestureDetector(
+        onTap: () => _showVisitorDetails(visitor),
+        child: card,
+      );
+    }
+
+    // Wrap with Slidable for guards
+    return GestureDetector(
+      onTap: () => _showVisitorDetails(visitor),
+      child: visitor.checkOutDate == null
+          ? Slidable(
+              endActionPane: ActionPane(
+                motion: const ScrollMotion(),
+                children: [
+                  SlidableAction(
+                    onPressed: (_) => _handleCheckOut(visitor),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.red,
+                    icon: Icons.exit_to_app,
+                    label: 'Check Out',
+                  ),
+                ],
+              ),
+              child: card,
+            )
+          : card, // If checkout time exists, just return the card without Slidable
+    );
+  }
+
+  void _showVisitorDetails(Visitor visitor) {
+    Popup(
+      title: visitor.fullName,
+      content: SizedBox(
+        height: 80,
+        child: Center(
+          child: Text(
+            'Car Plate : ${visitor.carPlateNo}\n'
+            'Phone       : ${visitor.hpNumber}\n'
+            'Purpose   : ${visitor.purpose}\n'
+            '${widget.userType == 'guard' ? 'Resident ID: ${visitor.residentId}\n' : ''}',
+            textAlign: TextAlign.left,
+          ),
+        ),
+      ),
+      buttons: [
+        ButtonConfig(text: 'Close', onPressed: () {}),
+      ],
+    ).show(context);
+  }
+
+  void _handleCheckOut(Visitor visitor) {
+    // Implement check-out logic here
+    Popup(
+      title: 'Confirm Check Out',
+      content: const SizedBox(
+        height: 50,
+        child: Center(
+          child: Text('Are you sure you want to check out this visitor?'),
+        ),
+      ),
+      buttons: [
+        ButtonConfig(
+          text: 'Cancel',
+          onPressed: () {},
+        ),
+        ButtonConfig(
+          text: 'Confirm',
+          onPressed: () {
+            Provider.of<VisitorProvider>(context, listen: false)
+                .checkOutVisitor(visitor.id);
+          },
+        ),
+      ],
+    ).show(context);
   }
 
   @override
@@ -263,13 +329,13 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
             DateTime? checkOutDate = visitor.checkOutDate;
             DateTime? checkInTime = visitor.checkInTime;
 
-            // Ensure visitor has a check-in time, then determine the display date
             if (checkInTime != null) {
               final displayDate = checkOutDate ?? checkInDate;
+              final todayStart = DateTime(today.year, today.month, today.day);
 
-              // Display only visitors with a check-in/check-out date before today
-              return displayDate
-                  .isBefore(DateTime(today.year, today.month, today.day));
+              // Include visitors with check-in/check-out date before or equal to today
+              return !displayDate
+                  .isAfter(todayStart); // This includes today's date
             }
             return false;
           }).toList();

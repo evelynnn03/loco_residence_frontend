@@ -80,14 +80,14 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
             Expanded(
               child: TabBarView(controller: _tabController, children: [
                 const Column(
-                  children: [
-                    Expanded(
-                      child: GuardDetails(
-                        showImage: true,
-                        hasSlidable: false,
-                      ),
-                    ),
-                  ],
+                  // children: [
+                  //   Expanded(
+                  //     child: GuardDetails(
+                  //       showImage: true,
+                  //       hasSlidable: false,
+                  //     ),
+                  //   ),
+                  // ],
                 ),
                 _buildImportantItemsList(
                   data: [

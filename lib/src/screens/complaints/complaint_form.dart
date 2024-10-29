@@ -2,8 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/provider/complaint_provider.dart';
+import 'package:loco_frontend/src/widgets/buttons.dart';
+import 'package:loco_frontend/src/widgets/text_field.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/calendar.dart';
+import '../../widgets/drop_down_field.dart';
 
 class ComplaintForm extends StatefulWidget {
   const ComplaintForm({Key? key}) : super(key: key);
@@ -16,6 +21,7 @@ class ComplaintForm extends StatefulWidget {
 class _ComplaintFormState extends State<ComplaintForm> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
+  final _dateController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   String? _category;
@@ -60,16 +66,16 @@ class _ComplaintFormState extends State<ComplaintForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
+    final DateTime? picked = await showCalendar(
+      context,
+      minDate: DateTime(2023),
+      maxDate: DateTime.now(),
     );
 
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
+        _dateController.text = DateFormat('dd/MM/yyyy').format(picked);
       });
     }
   }
@@ -85,7 +91,7 @@ class _ComplaintFormState extends State<ComplaintForm> {
         final complaintData = {
           'title': _titleController.text,
           'category': _category,
-          'date': _selectedDate?.toIso8601String(),
+          'date': _dateController.text,
           'description': _descriptionController.text,
           'image': _imageFile?.path,
         };
@@ -115,6 +121,7 @@ class _ComplaintFormState extends State<ComplaintForm> {
           _descriptionController.clear();
           _category = null;
           _selectedDate = null;
+          _dateController.clear();
           _imageFile = null;
           _isSubmitting = false; // Reset the submission state
         });
@@ -128,7 +135,14 @@ class _ComplaintFormState extends State<ComplaintForm> {
         );
 
         setState(() {
-          _isSubmitting = false; // Reset the submission state in case of error
+          MyButton(
+            text: _isSubmitting ? 'Submitting...' : 'Submit Complaint',
+            onTap: () {
+              if (_formKey.currentState!.validate()) {
+                _submitForm();
+              }
+            },
+          );
         });
       }
     }
@@ -161,9 +175,20 @@ class _ComplaintFormState extends State<ComplaintForm> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    double smallSizedBoxHeight(height) => height < 600 ? 20 : 30;
+    double largeSizedBoxHeight(height) => height < 600 ? 30 : 40;
+
     return Scaffold(
+      backgroundColor: GlobalVariables.secondaryColor,
       appBar: AppBar(
-        title: const Text('Submit Complaint'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Submit Complaint',
+          style: GlobalVariables.appbarStyle(context),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -173,14 +198,12 @@ class _ComplaintFormState extends State<ComplaintForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Title Field
-              TextFormField(
+              MyTextField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Complaint Title',
-                  helperText:
-                      'Provide a short, descriptive title for your complaint',
-                  border: OutlineInputBorder(),
-                ),
+                labelText: 'Complaint Title',
+                keyboardType: TextInputType.text,
+                helperText:
+                    'Provide a short, descriptive title for your complaint',
                 validator: (value) {
                   if (value == null || value.length < 5) {
                     return 'Title must be at least 5 characters';
@@ -188,82 +211,63 @@ class _ComplaintFormState extends State<ComplaintForm> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
 
               // Category Dropdown
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  helperText:
-                      'Choose the category that best fits your complaint',
-                  border: OutlineInputBorder(),
-                ),
+              MyDropdownField(
+                label: 'Category',
+                helper: 'Choose the category that best fits your complaint',
+                items: _categories,
                 value: _category,
-                items: _categories.map((String category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
                 onChanged: (String? newValue) {
                   setState(() {
                     _category = newValue;
                   });
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
 
               // Date Picker
-              InkWell(
-                onTap: () => _selectDate(context),
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Date of Incident',
-                    helperText: 'Select the date when the incident occurred',
-                    border: OutlineInputBorder(),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _selectedDate == null
-                            ? 'Pick a date'
-                            : DateFormat('MM/dd/yyyy').format(_selectedDate!),
-                      ),
-                      const Icon(Icons.calendar_today),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+              MyTextField(
+                controller: _dateController,
+                labelText: 'Date of Incident',
+                helperText: 'Select the date when the incident occurred',
+                obscureText: false,
+                keyboardType: TextInputType.none,
 
+                // SHOW THE CALENDER
+                onTap: () {
+                  _selectDate(context);
+                },
+
+                prefixIcon: Icons.date_range,
+              ),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
               // Description Field
-              TextFormField(
+              MyTextField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  helperText: 'Please describe your complaint in detail',
-                  border: OutlineInputBorder(),
-                ),
                 maxLines: 5,
+                labelText: 'Description',
+                keyboardType: TextInputType.text,
+                helperText: 'Please describe your complaint in detail',
                 validator: (value) {
                   if (value == null || value.length < 20) {
                     return 'Description must be at least 20 characters';
                   }
                   return null;
                 },
+                isDescriptionBox: true,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
 
               // Image Upload
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.image),
-                    label: Text(
-                        _imageFile == null ? 'Upload Image' : 'Change Image'),
+                  MyButton(
+                    onTap: _pickImage,
+                    text: _imageFile == null ? 'Upload Image' : 'Change Image',
+                    iconData: Icons.image,
                   ),
                   if (_imageFile != null) ...[
                     const SizedBox(height: 8),
@@ -285,23 +289,26 @@ class _ComplaintFormState extends State<ComplaintForm> {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  const Text(
-                    'Upload a picture related to your complaint (max 5MB)',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  Center(
+                    child: Text(
+                      'Upload a picture related to your complaint (max 5MB)',
+                      style: GlobalVariables.helperStyle(context),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: largeSizedBoxHeight(screenHeight)),
 
               // Submit Button
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _submitForm,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                      _isSubmitting ? 'Submitting...' : 'Submit Complaint'),
-                ),
+              MyButton(
+                text: _isSubmitting ? 'Submitting...' : 'Submit Complaint',
+                onTap: () {
+                  if (!_isSubmitting) {
+                    _submitForm();
+                  }
+                },
               ),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
             ],
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:loco_frontend/src/provider/complaint_provider.dart';
 import '../../models/complaint.dart';
 import '../../utils/complaint_utils.dart';
+import '../../widgets/drop_down_field.dart';
 
 class TotalComplaintScreen extends StatefulWidget {
   static const String routeName = '/total-complaint-screen';
@@ -46,8 +47,6 @@ class _TotalComplaintScreenState extends State<TotalComplaintScreen> {
     });
   }
 
-
-
   Map<String, int> getStatusCounts(List<Complaint> complaints) {
     // Initialize counts with all possible statuses from Django model
     final counts = {
@@ -78,7 +77,16 @@ class _TotalComplaintScreenState extends State<TotalComplaintScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: GlobalVariables.secondaryColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Complaints Overview',
+          style: GlobalVariables.appbarStyle(context),
+        ),
+      ),
       body: SafeArea(
         child: Consumer<ComplaintProvider>(
           builder: (context, complaintProvider, _) {
@@ -102,46 +110,18 @@ class _TotalComplaintScreenState extends State<TotalComplaintScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!_isListExpanded) ...[
-                            Text(
-                              'Complaints Overview',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                            MyDropdownField(
+                              items: _timeFilters,
+                              value: _selectedTimeFilter,
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    _selectedTimeFilter = newValue;
+                                  });
+                                }
+                              },
                             ),
-                            const SizedBox(height: 16),
 
-                            // Time filter dropdown
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey[300]!),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: _selectedTimeFilter,
-                                  isExpanded: true,
-                                  items: _timeFilters.map((String filter) {
-                                    return DropdownMenuItem<String>(
-                                      value: filter,
-                                      child: Text(filter),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      setState(() {
-                                        _selectedTimeFilter = newValue;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 16),
 
                             // Stats grid
@@ -179,25 +159,20 @@ class _TotalComplaintScreenState extends State<TotalComplaintScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Recent Complaints',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
+                            Text('Recent Complaints',
+                                style: GlobalVariables.bold20(
+                                    context, GlobalVariables.primaryColor)),
                             TextButton.icon(
                               onPressed: _toggleListView,
                               icon: Icon(
                                 _isListExpanded ? Icons.compress : Icons.expand,
-                                size: 20,
-                                color: Theme.of(context).primaryColor,
+                                size: GlobalVariables.responsiveIconSize(
+                                    context, 20.0),
+                                color: GlobalVariables.welcomeColor,
                               ),
                               label: Text(
                                 _isListExpanded ? 'Collapse' : 'View All',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: GlobalVariables.primaryColor,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -224,6 +199,7 @@ class _TotalComplaintScreenState extends State<TotalComplaintScreen> {
                                   itemBuilder: (context, index) {
                                     final complaint = filteredComplaints[index];
                                     return Card(
+                                      color: Colors.white,
                                       margin: const EdgeInsets.only(bottom: 12),
                                       child: ListTile(
                                         title: Text(

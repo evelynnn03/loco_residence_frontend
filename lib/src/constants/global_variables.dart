@@ -172,6 +172,12 @@ class GlobalVariables {
         fontSize: responsiveFontSize(context, 16.0),
         fontWeight: FontWeight.w700,
       );
+  
+  static TextStyle helperStyle(BuildContext context) => TextStyle(
+        color: textLabel,
+        fontSize: responsiveFontSize(context, 16.0),
+        fontWeight: FontWeight.w700,
+      );
 
   // Text field
   static TextStyle floatingLabelStyle(BuildContext context) => TextStyle(

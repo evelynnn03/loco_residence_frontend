@@ -20,7 +20,8 @@ class ComplainListScreen extends StatefulWidget {
 }
 
 class _ComplainListScreenState extends State<ComplainListScreen> {
-  late String _selectedTimeFilter; // Store the selected filter for displaying complaints
+  late String
+      _selectedTimeFilter; // Store the selected filter for displaying complaints
 
   // Updated status colors to match Django model's STATUS_CHOICES
   static const Map<String, Color> _statusColors = {
@@ -34,7 +35,7 @@ class _ComplainListScreenState extends State<ComplainListScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Use the initial time filter from the widget
     _selectedTimeFilter = widget.initialTimeFilter;
 
@@ -50,24 +51,34 @@ class _ComplainListScreenState extends State<ComplainListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: GlobalVariables.secondaryColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Complaints for: $_selectedTimeFilter',
+          style: GlobalVariables.appbarStyle(context),
+        ),
+      ),
       body: SafeArea(
         child: Consumer<ComplaintProvider>(
           builder: (context, complaintProvider, _) {
             final allComplaints = complaintProvider.complaints;
-            final filteredComplaints = filterComplaints(allComplaints, _selectedTimeFilter);
+            final filteredComplaints =
+                filterComplaints(allComplaints, _selectedTimeFilter);
 
             return Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Complaints for: $_selectedTimeFilter',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.all(16.0),
+                //   child: Text(
+                //     'Complaints for: $_selectedTimeFilter',
+                //     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //   ),
+                // ),
 
                 // Complaints List Section
                 Expanded(
@@ -89,17 +100,21 @@ class _ComplainListScreenState extends State<ComplainListScreen> {
                                 child: ListTile(
                                   title: Text(
                                     complaint.title,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const SizedBox(height: 4),
                                       Text(complaint.description),
                                       const SizedBox(height: 4),
                                       Text(
-                                        DateFormat('MMM dd, yyyy').format(complaint.date),
-                                        style: TextStyle(color: Colors.grey[600]),
+                                        DateFormat('MMM dd, yyyy')
+                                            .format(complaint.date),
+                                        style:
+                                            TextStyle(color: Colors.grey[600]),
                                       ),
                                     ],
                                   ),
@@ -109,7 +124,8 @@ class _ComplainListScreenState extends State<ComplainListScreen> {
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: getStatusColor(complaint.status).withOpacity(0.1),
+                                      color: getStatusColor(complaint.status)
+                                          .withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(

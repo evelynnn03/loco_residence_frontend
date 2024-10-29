@@ -1,5 +1,5 @@
 class Visitor {
-  final int? id;
+  final int id;
   final int residentId;
   final String fullName;
   final String hpNumber;
@@ -12,7 +12,7 @@ class Visitor {
   final String purpose;
 
   Visitor({
-    this.id,
+    required this.id,
     required this.residentId,
     required this.fullName,
     required this.hpNumber,
@@ -27,23 +27,43 @@ class Visitor {
 
   // Factory method to create a Visitor instance from JSON
   factory Visitor.fromJson(Map<String, dynamic> json) {
+    DateTime parseDateOnly(String dateString) {
+      try {
+        // Parse as DateTime and then extract only the date
+        return DateTime.parse(dateString).toLocal();
+      } catch (e) {
+        print('Error parsing date: $dateString');
+        return DateTime.now();
+      }
+    }
+
+    DateTime? parseTimeOnly(String? timeString) {
+      try {
+        if (timeString == null) return null;
+
+        // Parse the time string assuming it's in "HH:mm:ss" format.
+        final timeParts = timeString.split(":").map(int.parse).toList();
+        final now = DateTime.now();
+        return DateTime(now.year, now.month, now.day, timeParts[0],
+            timeParts[1], timeParts[2]);
+      } catch (e) {
+        print('Error parsing time: $timeString');
+        return null;
+      }
+    }
+
     return Visitor(
       id: json['id'],
       residentId: json['resident'],
       fullName: json['full_name'],
       hpNumber: json['hp_number'],
-      checkInDate: json['check_in_date'] != null
-          ? DateTime.parse(json['check_in_date'])
-          : DateTime.now(),
-      checkInTime: json['check_in_time'] != null
-          ? DateTime.parse(json['check_in_time'])
-          : null,
+      checkInDate: parseDateOnly(
+          json['check_in_date'] ?? DateTime.now().toIso8601String()),
+      checkInTime: parseTimeOnly(json['check_in_time']),
       checkOutDate: json['check_out_date'] != null
-          ? DateTime.parse(json['check_out_date'])
+          ? parseDateOnly(json['check_out_date'])
           : null,
-      checkOutTime: json['check_out_time'] != null
-          ? DateTime.parse(json['check_out_time'])
-          : null,
+      checkOutTime: parseTimeOnly(json['check_out_time']),
       carPlateNo: json['car_plate_no'],
       parkingNumber: json['Parking Number'],
       purpose: json['purpose_of_visit'],
@@ -52,15 +72,24 @@ class Visitor {
 
   // Method to convert Visitor object to JSON
   Map<String, dynamic> toJson() {
+    String formatDateOnly(DateTime date) =>
+        '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+    String formatTimeOnly(DateTime time) =>
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:${time.second.toString().padLeft(2, '0')}';
+
     return {
       'id': id,
       'resident': residentId,
       'full_name': fullName,
       'hp_number': hpNumber,
-      'check_in_date': checkInDate.toIso8601String(),
-      'check_in_time': checkInTime?.toIso8601String(),
-      'check_out_date': checkOutDate?.toIso8601String(),
-      'check_out_time': checkOutTime?.toIso8601String(),
+      'check_in_date': formatDateOnly(checkInDate),
+      'check_in_time':
+          checkInTime != null ? formatTimeOnly(checkInTime!) : null,
+      'check_out_date':
+          checkOutDate != null ? formatDateOnly(checkOutDate!) : null,
+      'check_out_time':
+          checkOutTime != null ? formatTimeOnly(checkOutTime!) : null,
       'car_plate_no': carPlateNo,
       'parking_number': parkingNumber,
       'purpose_of_visit': purpose,

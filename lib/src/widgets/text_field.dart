@@ -6,6 +6,7 @@ class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final String? labelText;
   final String? hintText;
+  final String? helperText;
   final bool?
       obscureText; // Only for password: to hide the text entered, eg:  abc -> ...
   final int? maxLines;
@@ -30,6 +31,7 @@ class MyTextField extends StatefulWidget {
     required this.controller,
     this.labelText,
     this.hintText,
+    this.helperText,
     this.obscureText,
     required this.keyboardType,
     this.onTap,
@@ -71,16 +73,16 @@ class _MyTextFieldState extends State<MyTextField> {
               }
             : null,
         decoration: InputDecoration(
-          prefix: widget.isDescriptionBox == true
-              ? const Padding(
-                  padding: EdgeInsets.only(top: 35, left: 15),
-                )
-              : null,
           labelText: widget.labelText,
+          labelStyle: GlobalVariables.labelStyle(context),
           hintText: widget.hintText,
           hintStyle: GlobalVariables.labelStyle(context),
-          labelStyle: GlobalVariables.labelStyle(context),
+          helperText: widget.helperText,
+          helperStyle: GlobalVariables.helperStyle(context),
           floatingLabelStyle: GlobalVariables.floatingLabelStyle(context),
+          floatingLabelBehavior: widget.isDescriptionBox == true
+              ? FloatingLabelBehavior.always
+              : FloatingLabelBehavior.auto,
           prefixIcon: widget.prefixIcon != null
               ? Icon(widget.prefixIcon, color: GlobalVariables.tabNotSelected)
               : null,

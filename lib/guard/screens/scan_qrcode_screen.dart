@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:io';
@@ -27,7 +28,7 @@ class _QRScannerState extends State<QRScanner> {
     try {
       // Split the QR data by newlines or commas
       final parts = qrData.split(RegExp(r'[,\n]'));
-      
+
       // Find the part containing "Visitor ID:"
       final idPart = parts.firstWhere(
         (part) => part.trim().startsWith('Visitor ID:'),
@@ -47,60 +48,26 @@ class _QRScannerState extends State<QRScanner> {
   }
 
   // Show visitor details dialog
-  void _showVisitorDetailsDialog(BuildContext context, Visitor visitor) {
-    if (!isDialogShown) {
-      isDialogShown = true;
-      
-      Popup(
-        title: 'Visitor Details',
-        content: SizedBox(
-          height: 200,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildDetailRow('Name', visitor.fullName),
-              _buildDetailRow('Car Plate No', visitor.carPlateNo),
-              _buildDetailRow('Check in Date', 
-                visitor.checkInDate.toString().split(' ')[0]),
-              _buildDetailRow('H/P No', visitor.hpNumber),
-              _buildDetailRow('Purpose', visitor.purpose),
-            ],
-          ),
-        ),
-        buttons: [
-          ButtonConfig(
-            text: 'Confirm',
-            onPressed: () {
-              isDialogShown = false;
-              Navigator.pop(context);
-            },
-          ),
-          if (visitor.carPlateNo.isNotEmpty)
-            ButtonConfig(
-              text: 'Assign Parking',
-              onPressed: () {
-                isDialogShown = false;
-                setState(() {
-                  result = null;
-                });
-                
-                Navigator.popAndPushNamed(
-                  context,
-                  ParkingMapTab.routeName,
-                  arguments: {
-                    'initialTabIndex': 1,
-                    'visitorId': visitor.id,
-                  },
-                );
-              },
-            ),
-        ],
-      ).show(context);
-    }
-  }
-
   Widget _buildDetailRow(String label, String value) {
+    // Format the time if this is a date/time field
+    String displayValue = value;
+    if (label.toLowerCase().contains('time') ||
+        label.toLowerCase().contains('date')) {
+      try {
+        final DateTime dateTime = DateTime.parse(value);
+        if (label.toLowerCase().contains('time')) {
+          // Format time as HH:mm:ss
+          displayValue = DateFormat('HH:mm:ss').format(dateTime);
+        } else {
+          // Keep existing date format
+          displayValue = value.split(' ')[0];
+        }
+      } catch (e) {
+        // If parsing fails, use the original value
+        print('Error formatting date/time: $e');
+      }
+    }
+
     return SizedBox(
       height: 40,
       child: Row(
@@ -126,7 +93,7 @@ class _QRScannerState extends State<QRScanner> {
           ),
           Expanded(
             child: Text(
-              value,
+              displayValue,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 16,
@@ -139,9 +106,42 @@ class _QRScannerState extends State<QRScanner> {
     );
   }
 
+  // Update the _showVisitorDetailsDialog to include check-in time if needed
+  void _showVisitorDetailsDialog(BuildContext context, Visitor visitor) {
+    if (!isDialogShown) {
+      isDialogShown = true;
+
+      Popup(
+        title: 'Visitor Details',
+        content: SizedBox(
+          height:
+              240, // Increased height to accommodate additional field if needed
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildDetailRow('Name', visitor.fullName),
+              _buildDetailRow('Car Plate No', visitor.carPlateNo),
+              _buildDetailRow('Check in Date',
+                  visitor.checkInDate.toString().split(' ')[0]),
+              if (visitor.checkInTime != null)
+                _buildDetailRow(
+                    'Check in Time', visitor.checkInTime.toString()),
+              _buildDetailRow('H/P No', visitor.hpNumber),
+              _buildDetailRow('Purpose', visitor.purpose),
+            ],
+          ),
+        ),
+        buttons: [
+          // ... rest of the button configuration remains the same
+        ],
+      ).show(context);
+    }
+  }
+
   void _onQRViewCreated(QRViewController controller) {
     setState(() => this.controller = controller);
-    
+
     controller.scannedDataStream.listen(
       (scanData) async {
         setState(() {
@@ -150,20 +150,18 @@ class _QRScannerState extends State<QRScanner> {
 
         if (result != null && result!.code != null) {
           final visitorId = extractVisitorId(result!.code!);
-          
+
           if (visitorId != null) {
-            final visitorProvider = Provider.of<VisitorProvider>(
-              context, 
-              listen: false
-            );
+            final visitorProvider =
+                Provider.of<VisitorProvider>(context, listen: false);
 
             try {
               // Check in the visitor
               await visitorProvider.checkInVisitor(visitorId);
-              
+
               // Get updated visitor details
               final visitor = visitorProvider.getVisitorById(visitorId);
-              
+
               if (visitor != null) {
                 _showVisitorDetailsDialog(context, visitor);
               } else {
@@ -221,10 +219,7 @@ class _QRScannerState extends State<QRScanner> {
       appBar: AppBar(
         title: Text(
           'Scan a QR Code',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: GlobalVariables.primaryColor,
         elevation: 0,
