@@ -37,7 +37,7 @@ class _TotalComplaintScreenState extends State<TotalComplaintScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ComplaintProvider>(context, listen: false).fetchComplaints();
+      Provider.of<ComplaintProvider>(context, listen: false).fetchResidentComplaints();
     });
   }
 

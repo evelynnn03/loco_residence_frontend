@@ -7,10 +7,34 @@ import 'package:path/path.dart' as path;
 
 //rmb to check what's the resident id after you seed the data
 class ComplaintService {
-  Future<List<Complaint>> getComplaints(int residentId) async {
+  Future<List<Complaint>> getResidentComplaints(int residentId) async {
     try {
       final response = await http.get(
-        Uri.parse('${apiPath}complaints/view_all_complaints/$residentId'),
+        Uri.parse('${apiPath}complaints/view_resident_complaints/$residentId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json', // To ensure you get JSON response
+        },
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> res = json.decode(response.body);
+        final List<Complaint> complaintlist = res
+            .map((complaint) =>
+                Complaint.fromJson(complaint as Map<String, dynamic>))
+            .toList();
+        return complaintlist;
+      } else {
+        throw Exception('No complaints found');
+      }
+    } catch (e) {
+      throw Exception('Failed to get complaints: $e');
+    }
+  }
+
+    Future<List<Complaint>> getAllComplaints(int residentId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${apiPath}complaints/view_all_complaints'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json', // To ensure you get JSON response

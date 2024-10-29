@@ -6,25 +6,27 @@ import '../models/complaint.dart';
 import '../services/complaint_service.dart';
 
 class ComplaintProvider with ChangeNotifier {
-  List<Complaint> _complaints = [];
+  List<Complaint> _allComplaints = [];
+  List<Complaint> _residentComplaints = [];
   bool _isLoading = false;
 
   
-  List<Complaint> get complaints => _complaints;
+  List<Complaint> get complaints => _allComplaints;
+  List<Complaint> get residentComplaints => _residentComplaints;
   bool get isLoading => _isLoading;
 
   void setComplaints(List<Complaint> complaints) {
-    _complaints = complaints;
+    _allComplaints = complaints;
     notifyListeners();
   }
 
-  Future<void> fetchComplaints() async {
+  Future<void> fetchResidentComplaints() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _complaints = await ComplaintService().getComplaints(temporaryResidentId);
-      print('Complaints: $_complaints');
+      _residentComplaints = await ComplaintService().getResidentComplaints(temporaryResidentId);
+      print('Complaints: $_residentComplaints');
     } catch (e) {
       print('Error fetching complaints: $e');
     } finally {
@@ -32,6 +34,22 @@ class ComplaintProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> fetchAllComplaints() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _allComplaints = await ComplaintService().getAllComplaints(temporaryResidentId);
+      print('Complaints: $_allComplaints');
+    } catch (e) {
+      print('Error fetching complaints: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
 
   Future<void> createComplaint(
     String title,

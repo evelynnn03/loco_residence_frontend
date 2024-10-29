@@ -40,7 +40,7 @@ class _ComplainListScreenState extends State<ComplainListScreen> {
     _selectedTimeFilter = widget.initialTimeFilter;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ComplaintProvider>(context, listen: false).fetchComplaints();
+      Provider.of<ComplaintProvider>(context, listen: false).fetchResidentComplaints();
     });
   }
 

@@ -53,7 +53,7 @@ class _ComplaintScreenState extends State<ComplaintScreen>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ComplaintProvider>(context, listen: false).fetchComplaints();
+      Provider.of<ComplaintProvider>(context, listen: false).fetchAllComplaints();
     });
 
     _controller.forward();
