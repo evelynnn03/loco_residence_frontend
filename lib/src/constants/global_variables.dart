@@ -51,7 +51,9 @@ class GlobalVariables {
   }
 
   // Log in Title text style
-  static TextStyle logInTitleStyle(BuildContext context, {Color? color = secondaryColor}) => TextStyle(
+  static TextStyle logInTitleStyle(BuildContext context,
+          {Color? color = secondaryColor}) =>
+      TextStyle(
         fontSize: responsiveFontSize(context, 32),
         color: color,
         fontWeight: FontWeight.bold,
@@ -172,10 +174,10 @@ class GlobalVariables {
         fontSize: responsiveFontSize(context, 16.0),
         fontWeight: FontWeight.w700,
       );
-  
+
   static TextStyle helperStyle(BuildContext context) => TextStyle(
         color: textLabel,
-        fontSize: responsiveFontSize(context, 16.0),
+        fontSize: responsiveFontSize(context, 14.0),
         fontWeight: FontWeight.w700,
       );
 
@@ -224,7 +226,7 @@ class GlobalVariables {
   // Booking time container style
   static TextStyle bookingTimeStyle(BuildContext context, {Color? color}) =>
       TextStyle(
-        fontSize: 16,
+        fontSize: responsiveFontSize(context, 16),
         color: color,
         fontWeight: FontWeight.w800,
       );

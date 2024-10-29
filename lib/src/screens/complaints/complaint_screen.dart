@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
 import 'package:loco_frontend/src/screens/complaints/complaint_form.dart';
 import 'package:loco_frontend/src/screens/complaints/total_complaint_screen.dart';
+import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/complaint_provider.dart';
@@ -107,6 +108,12 @@ class _ComplaintScreenState extends State<ComplaintScreen>
     // Count the number of complaints for each time filter
 
     return Scaffold(
+      backgroundColor: GlobalVariables.secondaryColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16.0),
@@ -116,10 +123,7 @@ class _ComplaintScreenState extends State<ComplaintScreen>
               padding: const EdgeInsets.only(bottom: 24.0),
               child: Text(
                 'Welcome back, Evelyn Tan',
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: GlobalVariables.appbarStyle(context),
                 textAlign: MediaQuery.of(context).size.width > 600
                     ? TextAlign.left
                     : TextAlign.center,
@@ -135,50 +139,58 @@ class _ComplaintScreenState extends State<ComplaintScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: MediaQuery.of(context).size.width > 600
-                          ? 200
-                          : double.infinity,
-                      height: 56,
-                      child: Material(
-                        color: Color(0xFF003878),
-                        borderRadius: BorderRadius.circular(12),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
+                        width: MediaQuery.of(context).size.width > 600
+                            ? 200
+                            : double.infinity,
+                        height: 56,
+                        child: MyButton(
+                          text: 'File a New Complaint',
                           onTap: () {
                             Navigator.pushNamed(
                                 context, ComplaintForm.routeName);
                           },
-                          child: const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add_circle_outline,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'File a New Complaint',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          iconData: Icons.add_circle_outline,
+                        )
+
+                        // Material(
+                        //   color: Color(0xFF003878),
+                        //   borderRadius: BorderRadius.circular(12),
+                        //   child: InkWell(
+                        //     borderRadius: BorderRadius.circular(12),
+                        //     onTap: () {
+                        //       Navigator.pushNamed(
+                        //           context, ComplaintForm.routeName);
+                        //     },
+                        //     child: Padding(
+                        //       padding: const EdgeInsets.all(16),
+                        //       child: Row(
+                        //         mainAxisAlignment: MainAxisAlignment.center,
+                        //         children: [
+                        //           Icon(
+                        //             Icons.add_circle_outline,
+                        //             size: GlobalVariables.responsiveIconSize(
+                        //                 context, 20.0),
+                        //             color: Colors.white,
+                        //           ),
+                        //           SizedBox(width: 8),
+                        //           Text(
+                        //             'File a New Complaint',
+                        //             style: GlobalVariables.bold16(
+                        //               context,
+                        //               color: Colors.white,
+                        //             ),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         ),
-                      ),
-                    ),
                     const SizedBox(height: 10),
                     Text(
                       "Have an issue? We're here to help. Click above to start the process.",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: GlobalVariables.helperStyle(context),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -190,9 +202,10 @@ class _ComplaintScreenState extends State<ComplaintScreen>
               padding: const EdgeInsets.only(bottom: 16.0),
               child: Text(
                 'Complaint Statistics',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: GlobalVariables.bold20(
+                  context,
+                  GlobalVariables.primaryColor,
+                ),
               ),
             ),
 
@@ -225,8 +238,9 @@ class _ComplaintScreenState extends State<ComplaintScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ComplainListScreen(
-                                initialTimeFilter: 'This Week'),
+                            builder: (context) => const ComplainListScreen(
+                              initialTimeFilter: 'This Week',
+                            ),
                           ),
                         );
                       },
@@ -241,8 +255,9 @@ class _ComplaintScreenState extends State<ComplaintScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ComplainListScreen(
-                                initialTimeFilter: 'This Month'),
+                            builder: (context) => const ComplainListScreen(
+                              initialTimeFilter: 'This Month',
+                            ),
                           ),
                         );
                       },
@@ -282,27 +297,28 @@ class _ComplaintScreenState extends State<ComplaintScreen>
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                    style: GlobalVariables.bold16(
+                      context,
+                      color: GlobalVariables.primaryGrey,
+                    ),
                   ),
-                  Icon(icon, size: 16, color: Colors.grey[600]),
+                  Icon(icon,
+                      size: GlobalVariables.responsiveIconSize(context, 20),
+                      color: GlobalVariables.primaryGrey),
                 ],
               ),
               const Spacer(),
               Text(
                 '$value',
-                style: const TextStyle(
-                  fontSize: 34.0,
+                style: TextStyle(
+                  fontSize: GlobalVariables.responsiveFontSize(context, 35),
                   fontWeight: FontWeight.bold,
                   color: GlobalVariables.primaryColor,
                 ),
               ),
               Text(
                 subtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: GlobalVariables.helperStyle(context),
               ),
             ],
           ),
