@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:loco_frontend/guard/widget/pop_up_window.dart';
 import 'package:loco_frontend/src/models/invoice.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/payment_dialog.dart';
@@ -118,9 +115,17 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       ).createShader(bounds);
                     },
                     blendMode: BlendMode.dstOut,
-                    child: MyListTile(
-                      items: items, // Use the filtered items directly
-                    ),
+                    child: items.isNotEmpty
+                        ? MyListTile(
+                            items: items, // Use the filtered items directly
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 20.0),
+                            child: Text(
+                              'No data found',
+                              style: GlobalVariables.noResultStyle(context),
+                            ),
+                          ),
                   ),
                 ),
               ],

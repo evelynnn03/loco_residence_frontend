@@ -27,7 +27,7 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<BookingProvider>(context, listen: false)
-          .fetchResidentBookings(); // Fetch all bookings
+          .fetchResidentBookings();
     });
   }
 
@@ -35,35 +35,46 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
     final bookingProvider =
         Provider.of<BookingProvider>(context, listen: false);
     final residentBookings = bookingProvider.residentBookings;
+    final now = DateTime.now();
 
-    // Convert bookings to appointments
-    List<Appointment> appointments = residentBookings.map((booking) {
-      // Combine booking date with time to form a full DateTime string
-      String startDateTimeString =
-          '${booking.bookingDate} ${booking.startTime}';
-      String endDateTimeString = '${booking.bookingDate} ${booking.endTime}';
+    // Convert bookings to appointments, filtering out past bookings
+    List<Appointment> appointments = residentBookings
+        .map((booking) {
+          String startDateTimeString =
+              '${booking.bookingDate} ${booking.startTime}';
+          String endDateTimeString =
+              '${booking.bookingDate} ${booking.endTime}';
 
-      // Parse the combined strings into DateTime objects
-      DateTime startTime = DateTime.parse(startDateTimeString);
-      DateTime endTime = DateTime.parse(endDateTimeString);
-      final DateFormat timeFormatter = DateFormat('h:mm a');
-      final DateFormat dateFormatter = DateFormat('MMM dd, yyyy');
-      // Determine the facility name based on the sectionId or any other condition
-      String facilityName = (booking.sectionId >= 1 && booking.sectionId <= 3)
-          ? 'Pickle Ball Court ${booking.sectionId}'
-          : 'Meeting Room ${booking.sectionId}';
+          DateTime startTime = DateTime.parse(startDateTimeString);
+          DateTime endTime = DateTime.parse(endDateTimeString);
 
-      return Appointment(
-        notes:
-            'Booking ID: ${booking.id}\n$facilityName\nDate: ${dateFormatter.format(DateTime.parse(booking.bookingDate))}\nTime: ${timeFormatter.format(startTime)} - ${timeFormatter.format(endTime)}', // Store booking ID in notes
-        startTime: startTime,
-        endTime: endTime,
-        subject: facilityName,
-        color: const Color.fromARGB(255, 162, 213, 255),
-        startTimeZone: '',
-        endTimeZone: '',
-      );
-    }).toList();
+          // Skip this booking if it's in the past
+          if (endTime.isBefore(now)) {
+            return null;
+          }
+
+          final DateFormat timeFormatter = DateFormat('h:mm a');
+          final DateFormat dateFormatter = DateFormat('MMM dd, yyyy');
+          String facilityName =
+              (booking.sectionId >= 1 && booking.sectionId <= 3)
+                  ? 'Pickle Ball Court ${booking.sectionId}'
+                  : 'Meeting Room ${booking.sectionId}';
+
+          return Appointment(
+            notes:
+                'Booking ID: ${booking.id}\n$facilityName\nDate: ${dateFormatter.format(DateTime.parse(booking.bookingDate))}\nTime: ${timeFormatter.format(startTime)} - ${timeFormatter.format(endTime)}',
+            startTime: startTime,
+            endTime: endTime,
+            subject: facilityName,
+            color: const Color.fromARGB(255, 162, 213, 255),
+            startTimeZone: '',
+            endTimeZone: '',
+          );
+        })
+        .where((appointment) =>
+            appointment != null) // Filter out null appointments
+        .cast<Appointment>() // Cast the filtered list to List<Appointment>
+        .toList();
 
     return _AppointmentDataSource(appointments);
   }
@@ -136,7 +147,7 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
         child: Stack(
           children: [
             Image.asset(
-              'assets/images/$monthName.jpeg', // Ensure this path is correct
+              'assets/images/$monthName.jpeg',
               fit: BoxFit.cover,
               width: details.bounds.width,
               height: details.bounds.height,
@@ -172,7 +183,6 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
   Widget build(BuildContext context) {
     final isLoading = Provider.of<BookingProvider>(context).isLoading;
 
-    // Method to show a confirmation dialog for canceling the appointment
     Future<void> showCancelDialog(Appointment appointment) async {
       final bookingDetails = appointment.notes;
       String notes = bookingDetails ?? '';
@@ -190,33 +200,25 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
             text: 'Confirm',
             onPressed: () async {
               try {
-                // Split the notes by new line
                 final parts = notes.split('\n');
                 String bookingIdStr = '';
 
-                // Find the part that starts with 'Booking ID'
                 for (var part in parts) {
                   if (part.startsWith('Booking ID:')) {
-                    bookingIdStr = part
-                        .split(':')
-                        .last
-                        .trim(); // Get the part after the colon and trim whitespace
-                    break; // Exit loop once found
+                    bookingIdStr = part.split(':').last.trim();
+                    break;
                   }
                 }
 
-                // Attempt to parse the booking ID
                 final bookingId = int.parse(bookingIdStr);
                 print('Booking ID: $bookingId');
 
-                // Call your cancel booking method with the extracted booking ID
                 final res =
                     await Provider.of<BookingProvider>(context, listen: false)
                         .cancelBooking(bookingId);
 
                 Navigator.of(context).pop;
 
-                // Show a Snackbar with the result message
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(res),
@@ -224,7 +226,6 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
                   ),
                 );
               } catch (e) {
-                // Handle parsing errors
                 print('Error parsing booking ID: $e');
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -257,7 +258,7 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
             color: GlobalVariables.primaryColor),
       ),
       body: isLoading
-          ? CircularProgressIndicator()
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(8.0),
               child: SfCalendar(

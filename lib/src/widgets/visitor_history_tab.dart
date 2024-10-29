@@ -128,13 +128,13 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
 
   // Modify the visitor card content to include resident info for guards
   Widget _buildVisitorCard(Visitor visitor, double containerHeight,
-      double boxHeight, double boxWidth) {
+      double boxHeight, double boxWidth, double dateTimeWidth) {
     Widget card = Container(
       height: containerHeight,
       width: double.infinity,
       decoration: BoxDecoration(
         color: GlobalVariables.primaryColor,
-        borderRadius: BorderRadius.circular(25.0),
+        borderRadius: BorderRadius.circular(15.0),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -159,6 +159,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
             ),
             const SizedBox(height: 10),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   height: boxHeight,
@@ -175,22 +176,36 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  DateFormat('dd/MM/yyyy').format(visitor.checkInDate),
-                  style: GlobalVariables.visitorHistoryDetail(context,
-                      isBold: false),
-                ),
-                SizedBox(width: 15),
-                Text(
-                  DateFormat('hh:mm a').format(visitor.checkInTime!),
-                  style: GlobalVariables.visitorHistoryDetail(context,
-                      isBold: false),
+                Container(
+                  height: boxHeight,
+                  width: dateTimeWidth,
+                  decoration: BoxDecoration(
+                    color: GlobalVariables.welcomeColor.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(visitor.checkInDate),
+                        style: GlobalVariables.visitorHistoryDetail(context,
+                            isBold: false),
+                      ),
+                      const SizedBox(width: 15),
+                      Text(
+                        DateFormat('hh:mm a').format(visitor.checkInTime!),
+                        style: GlobalVariables.visitorHistoryDetail(context,
+                            isBold: false),
+                      ),
+                    ],
+                  ),
                 )
               ],
             ),
             if (visitor.checkOutDate != null) ...[
               const SizedBox(height: 10),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
                     height: boxHeight,
@@ -207,16 +222,30 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    DateFormat('dd/MM/yyyy').format(visitor.checkOutDate!),
-                    style: GlobalVariables.visitorHistoryDetail(context,
-                        isBold: false),
-                  ),
-                  SizedBox(width: 15),
-                  Text(
-                    DateFormat('hh:mm a').format(visitor.checkOutTime!),
-                    style: GlobalVariables.visitorHistoryDetail(context,
-                        isBold: false),
+                  Container(
+                    height: boxHeight,
+                    width: dateTimeWidth,
+                    decoration: BoxDecoration(
+                      color: GlobalVariables.welcomeColor.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(25.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          DateFormat('dd/MM/yyyy')
+                              .format(visitor.checkOutDate!),
+                          style: GlobalVariables.visitorHistoryDetail(context,
+                              isBold: false),
+                        ),
+                        const SizedBox(width: 15),
+                        Text(
+                          DateFormat('hh:mm a').format(visitor.checkOutTime!),
+                          style: GlobalVariables.visitorHistoryDetail(context,
+                              isBold: false),
+                        ),
+                      ],
+                    ),
                   )
                 ],
               ),
@@ -359,6 +388,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
           double containerHeight = screenHeight * 0.18;
           double boxHeight = screenHeight * 0.03;
           double boxWidth = screenWidth * 0.25;
+          double dateTimeWidth = screenWidth * 0.45;
 
           return Column(
             children: [
@@ -371,7 +401,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                       child: MyTextField(
                         controller: _searchTextController,
                         keyboardType: TextInputType.text,
-                        hintText: 'Search...',
+                        hintText: 'Search by name, phone or car plate',
                         prefixIcon: Icons.search,
                         onChanged: _filterVisitors,
                       ),
@@ -451,9 +481,13 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                                     ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 15.0, vertical: 15.0),
-                                    child: _buildVisitorCard(visitor,
-                                        containerHeight, boxHeight, boxWidth),
+                                        horizontal: 15.0, vertical: 8.0),
+                                    child: _buildVisitorCard(
+                                        visitor,
+                                        containerHeight,
+                                        boxHeight,
+                                        boxWidth,
+                                        dateTimeWidth),
                                   ),
                                 ],
                               );
