@@ -1,35 +1,62 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Announcement {
-  final String details;
-  final File? imageFile;
-  final String imageUrl;
-  final DateTime timestamp;
+  final int id;
+  final String title;
+  final String content;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final String? image;
 
   Announcement({
-    required this.details,
-    this.imageFile,
-    required this.imageUrl,
-    required this.timestamp,
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.createdAt,
+    required this.updatedAt,
+    this.image,
   });
 
-  factory Announcement.fromMap(Map<String, dynamic> data) {
+  factory Announcement.fromJson(Map<String, dynamic> json) {
     return Announcement(
-      details: data['Details'] ?? '',
-      imageUrl: data['Image URL'] ?? '',
-      timestamp: data['Timestamp'] != null
-          ? (data['Timestamp'] as Timestamp).toDate()
-          : DateTime.now(),
+      id: json['id'],
+      title: json['title'],
+      content: json['content'],
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
+      image: json['image'],
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
-      'Details': details,
-      'Image URL': imageUrl,
-      'Timestamp': timestamp,
+      'id': id,
+      'title': title,
+      'content': content,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'image': image,
     };
+  }
+
+  @override
+  String toString() {
+    return 'Announcement $id:\nTitle: $title\nContent: $content';
+  }
+
+  Announcement copyWith({
+    int? id,
+    String? title,
+    String? content,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? image,
+  }) {
+    return Announcement(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      image: image ?? this.image,
+    );
   }
 }

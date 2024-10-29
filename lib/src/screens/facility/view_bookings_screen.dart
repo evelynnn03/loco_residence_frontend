@@ -211,29 +211,40 @@ class _ViewBookingsScreenState extends State<ViewBookingsScreen> {
                 }
 
                 final bookingId = int.parse(bookingIdStr);
-                print('Booking ID: $bookingId');
 
-                final res =
-                    await Provider.of<BookingProvider>(context, listen: false)
-                        .cancelBooking(bookingId);
+                // Get the BookingProvider
+                final bookingProvider =
+                    Provider.of<BookingProvider>(context, listen: false);
 
+                // Cancel the booking
+                final res = await bookingProvider.cancelBooking(bookingId);
+
+                // Close the dialog
                 Navigator.of(context).pop;
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(res),
-                    duration: const Duration(seconds: 3),
-                  ),
-                );
+                // Refresh the bookings
+                await bookingProvider.fetchResidentBookings();
+
+                // Show success message
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(res),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
               } catch (e) {
                 print('Error parsing booking ID: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content:
-                        Text('Failed to cancel booking. Please try again.'),
-                    duration: Duration(seconds: 3),
-                  ),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content:
+                          Text('Failed to cancel booking. Please try again.'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
               }
             },
           ),

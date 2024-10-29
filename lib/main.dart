@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loco_frontend/core/auth/login_screen.dart';
 import 'package:loco_frontend/guard/screens/guard_home_screen.dart';
+import 'package:loco_frontend/src/provider/announcement_provider.dart';
 import 'package:loco_frontend/src/provider/complaint_provider.dart';
 import 'package:loco_frontend/src/provider/facility_provider.dart';
 import 'package:loco_frontend/src/provider/booking_provider.dart';
@@ -65,6 +66,9 @@ void main() async {
           ),
           ChangeNotifierProvider(
             create: (context) => ComplaintProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => AnnouncementProvider(),
           ),
         ],
         child: MyApp(

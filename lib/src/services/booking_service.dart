@@ -164,7 +164,7 @@ class BookingService {
   Future<void> cancelBooking(int bookingId, int residentId) async {
     try {
       final response = await http.post(
-        Uri.parse('${apiPath}bookings/cancel_booking/$residentId'),
+        Uri.parse('${apiPath}bookings/cancel_booking/$residentId/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'booking_id': bookingId,

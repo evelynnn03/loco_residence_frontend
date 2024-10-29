@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/global_variables.dart';
+import '../widgets/guard_list.dart';
 import '../widgets/important_items.dart';
 
 class ImportantContactScreen extends StatefulWidget {
@@ -25,8 +26,6 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
     _tabController?.dispose();
     super.dispose();
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -79,16 +78,25 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
             ),
             Expanded(
               child: TabBarView(controller: _tabController, children: [
-                const Column(
-                    // children: [
-                    //   Expanded(
-                    //     child: GuardDetails(
-                    //       showImage: true,
-                    //       hasSlidable: false,
-                    //     ),
-                    //   ),
-                    // ],
-                    ),
+                _buildGuardList(
+                  data: [
+                    {
+                      'imageUrl': 'assets/images/guard1.jpg',
+                      'name': 'John Doe',
+                      'phoneNum': '+03 278 5673',
+                    },
+                    {
+                      'imageUrl': 'assets/images/guard2.jpg',
+                      'name': 'Jane Smith',
+                      'phoneNum': '+03 488 3791',
+                    },
+                    {
+                      'imageUrl': 'assets/images/guard3.jpg',
+                      'name': 'Michael Johnson',
+                      'phoneNum': '+03 521 8622',
+                    },
+                  ],
+                ),
                 _buildImportantItemsList(
                   data: [
                     {
@@ -183,6 +191,23 @@ class _ImportantContactScreenState extends State<ImportantContactScreen>
                 address: data[index]['address']!,
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGuardList({required List<Map<String, String>> data}) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListView.builder(
+        itemCount: data.length,
+        itemBuilder: (context, index) {
+          final guard = data[index];
+          return GuardListItem(
+            imageUrl: guard['imageUrl']!,
+            name: guard['name']!,
+            phoneNum: guard['phoneNum']!,
           );
         },
       ),

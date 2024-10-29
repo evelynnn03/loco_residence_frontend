@@ -139,53 +139,18 @@ class _ComplaintScreenState extends State<ComplaintScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                        width: MediaQuery.of(context).size.width > 600
-                            ? 200
-                            : double.infinity,
-                        height: 56,
-                        child: MyButton(
-                          text: 'File a New Complaint',
-                          onTap: () {
-                            Navigator.pushNamed(
-                                context, ComplaintForm.routeName);
-                          },
-                          iconData: Icons.add_circle_outline,
-                        )
-
-                        // Material(
-                        //   color: Color(0xFF003878),
-                        //   borderRadius: BorderRadius.circular(12),
-                        //   child: InkWell(
-                        //     borderRadius: BorderRadius.circular(12),
-                        //     onTap: () {
-                        //       Navigator.pushNamed(
-                        //           context, ComplaintForm.routeName);
-                        //     },
-                        //     child: Padding(
-                        //       padding: const EdgeInsets.all(16),
-                        //       child: Row(
-                        //         mainAxisAlignment: MainAxisAlignment.center,
-                        //         children: [
-                        //           Icon(
-                        //             Icons.add_circle_outline,
-                        //             size: GlobalVariables.responsiveIconSize(
-                        //                 context, 20.0),
-                        //             color: Colors.white,
-                        //           ),
-                        //           SizedBox(width: 8),
-                        //           Text(
-                        //             'File a New Complaint',
-                        //             style: GlobalVariables.bold16(
-                        //               context,
-                        //               color: Colors.white,
-                        //             ),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                        ),
+                      width: MediaQuery.of(context).size.width > 600
+                          ? 200
+                          : double.infinity,
+                      height: 56,
+                      child: MyButton(
+                        text: 'File a New Complaint',
+                        onTap: () {
+                          Navigator.pushNamed(context, ComplaintForm.routeName);
+                        },
+                        iconData: Icons.add_circle_outline,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       "Have an issue? We're here to help. Click above to start the process.",

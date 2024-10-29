@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/auth/login_screen.dart';
 import 'package:flutter/material.dart';
+import '../provider/announcement_provider.dart';
 import '../widgets/pop_up_window.dart';
 import '../constants/global_variables.dart';
 import '../widgets/resident_argument.dart';
@@ -66,17 +67,22 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
   ];
 
   // Function to retrieve user details from SharedPreferences
-  Future<void> _retrieveUserDetails() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    residentId = prefs.getString('residentId') ?? '';
-    unitNumber = prefs.getString('unitNo') ?? '';
-  }
+  // Future<void> _retrieveUserDetails() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   residentId = prefs.getString('residentId') ?? '';
+  //   unitNumber = prefs.getString('unitNo') ?? '';
+  // }
 
   @override
   void initState() {
     super.initState();
-    _retrieveUserDetails();
+    // _retrieveUserDetails();
     selectedIndex = -1;
+    // Fetch announcements when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AnnouncementProvider>(context, listen: false)
+          .fetchAnnouncements();
+    });
   }
 
   CarouselSliderController carouselController = CarouselSliderController();
@@ -150,61 +156,9 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                         ),
                       ],
                     ),
-                    // const Spacer(),
-                    // Align(
-                    //   alignment: Alignment.topRight,
-                    //   child: GestureDetector(
-                    //     onTap: () {
-                    //       _showBottomSheet('Notifications', 'content', false);
-                    //       // Popup(
-                    //       //   title: 'Notifications',
-                    //       //   content: Text(
-                    //       //     "Are you sure you want to log out",
-                    //       //   ),
-                    //       //   buttons: [
-                    //       //     ButtonConfig(
-                    //       //       text: 'Cancel',
-                    //       //       onPressed: () async {},
-                    //       //     ),
-                    //       //     ButtonConfig(
-                    //       //       text: 'Yes',
-                    //       //       onPressed: () async {
-                    //       //         clearUserData();
-                    //       //         // Navigator.pop(context);
-                    //       //       },
-                    //       //     ),
-                    //       //   ],
-                    //       // ).show(context);
-                    //     },
-                    //     child: Icon(
-                    //       Icons.notifications,
-                    //       size: iconSize,
-                    //       color: GlobalVariables.primaryColor,
-
-                    //       //color: GlobalVariables.darkPurple
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 ),
                 const SizedBox(height: 30),
-                // Padding(
-                //   padding: const EdgeInsets.all(12.0),
-                //   child: Align(
-                //     alignment: Alignment.topRight,
-                //     child: GestureDetector(
-                //       onTap: () {
-                //         Navigator.pushNamed(
-                //             context, ImportantContactScreen.routeName);
-                //       },
-                //       child: Icon(
-                //         Icons.sos_outlined,
-                //         size: 50,
-                //         color: Colors.red,
-                //       ),
-                //     ),
-                //   ),
-                // ),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
@@ -213,86 +167,110 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                         context, GlobalVariables.primaryColor),
                   ),
                 ),
-                // SizedBox(height: 10),
-                // Text(
-                //   'Tap for more details',
-                //   style: TextStyle(
-                //     color: Theme.of(context).textTheme.bodyMedium?.color ??
-                //         GlobalVariables.darkPurple,
-                //     fontSize: 13,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
                 const SizedBox(height: 10),
-                StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('Announcement')
-                      .orderBy('Timestamp', descending: true)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    // if (snapshot.connectionState == ConnectionState.waiting) {
-                    //   return CircularProgressIndicator();
-                    // }
-
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
+                Consumer<AnnouncementProvider>(
+                  builder: (context, announcementProvider, child) {
+                    if (announcementProvider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
                     }
 
-                    final announcements = snapshot.data?.docs ?? [];
+                    final announcements = announcementProvider.announcements;
 
                     return SingleChildScrollView(
                       child: Column(
                         children: [
                           CarouselSlider.builder(
                             carouselController: carouselController,
-                            // itemCount: announcements.length,
                             itemCount: min(announcements.length, 3),
                             itemBuilder: (context, index, realIndex) {
-                              final details = announcements[index]['Details'];
-                              final imageUrl =
-                                  announcements[index]['Image URL'];
-
-                              Future<void> showDetails() async {
-                                await Popup(
-                                  title: 'Announcement Details',
-                                  content: Text(details ?? ''),
-                                  buttons: [
-                                    ButtonConfig(
-                                      text: 'OK',
-                                      onPressed: () {},
-                                    ),
-                                  ],
-                                ).show(context);
-                              }
+                              final announcement = announcements[index];
 
                               return GestureDetector(
-                                onTap: showDetails,
-                                child: Column(
-                                  children: [
-                                    if (imageUrl != null)
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        child: CachedNetworkImage(
-                                          imageUrl: imageUrl,
+                                onTap: () async {
+                                  await Popup(
+                                    title: announcement.title,
+                                    content: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const SizedBox(height: 8),
+                                        Text(announcement.content),
+                                      ],
+                                    ),
+                                    buttons: [
+                                      ButtonConfig(
+                                        text: 'OK',
+                                        onPressed: () {},
+                                      ),
+                                    ],
+                                  ).show(context);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (announcement.image != null &&
+                                          announcement.image!.isNotEmpty)
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: CachedNetworkImage(
+                                            imageUrl: announcement.image!,
+                                            width: double.infinity,
+                                            height: imageSize(screenWidth),
+                                            fit: BoxFit.cover,
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error),
+                                          ),
+                                        )
+                                      else
+                                        Container(
                                           width: double.infinity,
                                           height: imageSize(screenWidth),
-                                          fit: BoxFit.cover,
-                                          errorWidget: (context, url, error) =>
-                                              const Icon(Icons.error),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            color:
+                                                GlobalVariables.secondaryColor,
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                announcement.title,
+                                                style: GlobalVariables.bold20(
+                                                  context,
+                                                  GlobalVariables.primaryColor,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                'Tap to view details',
+                                                style:
+                                                    GlobalVariables.helperStyle(
+                                                        context),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               );
                             },
                             options: CarouselOptions(
-                              enableInfiniteScroll:
-                                  false, // Disable the auto infinite scroll when theres ontly 1 image
+                              enableInfiniteScroll: announcements.length > 1,
                               viewportFraction: 1,
-                              autoPlay: true,
+                              autoPlay: announcements.length > 1,
                               autoPlayInterval: const Duration(seconds: 5),
-
                               onPageChanged: (index, reason) {
                                 if (reason ==
                                     CarouselPageChangedReason.manual) {
@@ -321,10 +299,11 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                   margin: const EdgeInsets.symmetric(
                                       horizontal: 4.0),
                                   decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: currentIndex == i
-                                          ? GlobalVariables.welcomeColor
-                                          : GlobalVariables.secondaryColor),
+                                    shape: BoxShape.circle,
+                                    color: currentIndex == i
+                                        ? GlobalVariables.welcomeColor
+                                        : GlobalVariables.secondaryColor,
+                                  ),
                                 ),
                             ],
                           ),
@@ -362,11 +341,11 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                           setState(() {
                             selectedIndex = index;
                           });
-                          if (index == 5) {
+                          if (index == 4) {
                             showBottomSheetModal(
                               context,
                               'Notification',
-                              'This is the content of the notification.',
+                              '',
                               false,
                             ).then((_) {
                               setState(() {
