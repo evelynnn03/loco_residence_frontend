@@ -66,15 +66,15 @@ class _ServiceItemsState extends State<ServiceItems> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: widget.imageUrl,
+                child: Image.asset(
+                  widget.imageUrl,
                   width: double.infinity,
                   height: imageHeight,
                   fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Icon(
+                  errorBuilder: (context, error, stackTrace) => Icon(
                     Icons.error,
                     size: GlobalVariables.responsiveIconSize(context, 60),
-                    color: GlobalVariables.greyishPurple,
+                    color: GlobalVariables.primaryColor,
                   ),
                 ),
               ),

@@ -27,8 +27,7 @@ class ServiceContactScreen extends StatelessWidget {
             children: [
               SizedBox(height: 20),
               ServiceItems(
-                imageUrl:
-                    'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/cleaning_service.jpg?alt=media&token=274458c9-f634-43d3-a0a1-903a8f2bdec3',
+                imageUrl: 'assets/images/cleaning_service.jpg',
                 title: 'Cleaning Service',
                 phoneNum: '+03 278 5673',
               ),
@@ -37,14 +36,14 @@ class ServiceContactScreen extends StatelessWidget {
               ),
               ServiceItems(
                 imageUrl:
-                    'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/repair_service.jpeg?alt=media&token=84359c68-7bf2-4086-8050-a2830c89bc76',
+                    'assets/images/repair_service.jpeg',
                 title: 'Repair Service',
                 phoneNum: '+03 488 3791',
               ),
               SizedBox(height: 20),
               ServiceItems(
                 imageUrl:
-                    'https://firebasestorage.googleapis.com/v0/b/sef-assignment-223b2.appspot.com/o/pest_control.jpeg?alt=media&token=84359c68-7bf2-4086-8050-a2830c89bc76',
+                    'assets/images/pest_control.jpg',
                 title: 'Pest Control',
                 phoneNum: '+03 521 8622',
               ),
