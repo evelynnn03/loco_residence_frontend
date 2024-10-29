@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:loco_frontend/src/constants/api_path.dart';
 import '../models/complaint.dart';
+import 'package:path/path.dart' as path;
 
 //rmb to check what's the resident id after you seed the data
 class ComplaintService {
@@ -38,32 +39,46 @@ class ComplaintService {
     File? image,
   ) async {
     try {
-      final body = jsonEncode({
+      final body = {
         'title': title,
         'description': description,
         'date': date.toIso8601String(), // ISO format for consistency
-        'image': image,
+      };
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${apiPath}complaints/create_complaint/$residentId/'),
+      );
+      request.headers.addAll({
+        'Content-Type': 'application/json',
+        'Accept': 'application/json', // Always expect a JSON response
       });
-      // Use PUT for full update or PATCH for partial update
-      final response = await http.post(
-          Uri.parse('${apiPath}complaints/create_complaint/$residentId/'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json', // Always expect a JSON response
-          },
-          body: body);
+      request.fields.addAll(body);
+
+      if (image != null) {
+        final imageBytes = await image.readAsBytes();
+        final imageFile = http.MultipartFile.fromBytes(
+          'image',
+          imageBytes,
+          filename: path.basename(image.path),
+        );
+        request.files.add(imageFile);
+      }
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
-        print('Complaint created succesfully');
+        print('Complaint created successfully');
       } else {
-        print('Failed to create complaint. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        print(
+            'Failed to create complaint. Status code: ${response.statusCode}');
+        print('Response body: $responseBody');
         throw Exception('Failed to create complaint');
       }
     } catch (e) {
-      // Catch and handle any errors that may occur
       print('Error occurred while creating complaint: $e');
-      throw Exception('Failed to create complaint: $e');
+      rethrow;
     }
   }
 }
