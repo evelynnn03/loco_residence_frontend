@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:loco_frontend/src/widgets/my_tab_bar.dart';
 import 'package:loco_frontend/src/widgets/visitor_history_tab.dart';
-import 'package:loco_frontend/src/widgets/visitor_timestamps.dart';
+import '../../src/constants/global_variables.dart';
 
 class VisitorInfo extends StatelessWidget {
   const VisitorInfo({super.key});
@@ -9,14 +8,20 @@ class VisitorInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MyTabBar(tabLabels: [
-      'Visitor Details',
-      'Visitor Timestamp'
-    ], tabContents: [
-      VisitorHistoryTab(
-        userType: 'guard',
+    return Scaffold(
+      backgroundColor: GlobalVariables.secondaryColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Visitor History',
+          style: GlobalVariables.appbarStyle(
+            context,
+          ),
+        ),
+        centerTitle: true,
       ),
-      VisitorTimestamp()
-    ]);
+      body: const VisitorHistoryTab(userType: 'guard'),
+    );
   }
 }

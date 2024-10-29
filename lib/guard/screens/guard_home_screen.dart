@@ -47,11 +47,6 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
       'icon': Icons.info_outline_rounded,
       'route': VisitorInfo.routeName,
     },
-    {
-      'title': 'Parking Map',
-      'icon': Icons.directions_car_filled_outlined,
-      'route': ParkingMapTab.routeName,
-    },
   ];
 
   @override
@@ -115,19 +110,8 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
                   ],
                 ),
                 SizedBox(height: 60),
-                Row(
-                  children: [
-                    Text('HOLA,', style: GlobalVariables.headingStyle(context)),
-                    SizedBox(width: 15),
-                    Text(
-                      'guardName',
-                      style: GlobalVariables.bold20(
-                        context,
-                        GlobalVariables.primaryGrey,
-                      ),
-                    ),
-                  ],
-                ),
+                Text('Welcome, Doodell',
+                    style: GlobalVariables.headingStyle(context)),
                 SizedBox(height: 20),
                 GridView.count(
                   crossAxisCount: 1,
@@ -149,7 +133,7 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
                           Navigator.pushNamed(
                             context,
                             tile['route'],
-                            arguments: index == 2,
+                            arguments: index == 1,
                           ).then((_) {
                             setState(() {
                               selectedIndex = -1;

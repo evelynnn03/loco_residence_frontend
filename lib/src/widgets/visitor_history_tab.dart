@@ -5,6 +5,7 @@ import 'package:loco_frontend/src/provider/visitor_provider.dart';
 import 'package:loco_frontend/src/widgets/calendar.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
 import 'package:provider/provider.dart';
+import 'drop_down_field.dart';
 import 'pop_up_window.dart';
 import '../models/visitor.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -21,6 +22,15 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
   final TextEditingController _searchTextController = TextEditingController();
   List<Visitor> filteredVisitors = [];
   DateTime? _selectedDate;
+  String _selectedSearchCriteria = 'Name'; // Default search criteria
+
+  // Define search criteria options
+  final List<String> _searchCriteria = [
+    'Name',
+    'Phone',
+    'Car Plate',
+    'Resident ID', // This will only be shown for guards
+  ];
 
   void _onDateSelected(DateTime date) {
     setState(() {
@@ -45,12 +55,6 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
     final visitorProvider =
         Provider.of<VisitorProvider>(context, listen: false);
     final allVisitors = visitorProvider.visitors;
-    print('All visitors: ${allVisitors.map((v) => {
-          'name': v.fullName,
-          'checkIn': v.checkInDate,
-          'checkOut': v.checkOutDate,
-          'carPlate': v.carPlateNo
-        })}');
 
     final searchQuery = query.toLowerCase();
 
@@ -74,33 +78,28 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
         filteredVisitors = allVisitors;
       } else {
         filteredVisitors = allVisitors.where((visitor) {
-          final name = visitor.fullName.toLowerCase();
-          final phone = visitor.hpNumber.toLowerCase();
-          final carplate = visitor.carPlateNo.toLowerCase();
-          final checkInDate = (visitor.checkInDate);
-          final checkOutDate = (visitor.checkOutDate) ?? '';
-
-          // Add resident name/id to search if guard
-          final residentInfo = widget.userType == 'guard'
-              ? visitor.residentId.toString().toLowerCase()
-              : '';
-
           if (isDateQuery) {
             final queryDate = stripTime(dateQuery!);
-            return (checkInDate == queryDate) || (checkOutDate == queryDate);
+            return (visitor.checkInDate == queryDate) ||
+                (visitor.checkOutDate == queryDate);
           }
 
-          final matchesQuery = name.contains(searchQuery) ||
-              phone.contains(searchQuery) ||
-              carplate.contains(searchQuery) ||
-              (widget.userType == 'guard' &&
-                  residentInfo.contains(searchQuery));
-
-          final dateMatches = _selectedDate == null ||
-              checkInDate == stripTime(_selectedDate) ||
-              (checkOutDate == stripTime(_selectedDate));
-
-          return matchesQuery && dateMatches;
+          // Apply filter based on selected search criteria
+          switch (_selectedSearchCriteria) {
+            case 'Name':
+              return visitor.fullName.toLowerCase().contains(searchQuery);
+            case 'Phone':
+              return visitor.hpNumber.toLowerCase().contains(searchQuery);
+            case 'Car Plate':
+              return visitor.carPlateNo.toLowerCase().contains(searchQuery);
+            case 'Resident ID':
+              return visitor.residentId
+                  .toString()
+                  .toLowerCase()
+                  .contains(searchQuery);
+            default:
+              return false;
+          }
         }).toList();
       }
     });
@@ -308,7 +307,6 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
   }
 
   void _handleCheckOut(Visitor visitor) {
-    // Implement check-out logic here
     Popup(
       title: 'Confirm Check Out',
       content: const SizedBox(
@@ -324,9 +322,18 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
         ),
         ButtonConfig(
           text: 'Confirm',
-          onPressed: () {
-            Provider.of<VisitorProvider>(context, listen: false)
+          onPressed: () async {
+            // Wait for checkout to complete
+            await Provider.of<VisitorProvider>(context, listen: false)
                 .checkOutVisitor(visitor.id);
+
+            // Fetch updated visitor list
+            if (mounted) {
+              Provider.of<VisitorProvider>(context, listen: false)
+                  .fetchAllVisitors(
+                userType: widget.userType,
+              );
+            }
           },
         ),
       ],
@@ -335,6 +342,13 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter search criteria based on user type
+    final availableSearchCriteria = widget.userType == 'guard'
+        ? _searchCriteria
+        : _searchCriteria
+            .where((criteria) => criteria != 'Resident ID')
+            .toList();
+
     return Scaffold(
       backgroundColor: GlobalVariables.secondaryColor,
       body: Consumer<VisitorProvider>(
@@ -397,11 +411,31 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                     const EdgeInsets.symmetric(vertical: 15.0, horizontal: 15),
                 child: Row(
                   children: [
+                    SizedBox(
+                      width: screenWidth * 0.38,
+                      child: MyDropdownField(
+                        hint: 'Search by',
+                        items: availableSearchCriteria,
+                        value: _selectedSearchCriteria,
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _selectedSearchCriteria = newValue;
+                              // Clear search when criteria changes
+                              _searchTextController.clear();
+                              _filterVisitors('');
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    // Search TextField
                     Expanded(
                       child: MyTextField(
                         controller: _searchTextController,
                         keyboardType: TextInputType.text,
-                        hintText: 'Search by name, phone or car plate',
+                        hintText:
+                            'Search by ${_selectedSearchCriteria.toLowerCase()}',
                         prefixIcon: Icons.search,
                         onChanged: _filterVisitors,
                       ),

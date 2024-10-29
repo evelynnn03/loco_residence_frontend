@@ -45,11 +45,6 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
       'route': ComplaintScreen.routeName,
     },
     {
-      'title': 'View Data\nCharts',
-      'icon': Icons.analytics_outlined,
-      'route': AnalyticsScreen.routeName,
-    },
-    {
       'title': 'View\nServices',
       'icon': Icons.phone_in_talk_outlined,
       'route': ServiceContactScreen.routeName,
