@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:loco_frontend/src/utils/resident_utils.dart';
 import '../models/complaint.dart';
@@ -35,7 +37,7 @@ class ComplaintProvider with ChangeNotifier {
     String title,
     String description,
     DateTime date,
-    String? imageBase64,
+    File? image,
   ) async {
     _isLoading = true;
     notifyListeners();
@@ -46,7 +48,7 @@ class ComplaintProvider with ChangeNotifier {
         title,
         description,
         date,
-        imageBase64,
+        image,
       );
       notifyListeners();
     } catch (e) {

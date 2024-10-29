@@ -104,7 +104,7 @@ class _ComplaintFormState extends State<ComplaintForm> {
           _titleController.text,
           _descriptionController.text,
           _selectedDate!,
-          _imageFile?.path,
+          _imageFile,
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
