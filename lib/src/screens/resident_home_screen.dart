@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import '../constants/api_path.dart';
 import '../widgets/announcement_list_tile.dart';
 import '../widgets/home_tile.dart';
 import 'package:provider/provider.dart';
@@ -208,62 +209,46 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                                   ).show(context);
                                 },
                                 child: Container(
+                                  width: double.infinity,
+                                  height: imageSize(screenWidth),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10.0),
+                                    color: GlobalVariables.secondaryColor,
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (announcement.image != null &&
-                                          announcement.image!.isNotEmpty)
-                                        ClipRRect(
+                                  child: announcement.image != null &&
+                                          announcement.image!.isNotEmpty
+                                      ? ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(10.0),
-                                          child: CachedNetworkImage(
-                                            imageUrl: announcement.image!,
-                                            width: double.infinity,
-                                            height: imageSize(screenWidth),
+                                          child: Image.network(
+                                            announcement.image!,
                                             fit: BoxFit.cover,
-                                            errorWidget:
+                                            errorBuilder:
                                                 (context, url, error) =>
                                                     const Icon(Icons.error),
                                           ),
                                         )
-                                      else
-                                        Container(
-                                          width: double.infinity,
-                                          height: imageSize(screenWidth),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            color:
-                                                GlobalVariables.secondaryColor,
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                announcement.title,
-                                                style: GlobalVariables.bold20(
-                                                  context,
-                                                  GlobalVariables.primaryColor,
-                                                ),
-                                                textAlign: TextAlign.center,
+                                      : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              announcement.title,
+                                              style: GlobalVariables.bold20(
+                                                context,
+                                                GlobalVariables.primaryColor,
                                               ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                'Tap to view details',
-                                                style:
-                                                    GlobalVariables.helperStyle(
-                                                        context),
-                                              ),
-                                            ],
-                                          ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              'No image available',
+                                              style:
+                                                  GlobalVariables.helperStyle(
+                                                      context),
+                                            ),
+                                          ],
                                         ),
-                                    ],
-                                  ),
                                 ),
                               );
                             },
@@ -288,6 +273,7 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                               pageViewKey: const PageStorageKey('carousel'),
                             ),
                           ),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

@@ -280,9 +280,35 @@ class _ComplaintFormState extends State<ComplaintForm> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            _imageFile!,
-                            fit: BoxFit.cover,
+                          child: FutureBuilder<bool>(
+                            future: _imageFile!
+                                .exists(), // Check if the file exists
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              if (snapshot.hasData && snapshot.data!) {
+                                return Image.file(
+                                  _imageFile!,
+                                  fit: BoxFit.cover,
+                                );
+                              } else {
+                                // Show SnackBar if the image is unavailable
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Image Unavailable'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                });
+                                return Center(
+                                    child: const Text('Image Unavailable'));
+                              }
+                            },
                           ),
                         ),
                       ),

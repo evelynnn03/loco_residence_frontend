@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/guard/widget/pop_up_window.dart';
@@ -50,19 +51,14 @@ Future<void> showAnnouncementBottomSheet(
                         itemCount: announcements.length,
                         itemBuilder: (context, index) {
                           final announcement = announcements[index];
-                          return Card(
-                            color: GlobalVariables.white,
-                            margin: const EdgeInsets.only(bottom: 12),
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                // Show announcement details in a dialog
-                                Popup(
-                                  title: announcement.title,
-                                  content: SingleChildScrollView(
+                          return GestureDetector(
+                            onTap: () {
+                              Popup(
+                                title: announcement.title,
+                                content: SizedBox(
+                                  width: MediaQuery.of(context).size.width *
+                                      0.8, // Adjust width as needed
+                                  child: SingleChildScrollView(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
@@ -100,14 +96,22 @@ Future<void> showAnnouncementBottomSheet(
                                       ],
                                     ),
                                   ),
-                                  buttons: [
-                                    ButtonConfig(
-                                      text: 'Close',
-                                      onPressed: () => Navigator.pop(context),
-                                    ),
-                                  ],
-                                ).show(context);
-                              },
+                                ),
+                                buttons: [
+                                  ButtonConfig(
+                                    text: 'Close',
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                ],
+                              ).show(context);
+                            },
+                            child: Card(
+                              color: GlobalVariables.white,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Column(

@@ -16,16 +16,13 @@ class Announcement {
   });
 
   factory Announcement.fromJson(Map<String, dynamic> json) {
-    // Clean up the image URL
-    final imageUrl = json['image']?.replaceFirst('/media/', '');
-
     return Announcement(
       id: json['id'],
       title: json['title'],
       content: json['content'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
-      image: imageUrl,
+      image: json['image'],
     );
   }
 
@@ -42,7 +39,7 @@ class Announcement {
 
   @override
   String toString() {
-    return 'Announcement $id:\nTitle: $title\nContent: $content';
+    return 'Announcement $id:\nTitle: $title\nContent: $content\nImage: $image';
   }
 
   Announcement copyWith({

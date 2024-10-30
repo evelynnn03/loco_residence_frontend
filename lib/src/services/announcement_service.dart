@@ -1,22 +1,27 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../constants/api_path.dart';
 import '../models/announcement.dart';
 
 class AnnouncementService {
+  final String apiPath = 'http://10.0.2.2:8000/api/v1';
   Future<List<Announcement>> getAllAnnouncements() async {
     try {
       final response = await http.get(
-        Uri.parse('${apiPath}announcements/view_all_announcements'),
+        Uri.parse('$apiPath/announcements/view_all_announcements'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> res = json.decode(response.body);
-        final List<Announcement> announcementList = res
-            .map((announcement) =>
-                Announcement.fromJson(announcement as Map<String, dynamic>))
-            .toList();
+        final List<Announcement> announcementList = res.map((announcement) {
+          // Assuming the Announcement model has an 'image' field
+          if (announcement['image'] != null &&
+              announcement['image'].isNotEmpty) {
+            // Prepend the base URL to the image path
+            announcement['image'] = 'http://10.0.2.2:8000${announcement['image']}';
+          }
+          return Announcement.fromJson(announcement as Map<String, dynamic>);
+        }).toList();
 
         // Get current date for filtering
         final now = DateTime.now();
@@ -45,6 +50,7 @@ class AnnouncementService {
           }
           return createdComparison;
         });
+        print(filteredAnnouncements);
 
         return filteredAnnouncements;
       } else {
