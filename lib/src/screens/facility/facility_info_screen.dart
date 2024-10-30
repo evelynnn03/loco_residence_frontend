@@ -25,7 +25,6 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
     'assets/images/pickleballcourt.jpg',
     'assets/images/gym.jpeg',
     'assets/images/meetingroom.jpg',
-    'assets/images/eventhall.jpg',
   ];
 
   // Operating hours of the facility
@@ -121,7 +120,7 @@ class _FacilityInfoScreenState extends State<FacilityInfoScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(15.0),
                             child: Image.asset(
-                              'assets/images/pickleballcourt.jpg',
+                              image[index],
                               width: 115,
                               height: containerHeight * 0.8,
                               fit: BoxFit.cover,

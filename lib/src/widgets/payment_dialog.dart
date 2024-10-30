@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/widgets/pop_up_window.dart';
 
 class PaymentMethodDialog extends StatelessWidget {
   final double amount;
@@ -55,27 +56,21 @@ class PaymentMethodDialog extends StatelessWidget {
   }
 
   void _showPaymentConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirm Payment'),
-        content: Text('Process payment of \$${amount.toStringAsFixed(2)}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close confirmation dialog
-              Navigator.pop(context); // Close payment method dialog
-              onPaymentComplete();
-            },
-            child: Text('Make Payment'),
-          ),
-        ],
-      ),
-    );
+    Popup(
+      title: 'Confirm Payment',
+      content: Text('Process payment of \$${amount.toStringAsFixed(2)}?'),
+      buttons: [
+        ButtonConfig(text: 'Cancel', onPressed: () => Navigator.pop(context)),
+        ButtonConfig(
+          text: 'Make Payment',
+          onPressed: () {
+            Navigator.pop(context); // Close confirmation dialog
+            Navigator.pop(context); // Close payment method dialog
+            onPaymentComplete();
+          },
+        ),
+      ],
+    ).show(context);
   }
 }
 
