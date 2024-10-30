@@ -31,7 +31,7 @@ class _BookingScreenState extends State<BookingScreen> {
   List<int> availableDurations = [];
   List<String> slotsToBook = [];
   int selectedIndex = 0; // Index of the selected duration in the list
-
+  
   final List<int> durations = [
     30,
     60,

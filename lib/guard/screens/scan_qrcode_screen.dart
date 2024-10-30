@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:io';
-import '../../guard/screens/parking_map_tab.dart';
 import '../../src/constants/global_variables.dart';
 import '../../src/models/visitor.dart';
 import '../../src/provider/visitor_provider.dart';
@@ -77,7 +76,7 @@ class _QRScannerState extends State<QRScanner> {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: GlobalVariables.responsiveFontSize(context, 16),
                 color: GlobalVariables.primaryColor,
               ),
             ),
@@ -86,7 +85,7 @@ class _QRScannerState extends State<QRScanner> {
             child: Text(
               ': ',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: GlobalVariables.responsiveFontSize(context, 16),
                 color: GlobalVariables.primaryColor,
               ),
             ),
@@ -96,7 +95,7 @@ class _QRScannerState extends State<QRScanner> {
               displayValue,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: GlobalVariables.responsiveFontSize(context, 16),
                 color: GlobalVariables.primaryColor,
               ),
             ),
@@ -111,11 +110,15 @@ class _QRScannerState extends State<QRScanner> {
     if (!isDialogShown) {
       isDialogShown = true;
 
+      final today = DateTime.now();
+      final isToday = visitor.checkInDate.year == today.year &&
+          visitor.checkInDate.month == today.month &&
+          visitor.checkInDate.day == today.day;
+
       Popup(
         title: 'Visitor Details',
         content: SizedBox(
-          height:
-              240, // Increased height to accommodate additional field if needed
+          height: 240,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -133,7 +136,25 @@ class _QRScannerState extends State<QRScanner> {
           ),
         ),
         buttons: [
-          // ... rest of the button configuration remains the same
+          if (isToday)
+            ButtonConfig(
+              text: 'Check-in visitor',
+              onPressed: () async {
+                try {
+                  final visitorProvider =
+                      Provider.of<VisitorProvider>(context, listen: false);
+
+                  // Perform the check-in here
+                  await visitorProvider.checkInVisitor(visitor.id);
+
+                  Navigator.pop(context);
+                } catch (e) {
+                  _showErrorDialog('Error during check-in: $e');
+                } finally {
+                  isDialogShown = false;
+                }
+              },
+            )
         ],
       ).show(context);
     }
@@ -156,10 +177,7 @@ class _QRScannerState extends State<QRScanner> {
                 Provider.of<VisitorProvider>(context, listen: false);
 
             try {
-              // Check in the visitor
-              await visitorProvider.checkInVisitor(visitorId);
-
-              // Get updated visitor details
+              // Get visitor details but do not check them in yet
               final visitor = visitorProvider.getVisitorById(visitorId);
 
               if (visitor != null) {
