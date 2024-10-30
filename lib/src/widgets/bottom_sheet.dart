@@ -86,30 +86,6 @@ Future<void> showBottomSheetModal(
                                       ),
                                     ),
                                     SizedBox(height: 20),
-                                    // Notification ListTile (conditioned to display only if title is 'Notification')
-                                    if (title ==
-                                        'Notification') // Customize the condition as needed
-                                      ListTile(
-                                        leading: Icon(Icons.notifications,
-                                            color:
-                                                GlobalVariables.primaryColor),
-                                        title: Text(
-                                          'New Notification',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: GlobalVariables.primaryColor,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          'You have a new notification!',
-                                          style: TextStyle(
-                                              color: GlobalVariables
-                                                  .secondaryColor),
-                                        ),
-                                        onTap: () {
-                                          // Add action for notification if needed
-                                        },
-                                      ),
 
                                     // Display lists of available rooms
                                     if (isBooking && facilitySectionId != null)

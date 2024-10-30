@@ -1,9 +1,8 @@
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:loco_frontend/src/widgets/bottom_sheet.dart';
-import 'package:loco_frontend/src/widgets/home_tile.dart';
+import '../widgets/announcement_list_tile.dart';
+import '../widgets/home_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/auth/login_screen.dart';
@@ -13,7 +12,6 @@ import '../widgets/pop_up_window.dart';
 import '../constants/global_variables.dart';
 import '../widgets/resident_argument.dart';
 import '../../config/themes/theme_provider.dart';
-import 'analytics_screen/analytics_screen.dart';
 import 'facility/facility_info_screen.dart';
 import 'facility/view_bookings_screen.dart';
 import 'complaints/complaint_screen.dart';
@@ -168,13 +166,16 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
+
+                // display the announcement (latest 3)
                 Consumer<AnnouncementProvider>(
                   builder: (context, announcementProvider, child) {
                     if (announcementProvider.isLoading) {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    final announcements = announcementProvider.announcements;
+                    final announcements =
+                        announcementProvider.latestThreeAnnouncements;
 
                     return SingleChildScrollView(
                       child: Column(
@@ -341,12 +342,15 @@ class _ResidentHomeScreenState extends State<ResidentHomeScreen> {
                           setState(() {
                             selectedIndex = index;
                           });
+                          // display all announcements (in a list)
                           if (index == 4) {
-                            showBottomSheetModal(
+                            // Notifications tile
+                            showAnnouncementBottomSheet(
                               context,
-                              'Notification',
-                              '',
-                              false,
+                              'Notifications',
+                              Provider.of<AnnouncementProvider>(context,
+                                      listen: false)
+                                  .announcements,
                             ).then((_) {
                               setState(() {
                                 selectedIndex = -1;
