@@ -305,8 +305,8 @@ class _ComplaintFormState extends State<ComplaintForm> {
                                     ),
                                   );
                                 });
-                                return Center(
-                                    child: const Text('Image Unavailable'));
+                                return const Center(
+                                    child: Text('Image Unavailable'));
                               }
                             },
                           ),

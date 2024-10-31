@@ -78,6 +78,8 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Visior registered successfully.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
 
@@ -102,6 +104,8 @@ class _VisitorRegisterScreenState extends State<VisitorRegTab> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Error registering visitor.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
         ),
       );
     });

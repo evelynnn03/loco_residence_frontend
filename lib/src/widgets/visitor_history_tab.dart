@@ -376,9 +376,7 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
               final displayDate = checkOutDate ?? checkInDate;
               final todayStart = DateTime(today.year, today.month, today.day);
 
-              // Include visitors with check-in/check-out date before or equal to today
-              return !displayDate
-                  .isAfter(todayStart); // This includes today's date
+              return visitor.checkInTime != null;
             }
             return false;
           }).toList();
@@ -411,23 +409,22 @@ class _VisitorHistoryTabState extends State<VisitorHistoryTab> {
                     const EdgeInsets.symmetric(vertical: 15.0, horizontal: 15),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: screenWidth * 0.38,
-                      child: MyDropdownField(
-                        hint: 'Search by',
-                        items: availableSearchCriteria,
-                        value: _selectedSearchCriteria,
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedSearchCriteria = newValue;
-                              // Clear search when criteria changes
-                              _searchTextController.clear();
-                              _filterVisitors('');
-                            });
-                          }
-                        },
-                      ),
+                    MyDropdownField(
+                      isCompact: true,
+                      width: screenWidth * 0.3,
+                      hint: 'Search by',
+                      items: availableSearchCriteria,
+                      value: _selectedSearchCriteria,
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedSearchCriteria = newValue;
+                            // Clear search when criteria changes
+                            _searchTextController.clear();
+                            _filterVisitors('');
+                          });
+                        }
+                      },
                     ),
                     // Search TextField
                     Expanded(

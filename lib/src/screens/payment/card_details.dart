@@ -129,8 +129,7 @@ class _CardDetailsState extends State<CardDetails> {
                   labelText: 'Card No.',
                   keyboardType: TextInputType.number,
                   enabled: _isEditing,
-                  inputFormatters: [CardNumberFormatter()],
-                  maxLength: 19,
+                  maxLength: 16,
                 ),
                 SizedBox(height: sizedBoxHeight30(screenHeight)),
                 MyTextField(
@@ -203,21 +202,29 @@ class _CardDetailsState extends State<CardDetails> {
 }
 
 // format for card number to be 1234 1234 1234 1234
-class CardNumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    String newText = newValue.text.replaceAll(RegExp(r'\D'), '');
-    String formattedText = '';
-    for (int i = 0; i < newText.length; i++) {
-      if (i > 0 && i % 4 == 0) {
-        formattedText += ' ';
-      }
-      formattedText += newText[i];
-    }
-    return newValue.copyWith(
-      text: formattedText,
-      selection: TextSelection.collapsed(offset: formattedText.length),
-    );
-  }
-}
+// class CardNumberFormatter extends TextInputFormatter {
+//   @override
+//   TextEditingValue formatEditUpdate(
+//       TextEditingValue oldValue, TextEditingValue newValue) {
+//     // Remove all non-digits
+//     String newText = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+//     // Limit to 16 digits before formatting
+//     if (newText.length > 16) {
+//       newText = newText.substring(0, 16);
+//     }
+
+//     String formattedText = '';
+//     for (int i = 0; i < newText.length; i++) {
+//       if (i > 0 && i % 4 == 0) {
+//         formattedText += ' ';
+//       }
+//       formattedText += newText[i];
+//     }
+
+//     return newValue.copyWith(
+//       text: formattedText,
+//       selection: TextSelection.collapsed(offset: formattedText.length),
+//     );
+//   }
+// }

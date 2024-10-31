@@ -73,7 +73,7 @@ class _CardContainerState extends State<CardContainer> {
 
     double cardHeight(double height) => height < 600 ? 210 : 230;
     double amountSizedBoxHeight(double height) => height < 210 ? 8 : 10;
-    double cardNoSizedBoxHeight(double height) => height < 210 ? 35 : 40;
+    double cardNoSizedBoxHeight(double height) => height < 210 ? 25 : 30;
 
     String? cardNumberEnding;
     if (cardDetails.isNotEmpty &&

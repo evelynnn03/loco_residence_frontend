@@ -21,6 +21,7 @@ class _QRScannerState extends State<QRScanner> {
   Barcode? result;
   QRViewController? controller;
   bool isDialogShown = false;
+  Set<int> scannedIds = {};
 
   // Function to extract visitor ID from QR code data
   int? extractVisitorId(String qrData) {
@@ -107,6 +108,8 @@ class _QRScannerState extends State<QRScanner> {
 
   // Update the _showVisitorDetailsDialog to include check-in time if needed
   void _showVisitorDetailsDialog(BuildContext context, Visitor visitor) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     if (!isDialogShown) {
       isDialogShown = true;
 
@@ -118,7 +121,7 @@ class _QRScannerState extends State<QRScanner> {
       Popup(
         title: 'Visitor Details',
         content: SizedBox(
-          height: 240,
+          height: screenHeight * 0.3,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -136,7 +139,7 @@ class _QRScannerState extends State<QRScanner> {
           ),
         ),
         buttons: [
-          if (isToday)
+          if (isToday && visitor.checkInTime == null)
             ButtonConfig(
               text: 'Check-in visitor',
               onPressed: () async {
@@ -146,15 +149,38 @@ class _QRScannerState extends State<QRScanner> {
 
                   // Perform the check-in here
                   await visitorProvider.checkInVisitor(visitor.id);
+                  scannedIds.add(visitor.id);
 
                   Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Visitor checked in successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
                 } catch (e) {
                   _showErrorDialog('Error during check-in: $e');
                 } finally {
                   isDialogShown = false;
+                  controller?.resumeCamera();
                 }
               },
             )
+          else if (visitor.checkInTime != null)
+            ButtonConfig(
+              text: 'Already Checked In',
+              onPressed: () {
+                Navigator.pop(context);
+                controller?.resumeCamera();
+              },
+            )
+          else
+            ButtonConfig(
+              text: 'Unavailable',
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
         ],
       ).show(context);
     }
@@ -165,35 +191,57 @@ class _QRScannerState extends State<QRScanner> {
 
     controller.scannedDataStream.listen(
       (scanData) async {
-        setState(() {
-          result = scanData;
-        });
+        if (!isDialogShown && result?.code != scanData.code) {
+          // Only process if not showing dialog and new QR code
+          setState(() {
+            result = scanData;
+            print('Result: $result');
+          });
+          if (result != null && result!.code != null) {
+            final visitorId = extractVisitorId(result!.code!);
 
-        if (result != null && result!.code != null) {
-          final visitorId = extractVisitorId(result!.code!);
-
-          if (visitorId != null) {
-            final visitorProvider =
-                Provider.of<VisitorProvider>(context, listen: false);
-
-            try {
-              // Get visitor details but do not check them in yet
-              final visitor = visitorProvider.getVisitorById(visitorId);
-
-              if (visitor != null) {
-                _showVisitorDetailsDialog(context, visitor);
-              } else {
-                _showErrorDialog('Visitor not found');
+            if (visitorId != null) {
+              if (scannedIds.contains(visitorId)) {
+                // QR code has already been used
+                _showErrorDialog(
+                    'This QR code has already been used for check-in');
+                await Future.delayed(Duration(seconds: 2));
+                controller.resumeCamera(); // Resume camera after error
+                return;
               }
-            } catch (e) {
-              _showErrorDialog('Error processing visitor: $e');
+
+              final visitorProvider =
+                  Provider.of<VisitorProvider>(context, listen: false);
+
+              try {
+                // Get visitor details but do not check them in yet
+                final visitor = visitorProvider.getVisitorById(visitorId);
+
+                if (visitor != null) {
+                  if (visitor.checkInTime != null) {
+                    // Visitor already checked in
+                    _showErrorDialog('Visitor has already checked in');
+                  } else {
+                    _showVisitorDetailsDialog(context, visitor);
+                  }
+                } else {
+                  _showErrorDialog('Visitor not found');
+                  print('Visitor details: $visitor');
+                }
+              } catch (e) {
+                _showErrorDialog('Error processing visitor: $e');
+              }
+            } else {
+              _showErrorDialog('Invalid QR code format');
             }
-          } else {
-            _showErrorDialog('Invalid QR code format');
           }
         }
       },
-      onError: (error) => _showErrorDialog('Error scanning QR code: $error'),
+      onError: (error) async {
+        _showErrorDialog('Error scanning QR code: $error');
+        await Future.delayed(Duration(seconds: 2));
+        controller.resumeCamera();
+      },
     );
   }
 
@@ -202,13 +250,17 @@ class _QRScannerState extends State<QRScanner> {
       isDialogShown = true;
       Popup(
         title: 'Error',
-        content: Text(message),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
         buttons: [
           ButtonConfig(
             text: 'OK',
             onPressed: () {
               isDialogShown = false;
               Navigator.pop(context);
+              controller?.resumeCamera();
             },
           ),
         ],
@@ -232,22 +284,25 @@ class _QRScannerState extends State<QRScanner> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Load visitors when screen initializes
+    Provider.of<VisitorProvider>(context, listen: false)
+        .fetchAllVisitors(userType: 'guard');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Scan a QR Code',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
         backgroundColor: GlobalVariables.primaryColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: GlobalVariables.white,
-          ),
-          onPressed: () => Navigator.pop(context),
+        title: Text(
+          'Scan QR Code',
+          style: GlobalVariables.appbarStyle(context,
+              color: GlobalVariables.secondaryColor),
         ),
+        leading: GlobalVariables.backButton(context,
+            color: GlobalVariables.secondaryColor),
       ),
       body: Column(
         children: <Widget>[
@@ -257,7 +312,7 @@ class _QRScannerState extends State<QRScanner> {
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
               overlay: QrScannerOverlayShape(
-                borderColor: Theme.of(context).primaryColor,
+                borderColor: GlobalVariables.secondaryColor,
                 borderRadius: 10,
                 borderLength: 20,
                 borderWidth: 10,

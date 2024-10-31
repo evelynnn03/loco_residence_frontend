@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:loco_frontend/src/widgets/bottom_nav_bar.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import '../../constants/global_variables.dart';
@@ -72,7 +74,7 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
                       data: qrData, // Pass the dynamically generated data
                       version: QrVersions.auto,
                       size: screenHeight * 0.25,
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: GlobalVariables.secondaryColor,
                     ),
                   ],
                 ),
@@ -102,24 +104,31 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
       final Uint8List? uint8list =
           await screenshotController.capture(); // Capture QR Code as image
       if (uint8list != null) {
-        // Check for gallery access
-        final bool hasAccess = await Gal.hasAccess();
-        if (!hasAccess) {
-          // Request permission if access is not available
-          final bool requestGranted = await Gal.requestAccess();
-          if (!requestGranted) {
-            print('Permission denied.');
-            return;
+        final PermissionStatus status = await Permission.storage.request();
+        if (status.isGranted) {
+          final result = await ImageGallerySaver.saveImage(uint8list);
+          if (result['isSuccess']) {
+            print('QR saved successfully');
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('QR code saved to gallery'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          } else {
+            print('Error saving QR Code: ${result['error']}');
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Error saving QR Code, take a screenshot!'),
+                backgroundColor: Colors.red,
+                duration: Duration(seconds: 2),
+              ),
+            );
           }
+        } else {
+          print('Permission to access storage denied');
         }
-
-        // Save the image to the gallery
-        await Gal.putImageBytes(uint8list);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('QR code saved to gallery'),
-          ),
-        );
 
         // Navigate to the next screen if needed
         Navigator.pushNamed(context, MyBottomNavBar.routeName);

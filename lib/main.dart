@@ -118,7 +118,7 @@ class MyApp extends StatelessWidget {
         ),
         themeMode: ThemeMode.system,
         onGenerateRoute: (settings) => generateRoute(settings),
-        home: const MyBottomNavBar(),
+        home: const GuardHomeScreen(),
         // email == null ? const WelcomeScreen() : MyBottomNavBar()
       ),
     );

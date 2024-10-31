@@ -28,6 +28,7 @@ class VisitorProvider with ChangeNotifier {
         residentId:
             userType.toLowerCase() == 'resident' ? temporaryResidentId : null,
       );
+      
       print('Visitors: $_visitors');
     } catch (e) {
       print('Error fetching visitors: $e');
@@ -122,8 +123,11 @@ class VisitorProvider with ChangeNotifier {
 
   Visitor? getVisitorById(int id) {
     try {
+      print('Looking for visitor with ID: $id');
+      print('Current visitors: $_visitors');
       return _visitors.firstWhere((visitor) => visitor.id == id);
     } catch (e) {
+      print('Visitor not found with ID: $id');
       return null;
     }
   }

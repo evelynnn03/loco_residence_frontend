@@ -4,7 +4,7 @@ import '../constants/api_path.dart';
 import '../models/announcement.dart';
 
 class AnnouncementService {
-  final String apiPath = 'http://192.168.56.1:8000/api/v1';
+  final String apiPath = 'http://10.0.2.2:8000/api/v1';
   Future<List<Announcement>> getAllAnnouncements() async {
     try {
       final response = await http.get(
@@ -19,7 +19,7 @@ class AnnouncementService {
           if (announcement['image'] != null &&
               announcement['image'].isNotEmpty) {
             // Prepend the base URL to the image path
-            announcement['image'] = 'http://192.168.56.1:8000${announcement['image']}';
+            announcement['image'] = 'http://10.0.2.2:8000${announcement['image']}';
           }
           return Announcement.fromJson(announcement as Map<String, dynamic>);
         }).toList();

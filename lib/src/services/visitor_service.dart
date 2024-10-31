@@ -13,13 +13,11 @@ class VisitorService {
     int? residentId,
   }) async {
     try {
-      // Construct the appropriate URL based on user type and resident ID
       final String endpoint =
           userType.toLowerCase() == 'resident' && residentId != null
               ? '${apiPath}visitors/view_all_visitors/$residentId'
               : '${apiPath}visitors/view_all_visitors';
 
-      // Validate resident ID is provided for resident users
       if (userType.toLowerCase() == 'resident' && residentId == null) {
         throw Exception('Resident ID is required for resident users');
       }
@@ -34,6 +32,7 @@ class VisitorService {
         final List<Visitor> visitorList = res
             .map((visitor) => Visitor.fromJson(visitor as Map<String, dynamic>))
             .toList();
+        print('Loaded visitors: $visitorList'); 
         return visitorList;
       } else {
         print('Failed to load visitors: ${response.statusCode}');
