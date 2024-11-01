@@ -1,8 +1,6 @@
 import 'dart:math';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import '../constants/api_path.dart';
-import '../widgets/announcement_list_tile.dart';
+import '../widgets/announcement_bottom_sheet.dart';
 import '../widgets/home_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

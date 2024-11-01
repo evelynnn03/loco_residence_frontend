@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/widgets/announcement_list_view.dart';
 import 'package:loco_frontend/src/widgets/home_tile.dart';
+import 'package:provider/provider.dart';
+import '../../src/provider/announcement_provider.dart';
 import '../../src/widgets/pop_up_window.dart';
 import '../../src/constants/global_variables.dart';
 import '../widget/guard_arguments.dart';
-import 'parking_map_tab.dart';
 import 'scan_qrcode_screen.dart';
 import 'visitor_info.dart';
 
@@ -24,6 +26,8 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
   void initState() {
     super.initState();
     selectedIndex = -1;
+    Provider.of<AnnouncementProvider>(context, listen: false)
+        .fetchAnnouncements();
   }
 
   void guardArguments() {
@@ -43,7 +47,7 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
       'route': QRScanner.routeName,
     },
     {
-      'title': 'Visitor Details',
+      'title': 'Visitor\nDetails',
       'icon': Icons.info_outline_rounded,
       'route': VisitorInfo.routeName,
     },
@@ -52,107 +56,124 @@ class _GuardHomeScreenState extends State<GuardHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // Calculate the aspect ratio for grid containers
-    double gridAspectRatio(double width) {
-      if (width < 380) return 2.0; // Narrow screens
-      if (width < 450) return 2.5; // Medium screens
-      return 3.0; // Wide screens
-    }
+    final screenHeight = MediaQuery.of(context).size.height;
+    final announcementProvider = Provider.of<AnnouncementProvider>(context);
+    print(
+        'Number of announcements: ${announcementProvider.announcements.length}');
 
-    // guardArguments();
+    // Calculate the aspect ratio for grid containers
+    double gridAspectRatio(double width) =>
+        width < 380 ? 0.8 : (width < 450 ? 1.0 : 1.2);
+
+    double smallSizedBoxHeight(height) => height < 600 ? 15 : 20;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Loco Residence',
-                      style: GlobalVariables.logInTitleStyle(
-                        context,
-                        color: GlobalVariables.primaryColor,
-                      ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Loco Residence',
+                    style: GlobalVariables.logInTitleStyle(
+                      context,
+                      color: GlobalVariables.primaryColor,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Popup(
-                          title: 'Warning',
-                          content:
-                              const Text("Are you sure you want to log out"),
-                          buttons: [
-                            ButtonConfig(
-                              text: 'Cancel',
-                              onPressed: () async {},
-                            ),
-                            ButtonConfig(
-                              text: 'Log out',
-                              onPressed: () async {
-                                Navigator.pop(
-                                  context,
-                                );
-                              },
-                            ),
-                          ],
-                        ).show(context);
-                      },
-                      child: Icon(
-                        Icons.logout,
-                        size: GlobalVariables.responsiveIconSize(context, 30),
-                        color: GlobalVariables.primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 60),
-                Text('Welcome, Doodell',
-                    style: GlobalVariables.headingStyle(context)),
-                SizedBox(height: 20),
-                GridView.count(
-                  crossAxisCount: 1,
-                  mainAxisSpacing: 15,
-                  crossAxisSpacing: 15,
-                  childAspectRatio: gridAspectRatio(screenWidth),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: List.generate(
-                    tiles.length,
-                    (index) {
-                      final tile = tiles[index];
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-
-                          Navigator.pushNamed(
-                            context,
-                            tile['route'],
-                            arguments: index == 1,
-                          ).then((_) {
-                            setState(() {
-                              selectedIndex = -1;
-                            });
-                          });
-                        },
-                        child: homeTile(
-                          context,
-                          index,
-                          tile['title'],
-                          tile['icon'],
-                          index == selectedIndex,
-                        ),
-                      );
-                    },
                   ),
+                  GestureDetector(
+                    onTap: () {
+                      Popup(
+                        title: 'Warning',
+                        content: const Text("Are you sure you want to log out"),
+                        buttons: [
+                          ButtonConfig(
+                            text: 'Cancel',
+                            onPressed: () async {},
+                          ),
+                          ButtonConfig(
+                            text: 'Log out',
+                            onPressed: () async {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ).show(context);
+                    },
+                    child: Icon(
+                      Icons.logout,
+                      size: GlobalVariables.responsiveIconSize(context, 30),
+                      color: GlobalVariables.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
+              Text(
+                'Welcome, Doodell',
+                style: GlobalVariables.appbarStyle(
+                  context,
+                  color: GlobalVariables.welcomeColor,
                 ),
-              ],
-            ),
+              ),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
+              GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 15,
+                crossAxisSpacing: 15,
+                childAspectRatio: gridAspectRatio(screenWidth),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: List.generate(
+                  tiles.length,
+                  (index) {
+                    final tile = tiles[index];
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+
+                        Navigator.pushNamed(
+                          context,
+                          tile['route'],
+                          arguments: index == 1,
+                        ).then((_) {
+                          setState(() {
+                            selectedIndex = -1;
+                          });
+                        });
+                      },
+                      child: homeTile(
+                        context,
+                        index,
+                        tile['title'],
+                        tile['icon'],
+                        index == selectedIndex,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
+              Text(
+                'Announcements',
+                style: GlobalVariables.bold20(
+                  context,
+                  GlobalVariables.welcomeColor,
+                ),
+              ),
+              SizedBox(height: smallSizedBoxHeight(screenHeight)),
+              buildAnnouncementListView(
+                context: context,
+                announcements: announcementProvider.announcements,
+                backgroundColor: GlobalVariables.secondaryColor,
+              )
+            ],
           ),
         ),
       ),

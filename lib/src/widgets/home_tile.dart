@@ -3,8 +3,13 @@ import 'package:provider/provider.dart';
 import '../../config/themes/theme_provider.dart';
 import '../constants/global_variables.dart';
 
-Widget homeTile(BuildContext context, int index, String tileName, IconData icon,
-    bool isSelected) {
+Widget homeTile(
+  BuildContext context,
+  int index,
+  String tileName,
+  IconData icon,
+  bool isSelected,
+) {
   final mode = Provider.of<ThemeProvider>(context);
   Color boxShadowColor = const Color.fromARGB(255, 42, 188, 69);
 

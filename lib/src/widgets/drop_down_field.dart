@@ -43,7 +43,7 @@ class _MyDropdownFieldState extends State<MyDropdownField> {
             helperStyle: GlobalVariables.helperStyle(context),
             floatingLabelStyle: GlobalVariables.floatingLabelStyle(context),
             contentPadding: widget.isCompact
-                ? const EdgeInsets.all(13)
+                ? const EdgeInsets.all(12)
                 : const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(color: Colors.transparent),
@@ -81,8 +81,8 @@ class _MyDropdownFieldState extends State<MyDropdownField> {
                 style: TextStyle(
                   color: GlobalVariables.primaryGrey,
                   fontSize: widget.isCompact
-                      ? GlobalVariables.responsiveFontSize(context, 13)
-                      : GlobalVariables.responsiveFontSize(context, 14),
+                      ? GlobalVariables.responsiveFontSize(context, 14)
+                      : GlobalVariables.responsiveFontSize(context, 15),
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,

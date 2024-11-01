@@ -8,7 +8,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import '../../constants/global_variables.dart';
 import '../../widgets/buttons.dart';
-import 'package:gal/gal.dart';
 
 class QRCodeGenerator extends StatefulWidget {
   final String Function() generateNewQrData;
