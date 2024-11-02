@@ -7,6 +7,40 @@ import 'package:path/path.dart' as path;
 
 //rmb to check what's the resident id after you seed the data
 class ComplaintService {
+  String _parseErrorMessage(String errorMessage) {
+    // Check for harassment content
+    if (errorMessage.contains('HARM_CATEGORY_HARASSMENT') &&
+        errorMessage.contains('MEDIUM')) {
+      return 'Your complaint contains content that may be considered harassment. Please revise your text to be more constructive.';
+    }
+
+    // Check for sexually explicit content
+    if (errorMessage.contains('HARM_CATEGORY_SEXUALLY_EXPLICIT') &&
+        !errorMessage.contains('NEGLIGIBLE')) {
+      return 'Your complaint contains inappropriate content. Please revise your text.';
+    }
+
+    // Check for hate speech
+    if (errorMessage.contains('HARM_CATEGORY_HATE_SPEECH') &&
+        !errorMessage.contains('NEGLIGIBLE')) {
+      return 'Your complaint contains content that may be considered hate speech. Please revise your text.';
+    }
+
+    // Check for dangerous content
+    if (errorMessage.contains('HARM_CATEGORY_DANGEROUS_CONTENT') &&
+        !errorMessage.contains('NEGLIGIBLE')) {
+      return 'Your complaint contains potentially dangerous content. Please revise your text.';
+    }
+
+    // Check for invalid response format
+    if (errorMessage.contains('Invalid operation: The `response.text`')) {
+      return 'Your complaint contains inappropriate content. Please revise your text to be more appropriate and constructive.';
+    }
+
+    // Default error message
+    return 'There was an issue submitting your complaint. Please review your content and try again.';
+  }
+
   Future<List<Complaint>> getResidentComplaints(int residentId) async {
     try {
       final response = await http.get(
@@ -111,11 +145,16 @@ class ComplaintService {
       if (response.statusCode == 200) {
         print('Complaint created successfully');
       } else {
-        print(
-            'Failed to create complaint. Status code: ${response.statusCode}');
+        final responseData = json.decode(response.body);
+        String errorMessage =
+            responseData['error'] ?? 'Failed to create complaint';
 
-        // Handle specific error messages from Django
-        throw Exception(responseData['error'] ?? 'Failed to create complaint');
+        // If it's an AI content analysis error, parse it into a user-friendly message
+        if (errorMessage.contains('Error analyzing complaint text')) {
+          errorMessage = _parseErrorMessage(errorMessage);
+        }
+
+        throw Exception(errorMessage);
       }
     } catch (e) {
       throw Exception(e.toString().replaceAll('Exception: ', ''));

@@ -104,6 +104,7 @@ class _ComplaintFormState extends State<ComplaintForm> {
               backgroundColor: Colors.green,
             ),
           );
+          complaintProvider.fetchAllComplaints();
           _formKey.currentState!.reset();
           setState(() {
             _titleController.clear();
