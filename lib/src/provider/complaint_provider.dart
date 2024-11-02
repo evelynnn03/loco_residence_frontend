@@ -9,14 +9,20 @@ class ComplaintProvider with ChangeNotifier {
   List<Complaint> _allComplaints = [];
   List<Complaint> _residentComplaints = [];
   bool _isLoading = false;
+  String? _error;
 
-  
   List<Complaint> get complaints => _allComplaints;
   List<Complaint> get residentComplaints => _residentComplaints;
   bool get isLoading => _isLoading;
+  String? get error => _error;
 
   void setComplaints(List<Complaint> complaints) {
     _allComplaints = complaints;
+    notifyListeners();
+  }
+
+  void _setError(String? error) {
+    _error = error;
     notifyListeners();
   }
 
@@ -25,7 +31,8 @@ class ComplaintProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _residentComplaints = await ComplaintService().getResidentComplaints(temporaryResidentId);
+      _residentComplaints =
+          await ComplaintService().getResidentComplaints(temporaryResidentId);
       print('Complaints: $_residentComplaints');
     } catch (e) {
       print('Error fetching complaints: $e');
@@ -40,7 +47,8 @@ class ComplaintProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _allComplaints = await ComplaintService().getAllComplaints(temporaryResidentId);
+      _allComplaints =
+          await ComplaintService().getAllComplaints(temporaryResidentId);
       print('Complaints: $_allComplaints');
     } catch (e) {
       print('Error fetching complaints: $e');
@@ -50,14 +58,14 @@ class ComplaintProvider with ChangeNotifier {
     }
   }
 
-
-  Future<void> createComplaint(
+  Future<Map<String, dynamic>> createComplaint(
     String title,
     String description,
     DateTime date,
     File? image,
   ) async {
     _isLoading = true;
+    _setError(null);
     notifyListeners();
 
     try {
@@ -68,14 +76,23 @@ class ComplaintProvider with ChangeNotifier {
         date,
         image,
       );
-      notifyListeners();
+
+      await fetchResidentComplaints();
+      return {'success': true, 'error': null};
     } catch (e) {
-      print('Error creating complaint: $e');
+      String errorMessage = e.toString();
+
+      // Extract the error message from the exception
+      if (errorMessage.contains('Exception: ')) {
+        errorMessage = errorMessage.split('Exception: ')[1];
+      }
+
+      _setError(errorMessage);
+      print('Error creating complaint: $errorMessage');
+      return {'success': false, 'error': errorMessage};
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
-
- 
 }

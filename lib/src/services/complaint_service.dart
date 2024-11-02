@@ -31,7 +31,7 @@ class ComplaintService {
     }
   }
 
-    Future<List<Complaint>> getAllComplaints(int residentId) async {
+  Future<List<Complaint>> getAllComplaints(int residentId) async {
     try {
       final response = await http.get(
         Uri.parse('${apiPath}complaints/view_all_complaints'),
@@ -63,6 +63,10 @@ class ComplaintService {
     File? image,
   ) async {
     try {
+      if (title.isEmpty || description.isEmpty) {
+        throw Exception('All fields are required');
+      }
+
       final body = {
         'title': title,
         'description': description,
@@ -80,6 +84,17 @@ class ComplaintService {
       request.fields.addAll(body);
 
       if (image != null) {
+        // Validate image size (10MB limit)
+        if (await image.length() > 10 * 1024 * 1024) {
+          throw Exception('Image size too large. Maximum size is 10MB');
+        }
+
+        final ext = path.extension(image.path).toLowerCase();
+        if (!['.jpg', '.jpeg', '.png', '.gif'].contains(ext)) {
+          throw Exception(
+              'Invalid image format. Supported formats: jpg, jpeg, png, gif');
+        }
+
         final imageBytes = await image.readAsBytes();
         final imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -89,20 +104,21 @@ class ComplaintService {
         request.files.add(imageFile);
       }
 
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
         print('Complaint created successfully');
       } else {
         print(
             'Failed to create complaint. Status code: ${response.statusCode}');
-        print('Response body: $responseBody');
-        throw Exception('Failed to create complaint');
+
+        // Handle specific error messages from Django
+        throw Exception(responseData['error'] ?? 'Failed to create complaint');
       }
     } catch (e) {
-      print('Error occurred while creating complaint: $e');
-      rethrow;
+      throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
   }
 }

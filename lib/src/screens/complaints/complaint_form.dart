@@ -80,70 +80,74 @@ class _ComplaintFormState extends State<ComplaintForm> {
     }
   }
 
-  void _submitForm() async {
-    if (_formKey.currentState!.validate() && _validateForm()) {
-      setState(() {
-        _isSubmitting = true; // Indicate that the form is being submitted
-      });
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate() || !_validateForm()) {
+      return;
+    }
 
-      // Simulate API call or make the actual API call
-      try {
-        final complaintData = {
-          'title': _titleController.text,
-          'category': _category,
-          'date': _dateController.text,
-          'description': _descriptionController.text,
-          'image': _imageFile?.path,
-        };
+    final complaintProvider =
+        Provider.of<ComplaintProvider>(context, listen: false);
 
-        debugPrint(complaintData.toString());
+    try {
+      final result = await complaintProvider.createComplaint(
+        _titleController.text,
+        _descriptionController.text,
+        _selectedDate!,
+        _imageFile,
+      );
 
-        // Call the createComplaint method and await its result
-        await Provider.of<ComplaintProvider>(context, listen: false)
-            .createComplaint(
-          _titleController.text,
-          _descriptionController.text,
-          _selectedDate!,
-          _imageFile,
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Complaint submitted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        // Reset form
-        _formKey.currentState!.reset();
-        setState(() {
-          _titleController.clear();
-          _descriptionController.clear();
-          _category = null;
-          _selectedDate = null;
-          _dateController.clear();
-          _imageFile = null;
-          _isSubmitting = false; // Reset the submission state
-        });
-      } catch (error) {
-        // Show an error message in case of failure
+      if (mounted) {
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Complaint submitted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _formKey.currentState!.reset();
+          setState(() {
+            _titleController.clear();
+            _descriptionController.clear();
+            _category = null;
+            _selectedDate = null;
+            _dateController.clear();
+            _imageFile = null;
+            _isSubmitting = false; // Reset the submission state
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['error'] ?? 'Failed to submit complaint'),
+              backgroundColor: Colors.red,
+              duration:
+                  const Duration(seconds: 5), // Give more time to read error
+              action: SnackBarAction(
+                label: 'Dismiss',
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+                textColor: Colors.white,
+              ),
+            ),
+          );
+        }
+      }
+    } catch (error) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to submit complaint: ${error.toString()}'),
+            content: Text('An unexpected error occurred: ${error.toString()}'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+              textColor: Colors.white,
+            ),
           ),
         );
-
-        setState(() {
-          MyButton(
-            text: _isSubmitting ? 'Submitting...' : 'Submit Complaint',
-            onTap: () {
-              if (_formKey.currentState!.validate()) {
-                _submitForm();
-              }
-            },
-          );
-        });
       }
     }
   }
@@ -162,7 +166,6 @@ class _ComplaintFormState extends State<ComplaintForm> {
       );
       return false;
     }
-
     return true;
   }
 
@@ -170,6 +173,7 @@ class _ComplaintFormState extends State<ComplaintForm> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
