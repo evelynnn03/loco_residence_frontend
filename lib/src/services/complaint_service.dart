@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:loco_frontend/src/constants/api_path.dart';
+import 'package:loco_frontend/src/models/similar_complaint.dart';
 import '../models/complaint.dart';
 import 'package:path/path.dart' as path;
 
@@ -89,13 +90,14 @@ class ComplaintService {
     }
   }
 
-  Future<void> createComplaint(
+  Future<dynamic> createComplaint(
     int residentId,
     String title,
     String description,
     String category,
     DateTime date,
     File? image,
+    bool isForce,
   ) async {
     try {
       if (title.isEmpty || description.isEmpty) {
@@ -107,6 +109,7 @@ class ComplaintService {
         'description': description,
         'category': category,
         'date': date.toIso8601String(), // ISO format for consistency
+        'force_submit': isForce.toString(),
       };
 
       var request = http.MultipartRequest(
@@ -142,10 +145,20 @@ class ComplaintService {
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-      final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        print('Complaint created successfully');
+        final res = json.decode(response.body);
+        final message = res['message'] ?? 'Complaint submitted successfully';
+        return message;
+      } else if (response.statusCode == 409) {
+        // similar complaint found
+        final List<dynamic> res =
+            json.decode(response.body)['similar_complaints'];
+        final List<SimilarComplaint> similarComplaintsList = res
+            .map((complaint) =>
+                SimilarComplaint.fromJson(complaint as Map<String, dynamic>))
+            .toList();
+        return similarComplaintsList;
       } else {
         final responseData = json.decode(response.body);
         String errorMessage =

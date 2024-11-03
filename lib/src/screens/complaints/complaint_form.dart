@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:loco_frontend/src/constants/global_variables.dart';
+import 'package:loco_frontend/src/models/similar_complaint.dart';
 import 'package:loco_frontend/src/provider/complaint_provider.dart';
 import 'package:loco_frontend/src/widgets/buttons.dart';
 import 'package:loco_frontend/src/widgets/text_field.dart';
@@ -28,6 +29,7 @@ class _ComplaintFormState extends State<ComplaintForm> {
   DateTime? _selectedDate;
   File? _imageFile;
   bool _isSubmitting = false;
+  bool _isForce = false;
 
   final List<String> _categories = [
     'Facility',
@@ -95,13 +97,16 @@ class _ComplaintFormState extends State<ComplaintForm> {
         _category!,
         _selectedDate!,
         _imageFile,
+        _isForce,
       );
 
       if (mounted) {
         if (result['success']) {
+          //get the message from service
+          final message = result['message'] ?? 'Complaint submitted successfully';
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Complaint submitted successfully'),
+            SnackBar(
+              content: Text(message),
               backgroundColor: Colors.green,
             ),
           );
@@ -116,6 +121,104 @@ class _ComplaintFormState extends State<ComplaintForm> {
             _imageFile = null;
             _isSubmitting = false; // Reset the submission state
           });
+        } else if (!result['success'] &&
+            result['error'] == 'Similar complaints already exist') {
+          final List<SimilarComplaint> similarComplaints =
+              result['similarComplaints'];
+
+          // Show a dialog with similar complaints
+          showDialog<void>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Column(
+                  children: [
+                    Text('Similar Complaints'),
+                    Text(
+                      'Long press to know why',
+                      style: TextStyle(
+                          fontSize: 11, color: GlobalVariables.primaryGrey),
+                    )
+                  ],
+                ),
+                content: SizedBox(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount:
+                        similarComplaints.length, // Assuming you have this list
+                    itemBuilder: (context, index) {
+                      final complaint = similarComplaints[index];
+                      return Tooltip(
+                        textStyle:
+                            const TextStyle(fontSize: 11, color: Colors.white),
+                        message: similarComplaints[index].similarityReason,
+                        preferBelow: true,
+                        decoration: BoxDecoration(
+                          color: GlobalVariables.primaryColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            complaint.title,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            complaint.description,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: GlobalVariables.primaryGrey,
+                            ),
+                          ),
+                          trailing: SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: complaint
+                                      .similarityScore, // Value between 0.0 and 1.0
+                                  backgroundColor: Colors.grey[200],
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          GlobalVariables.primaryColor),
+                                ),
+                                Center(
+                                  child: Text(
+                                    '${(complaint.similarityScore * 100).toInt()}%',
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                actions: [
+                  MyButton(text: 'Submit Anyway', onTap: () {
+                    _isForce = true;
+                    Navigator.pop(context);
+                    _submitForm();
+                    _isForce = false; // Reset the force submission flag
+                  }),
+                  const SizedBox(height: 8),
+                  MyButton(text: 'Cancel', onTap: () {
+                    Navigator.pop(context);
+                  }),
+                ],
+              );
+            },
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

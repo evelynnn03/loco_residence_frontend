@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:loco_frontend/src/models/similar_complaint.dart';
 import 'package:loco_frontend/src/utils/resident_utils.dart';
 import '../models/complaint.dart';
 import '../services/complaint_service.dart';
@@ -64,22 +65,39 @@ class ComplaintProvider with ChangeNotifier {
     String category,
     DateTime date,
     File? image,
+    bool isForce,
   ) async {
     _isLoading = true;
     _setError(null);
     notifyListeners();
 
     try {
-      await ComplaintService().createComplaint(
+      final res = await ComplaintService().createComplaint(
         temporaryResidentId,
         title,
         description,
         category,
         date,
         image,
+        isForce,
       );
 
-      await fetchResidentComplaints();
+      //if there is similar complaints
+      if (res is List<SimilarComplaint>) {
+        return {
+          'success': false,
+          'error': 'Similar complaints already exist',
+          'similarComplaints': res,
+        };
+      } else if (res is String) {
+          return {
+          'success': true,
+          'message': res,
+          
+        };
+      }
+
+      
       return {'success': true, 'error': null};
     } catch (e) {
       String errorMessage = e.toString();
