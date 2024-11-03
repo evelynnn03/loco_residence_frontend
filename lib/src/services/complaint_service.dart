@@ -93,6 +93,7 @@ class ComplaintService {
     int residentId,
     String title,
     String description,
+    String category,
     DateTime date,
     File? image,
   ) async {
@@ -104,6 +105,7 @@ class ComplaintService {
       final body = {
         'title': title,
         'description': description,
+        'category': category,
         'date': date.toIso8601String(), // ISO format for consistency
       };
 

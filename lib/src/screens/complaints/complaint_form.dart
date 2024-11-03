@@ -92,6 +92,7 @@ class _ComplaintFormState extends State<ComplaintForm> {
       final result = await complaintProvider.createComplaint(
         _titleController.text,
         _descriptionController.text,
+        _category!,
         _selectedDate!,
         _imageFile,
       );

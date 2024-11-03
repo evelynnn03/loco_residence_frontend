@@ -61,6 +61,7 @@ class ComplaintProvider with ChangeNotifier {
   Future<Map<String, dynamic>> createComplaint(
     String title,
     String description,
+    String category,
     DateTime date,
     File? image,
   ) async {
@@ -73,6 +74,7 @@ class ComplaintProvider with ChangeNotifier {
         temporaryResidentId,
         title,
         description,
+        category,
         date,
         image,
       );
