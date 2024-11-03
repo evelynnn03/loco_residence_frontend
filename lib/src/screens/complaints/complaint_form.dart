@@ -103,7 +103,8 @@ class _ComplaintFormState extends State<ComplaintForm> {
       if (mounted) {
         if (result['success']) {
           //get the message from service
-          final message = result['message'] ?? 'Complaint submitted successfully';
+          final message =
+              result['message'] ?? 'Complaint submitted successfully';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(message),
@@ -150,26 +151,30 @@ class _ComplaintFormState extends State<ComplaintForm> {
                     itemBuilder: (context, index) {
                       final complaint = similarComplaints[index];
                       return Tooltip(
-                        textStyle:
-                            const TextStyle(fontSize: 11, color: Colors.white),
+                        textStyle: TextStyle(
+                            fontSize: GlobalVariables.responsiveFontSize(
+                                context, 11.0),
+                            color: Colors.white),
                         message: similarComplaints[index].similarityReason,
                         preferBelow: true,
                         decoration: BoxDecoration(
-                          color: GlobalVariables.primaryColor,
+                          color: GlobalVariables.primaryGrey,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: ListTile(
                           title: Text(
                             complaint.title,
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: TextStyle(
+                              fontSize: GlobalVariables.responsiveFontSize(
+                                  context, 14.0),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           subtitle: Text(
                             complaint.description,
-                            style: const TextStyle(
-                              fontSize: 11,
+                            style: TextStyle(
+                              fontSize: GlobalVariables.responsiveFontSize(
+                                  context, 11.0),
                               color: GlobalVariables.primaryGrey,
                             ),
                           ),
@@ -190,8 +195,10 @@ class _ComplaintFormState extends State<ComplaintForm> {
                                 Center(
                                   child: Text(
                                     '${(complaint.similarityScore * 100).toInt()}%',
-                                    style: const TextStyle(
-                                      fontSize: 10,
+                                    style: TextStyle(
+                                      fontSize:
+                                          GlobalVariables.responsiveFontSize(
+                                              context, 10.0),
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -205,16 +212,21 @@ class _ComplaintFormState extends State<ComplaintForm> {
                   ),
                 ),
                 actions: [
-                  MyButton(text: 'Submit Anyway', onTap: () {
-                    _isForce = true;
-                    Navigator.pop(context);
-                    _submitForm();
-                    _isForce = false; // Reset the force submission flag
-                  }),
+                  MyButton(
+                      text: 'Submit Anyway',
+                      onTap: () async {
+                        _isForce = true;
+                        Navigator.pop(context);
+                        await _submitForm();
+                        _isForce = false; // Reset the force submission flag
+                      }),
                   const SizedBox(height: 8),
-                  MyButton(text: 'Cancel', onTap: () {
-                    Navigator.pop(context);
-                  }),
+                  MyButton(
+                      text: 'Cancel',
+                      onTap: () {
+                        _isForce = false;
+                        Navigator.pop(context);
+                      }),
                 ],
               );
             },

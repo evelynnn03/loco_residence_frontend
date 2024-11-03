@@ -146,7 +146,7 @@ class ComplaintService {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         final res = json.decode(response.body);
         final message = res['message'] ?? 'Complaint submitted successfully';
         return message;

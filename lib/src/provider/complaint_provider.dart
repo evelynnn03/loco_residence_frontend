@@ -89,7 +89,9 @@ class ComplaintProvider with ChangeNotifier {
           'error': 'Similar complaints already exist',
           'similarComplaints': res,
         };
-      } else if (res is String) {
+      }
+      
+      if (res is String) {
           return {
           'success': true,
           'message': res,
@@ -97,8 +99,8 @@ class ComplaintProvider with ChangeNotifier {
         };
       }
 
-      
-      return {'success': true, 'error': null};
+      // Case 3: Unexpected response type
+      throw Exception('Unexpected response type from server');
     } catch (e) {
       String errorMessage = e.toString();
 
